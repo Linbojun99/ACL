@@ -1,0 +1,25 @@
+Package: ALSCL
+Title: an age- and length-structured statistical catch-at-length model
+Version: 0.1.0
+Authors@R: c(person("Hongyu", "Lin",  role = "cre",email = "m210200683@st.shou.edu.cn",
+           comment = c(ORCID = "0000-0001-6226-179X")),
+             person("Fan", "Zhang",  role = "aut", email = "f-zhang@shou.edu.cn",
+           comment = c(ORCID = "0000-0003-0214-1790")))
+Author: Hongyu Lin [aut, cre],
+  Fan Zhang [aut]
+Maintainer: Hongyu Lin <384131437@qq.com>
+Description: operating model: ALSCL, ACL. An age- and length-structured statistical catch-at-length model for hard-to-age fisheries stocks
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+LinkingTo: Rcpp, TMB, RcppEigen
+Imports:
+    stats,
+    dplyr,
+    purrr,
+    Rcpp, 
+    TMB
+Depends:
+    Rcpp,
+    TMB
+RoxygenNote: 7.2.3
