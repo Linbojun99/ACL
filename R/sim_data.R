@@ -9,7 +9,7 @@
 #'
 #' @return A list containing simulated fishery data.
 #' @export
-simulate_data <- function(bio_fishing_vars, init_state_vars, nyear,output_dir=".") {
+sim_data <- function(bio_fishing_vars, init_state_vars, nyear,output_dir=".") {
   nyear<-nyear
   # Extract biological and fishing variables from the input list
   len_lower <- bio_fishing_vars$len_lower

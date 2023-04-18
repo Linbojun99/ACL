@@ -26,12 +26,13 @@
 #'
 #' @return A list containing the biological and fishing variables.
 #' @export
-calculate_bio_vars <- function(params,nage, rec.age, len_mid, len_border, M, init_Z, vbk, Linf, t0, mat_L50, mat_L95, cv_L, cv_inc, std_logR, std_logN0, alpha, beta, std_SN, q_surv_L50, q_surv_L95)
+sim_cal <- function(params,nage, rec.age, len_mid, len_border, M, init_Z, vbk, Linf, t0, mat_L50, mat_L95, cv_L, cv_inc, std_logR, std_logN0, alpha, beta, std_SN, q_surv_L50, q_surv_L95)
  {
   # Extract parameters from the input list(Initialize parameters for the fish simulation)
   nyear <- params$nyear
   nage <- params$nage
   ages <- params$ages
+  rec.age<- params$rec.age
   M <- params$M
   init_Z <- params$init_Z
   vbk <- params$vbk
@@ -69,6 +70,7 @@ calculate_bio_vars <- function(params,nage, rec.age, len_mid, len_border, M, ini
   len_lower=len_border[1:nlen]
   len_upper=len_border[2:(nlen+1)]
 
+  ages<-c(rec.age:(rec.age+nage-1))
 
 
   LatA <- VB_func(Linf, vbk, t0, ages)

@@ -7,7 +7,15 @@
 generate_map(map = NULL)
 }
 \arguments{
-\item{map}{A list containing the custom values for the map elements (default is NULL).}
+\item{map}{A list containing the custom values for the map elements (default is NULL).
+\itemize{
+\item log_std_log_F: Custom value for log_std_log_F (default is NA).
+\item logit_log_F_y: Custom value for logit_log_F_y (default is NA).
+\item logit_log_F_a: Custom value for logit_log_F_a (default is NA).
+\item log_t0: Custom value for log_t0 (default is NA).
+\item log_vbk: Custom value for log_vbk (default is NA).
+\item log_Linf: Custom value for log_Linf (default is NA).
+}}
 }
 \value{
 A list representing the generated map with custom or default values.

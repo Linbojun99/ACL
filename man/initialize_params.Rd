@@ -48,15 +48,15 @@ initialize_params(
 
 \item{Linf}{Numeric, asymptotic length (default: 60)}
 
-\item{t0}{Numeric, theoretical age at length zero (default: 1/60)}
+\item{t0}{Numeric, growth parameter (default: 1/60)}
 
 \item{len_mid}{Numeric vector, the midpoints of length bins.(default: seq(6,50,2))}
 
 \item{len_border}{Numeric vector, the border values of length bins.(default: seq(5,51,2))}
 
-\item{a}{A scaling factor (alpha) that adjusts the vertical position of the growth curve. A larger value of 'a' results in a higher overall growth curve, indicating heavier weight of fish at a given length.(default: exp(-12))}
+\item{a}{parameter to define length–weight relationship.(default: exp(-12))}
 
-\item{b}{A shape factor (beta) that determines the slope of the growth curve. A larger value of 'b' results in faster growth, indicating that the weight of fish increases more rapidly with length.(default: 3)}
+\item{b}{parameter to define length–weight relationship.(default: 3)}
 
 \item{mat_L50}{Numeric, length at which 50\% of individuals are mature.(default: 35)}
 
@@ -70,9 +70,9 @@ initialize_params(
 
 \item{std_logN0}{Numeric, standard deviation of initial number at age.(default: 0.2)}
 
-\item{alpha}{Numeric, alpha parameter in the stock-recruitment relationship.(default: 400)}
+\item{alpha}{Numeric, Beverton-Holt model parameter.(default: 400)}
 
-\item{beta}{Numeric, beta parameter in the stock-recruitment relationship.(default: 10)}
+\item{beta}{Numeric, Beverton-Holt model parameter.(default: 10)}
 
 \item{std_SN}{Numeric, survey measurement error.(default: 0.2)}
 

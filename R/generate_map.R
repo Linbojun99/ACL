@@ -8,6 +8,8 @@
 #'   - logit_log_F_y: Custom value for logit_log_F_y (default is NA).
 #'   - logit_log_F_a: Custom value for logit_log_F_a (default is NA).
 #'   - log_t0: Custom value for log_t0 (default is NA).
+#'   - log_vbk: Custom value for log_vbk (default is NA).
+#'   - log_Linf: Custom value for log_Linf (default is NA).
 #'
 #' @return A list representing the generated map with custom or default values.
 #' @export
@@ -16,16 +18,15 @@ generate_map <- function(map = NULL) {
     log_std_log_F = factor(NA),
     logit_log_F_y = factor(NA),
     logit_log_F_a = factor(NA),
-    #log_vbk=factor(NA),
-    #log_Linf=factor(NA),
+    log_vbk=factor(NA),
+    log_Linf=factor(NA),
     log_t0 = factor(NA)
   )
 
   if (!is.null(map)) {
     updated_map <- modifyList(default_map, map)
+    return(updated_map[names(map)]) # Return only specified elements
   } else {
-    updated_map <- default_map
+    return(default_map) # Return all elements with default values
   }
-
-  return(updated_map)
 }

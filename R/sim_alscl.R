@@ -13,11 +13,11 @@
 #'
 #' @return A list containing the results of the stock assessment model.
 #' @export
-run_stock_assessment <- function(iter_range = 4:100,sim_data_path = ".",output_dir=".", parameters = NULL, parameters.L = NULL, parameters.U = NULL,map = NULL,M=0.2) {
+sim_alscl <- function(iter_range = 4:100,sim_data_path = ".",output_dir=".", parameters = NULL, parameters.L = NULL, parameters.U = NULL,map = NULL,M=0.2) {
 
   library(TMB)
 
-  acl_cpp_path <- system.file("extdata", "ACL.cpp", package = "FlatfishAgeDependent")
+  acl_cpp_path <- system.file("extdata", "ACL.cpp", package = "ALSCL")
 
   if (acl_cpp_path == "") {
     stop("ACL.cpp not found in the package directory.")
