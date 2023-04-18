@@ -14,3 +14,4 @@ install.packages("devtools")
 library("devtools")
 
 devtools::install_github("https://github.com/Linbojun99/ALSCL")
+devtools::install_github("https://github.com/Linbojun99/ALSCL", force = TRUE)
