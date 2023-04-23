@@ -54,8 +54,12 @@ default_parameters.L = list(
     log_std_log_R = log(0.01),
     logit_log_R = -30,
     mean_log_F = log(0.01),
+    #log_std_log_F = log(0.01),
+    #logit_log_F_y = -10,
+    #logit_log_F_a = -10,
     log_vbk = log(0.1),
     log_Linf = log(10),
+    #log_t0 = -20,
     log_cv_len = log(0.01),
     log_std_index = -20
   )
@@ -67,29 +71,44 @@ default_parameters.L = list(
     log_std_log_R = log(1),
     logit_log_R = 20,
     mean_log_F = log(1),
+    #log_std_log_F = log(1),
+    #logit_log_F_y = 20,
+    #logit_log_F_a = 10,
     log_vbk = log(1),
     log_Linf = log(100),
+    #log_t0 = 0,
     log_cv_len = log(1),
     log_std_index = log(1)
   )
 
-  if (!is.null(parameters.L)) {
-    default_parameters.L[names(parameters.L)] <- parameters.L
-  }
-
-  if (!is.null(parameters.U)) {
-    default_parameters.U[names(parameters.U)] <- parameters.U
-  }
-
- if (!is.null(parameters)) {
+  if (!is.null(parameters)) {
     updated_parameters <- modifyList(default_parameters, parameters)
   } else {
     updated_parameters <- default_parameters
   }
 
-  return(list(parameters=updated_parameters,parameters.L = default_parameters.L, parameters.U = default_parameters.U))
+  if (!is.null(parameters.L)) {
+    updated_parameters.L <- modifyList(default_parameters.L, parameters.L)
+  } else {
+    updated_parameters.L <- default_parameters.L
+  }
 
+  if (!is.null(parameters.U)) {
+    updated_parameters.U <- modifyList(default_parameters.U, parameters.U)
+  } else {
+    updated_parameters.U <- default_parameters.U
+  }
 
+  # Filter the outputs based on provided parameters
+  if (!is.null(parameters)) {
+    updated_parameters <- updated_parameters[names(parameters)]
+  }
+  if (!is.null(parameters.L)) {
+    updated_parameters.L <- updated_parameters.L[names(parameters.L)]
+  }
+  if (!is.null(parameters.U)) {
+    updated_parameters.U <- updated_parameters.U[names(parameters.U)]
+  }
 
+  return(list(parameters = updated_parameters, parameters.L = updated_parameters.L, parameters.U = updated_parameters.U))
 }
-

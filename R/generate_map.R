@@ -18,8 +18,8 @@ generate_map <- function(map = NULL) {
     log_std_log_F = factor(NA),
     logit_log_F_y = factor(NA),
     logit_log_F_a = factor(NA),
-    log_vbk=factor(NA),
-    log_Linf=factor(NA),
+    #log_vbk=factor(NA),
+    #log_Linf=factor(NA),
     log_t0 = factor(NA)
   )
 
