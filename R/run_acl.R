@@ -14,12 +14,14 @@
 #' @param parameters.U A list containing the custom upper bounds for the parameters (default is NULL).
 #' @param map A list containing the custom values for the map elements (default is NULL).
 #' @param M Numeric, natural mortality (default: 0.2)
+#' @param len_mid Numeric vector, user-specified median length values (default is NULL).
+#' @param len_border Numeric vector, user-specified border length values (default is NULL).
 #'
 #' @return A list containing the results of the stock assessment model.
 #' @export
-run_alscl1 <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L95,
+run_acl <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L95,
                       parameters = NULL, parameters.L = NULL, parameters.U = NULL,
-                      map = NULL)
+                      map = NULL,len_mid = NULL, len_border = NULL)
   {
   {
 
@@ -38,12 +40,16 @@ run_alscl1 <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L9
 
   nlen<-as.numeric(nrow(data.CatL))
 
+  na_matrix<-matrix(1,nrow=nrow(data.CatL),ncol=ncol(data.CatL)-1)
 
+  na_matrix[which(data.CatL[,2:ncol(data.CatL)]==0)]=0
 
 
   weight=data.wgt[,2:ncol(data.CatL)]
   mat=data.mat[,2:ncol(data.CatL)]
 
+
+  if (is.null(len_mid)) {
 
   contains_special_char <- function(s) {
     return(grepl("<|>", s))
@@ -94,21 +100,27 @@ run_alscl1 <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L9
     next_range_str <- if (i < length(data.CatL[,1])) data.CatL[,1][i + 1] else ""
     range_to_median(data.CatL[,1][i], isFirst = i == 1, isLast = i == length(data.CatL[,1]), prev_range_str = prev_range_str, next_range_str = next_range_str)
   })
-
+  }
+  else {
+    len_mid <- len_mid
+  }
 
   log_q<-log(mat_func(sel_L50,sel_L95,len_mid))
 
-
+ if (is.null(len_border)) {
   extract_last_number <- function(range_str) {
     parts <- strsplit(range_str, "-")[[1]]
     last_number <- as.numeric(parts[2])
     return(last_number)
   }
 
-  len_border <- sapply(data.CatL[,1], extract_last_number)
 
+  len_border <- sapply(data.CatL[-nrow(data.CatL),1], extract_last_number)
 
-    acl_cpp_path <- system.file("extdata", "ACL.cpp", package = "ALSCL")
+  } else {
+    len_border <- len_border
+  }
+    acl_cpp_path <- system.file("extdata", "ACL0.cpp", package = "ALSCL")
 
     if (acl_cpp_path == "") {
       stop("ACL.cpp not found in the package directory.")
@@ -117,12 +129,13 @@ run_alscl1 <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L9
     # 编译ACL.cpp
     compile(file = acl_cpp_path, "&> /tmp/logfile.log")
 
-    logN_at_len <- as.matrix(log(data.CatL[, 2:ncol(data.CatL)]+ 1e-2 ))
+    logN_at_len <- as.matrix(log(data.CatL[, 2:ncol(data.CatL)]+1e-5 ))
 
     tmb.data=list(
       logN_at_len = logN_at_len,
+      na_matrix=na_matrix,
       log_q = log_q,
-      len_border = (len_mid + 1)[1:(nlen-1)],
+      len_border =len_border,
       age = ages,
       Y = nyear,
       A = nage,
@@ -157,13 +170,13 @@ run_alscl1 <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L9
     acl_cpp_dir <- dirname(acl_cpp_path)
 
     #
-    acl_dll_path <- file.path(acl_cpp_dir, "ACL.dll")
+    acl_dll_path <- file.path(acl_cpp_dir, "ACL0.dll")
 
     #
     dyn.load(acl_dll_path)
 
     #dyn.load("ACL")
-    obj<-MakeADFun(tmb.data,parameters,random=rnames,map=map,DLL="ACL",inner.control=list(trace=F, maxit=500))
+    obj<-MakeADFun(tmb.data,parameters,random=rnames,map=map,DLL="ACL0",inner.control=list(trace=F, maxit=500))
     opt<-nlminb(obj$par,obj$fn,obj$gr,lower=lower,upper=upper,control=list(trace=0,iter.max=2000,eval.max=10000))
     # opt1<-nlminb(opt$par,obj$fn,obj$gr,lower=lower,upper=upper,control=list(trace=0,iter.max=2000,eval.max=10000))
     # obj$gr(opt$par)

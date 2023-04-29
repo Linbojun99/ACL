@@ -13,7 +13,7 @@
 #'
 #' @return A list containing the results of the stock assessment model.
 #' @export
-sim_alscl <- function(iter_range = 4:100,sim_data_path = ".",output_dir=".", parameters = NULL, parameters.L = NULL, parameters.U = NULL,map = NULL,M=0.2) {
+sim_acl <- function(iter_range = 4:100,sim_data_path = ".",output_dir=".", parameters = NULL, parameters.L = NULL, parameters.U = NULL,map = NULL,M=0.2) {
 
   library(TMB)
 
@@ -70,7 +70,7 @@ sim_alscl <- function(iter_range = 4:100,sim_data_path = ".",output_dir=".", par
     map <- generate_map(map)
     rnames=c("dev_log_R","dev_log_F","dev_log_N0")
 
-     #
+    #
     acl_cpp_dir <- dirname(acl_cpp_path)
 
     #
