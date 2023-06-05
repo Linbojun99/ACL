@@ -18,7 +18,12 @@ Imports:
     dplyr,
     purrr,
     Rcpp, 
-    TMB
+    tidyr,
+    TMB,
+    ggplot2,
+    tidyverse,
+    dplyr,
+    reshape2
 Depends:
     Rcpp,
     TMB
