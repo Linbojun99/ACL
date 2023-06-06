@@ -43,7 +43,7 @@ plot_SBL <- function(model_result, data.CatL, line_size = 1.2, line_color = "SBL
   p <- ggplot2::ggplot(SBL_long, aes(x = Year, y = Count)) +
     ggplot2::geom_line( size = line_size, color = line_color, linetype = line_type) +
     ggplot2::facet_wrap(~LengthGroup, ncol = n_col, scales = scales) +
-    ggplot2::labs(x = "Year", y = "Count", title = "SBL Over Years") +
+    ggplot2::labs(x = "Year", y = "Relative abundance", title = "SBL Over Years") +
     ggplot2::theme_minimal()
 
   return(p)

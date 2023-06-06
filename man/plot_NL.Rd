@@ -6,18 +6,18 @@
 \usage{
 plot_NL(
   model_result,
-  data.CatL,
   line_size = 1.2,
-  line_color = "black",
+  line_color = "red",
   line_type = "solid",
-  n_col = 3,
-  scales = "free"
+  facet_ncol = 3,
+  facet_scales = "free",
+  se = FALSE,
+  se_color = "red",
+  se_alpha = 0.2
 )
 }
 \arguments{
 \item{model_result}{A list that contains model output. The list should have a "report" component which contains a "NL" component representing counts in length groups.}
-
-\item{data.CatL}{A data frame that contains a "Year" column and multiple length group columns.}
 
 \item{line_size}{Numeric. The thickness of the line in the plot. Default is 1.5.}
 
@@ -25,9 +25,15 @@ plot_NL(
 
 \item{line_type}{Character. The type of the line in the plot. Default is "solid".#' @return A ggplot object representing the plot.}
 
-\item{n_col}{Integer, number of columns in facet_wrap.}
+\item{facet_ncol}{Number of columns in facet wrap. Default is 3.}
 
-\item{scales}{Character, scales for facet_wrap.}
+\item{facet_scales}{Scales for facet wrap. Default is "free".}
+
+\item{se}{Logical. Whether to calculate and plot standard error as confidence intervals. Default is FALSE.}
+
+\item{se_color}{Character. The color of the confidence interval ribbon. Default is "blue".}
+
+\item{se_alpha}{Numeric. The transparency of the confidence interval ribbon. Default is 0.2.}
 }
 \description{
 This function takes a list and a data frame as input, and plots NL (counts in length groups) over the years using ggplot2. The plot is faceted by the length groups.

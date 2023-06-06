@@ -185,7 +185,20 @@ run_acl <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L95,
     bound_check<-c((as.vector(opt$par)-as.vector(lower)),(as.vector(upper)-as.vector(opt$par)))
     bound_hit<-min(bound_check)==0
 
-    result <- list(obj = obj, opt = opt, report = report, bound_hit = bound_hit, bound_check = bound_check, converge = opt$message)
+
+    sdresult<-sdreport(obj)
+    est_std<-summary(sdresult)
+
+
+    cl_l <- tidyr::gather(data.CatL,key="Year",value="length",2:ncol(data.CatL))
+    year <- cl_l %>%
+      dplyr::mutate(Year = as.numeric(gsub("X", "", Year))) %>%
+      dplyr::distinct(Year) %>%
+      dplyr::pull(Year)
+
+
+
+    result <- list(obj = obj, opt = opt, report = report, est_std=est_std, year=year,bound_hit = bound_hit, bound_check = bound_check, converge = opt$message)
 
     #dyn.unload("ACL")
 

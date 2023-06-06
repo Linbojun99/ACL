@@ -6,7 +6,6 @@
 \usage{
 plot_BL(
   model_result,
-  data.CatL,
   line_size = 1.2,
   line_color = "black",
   line_type = "solid",
@@ -16,8 +15,6 @@ plot_BL(
 }
 \arguments{
 \item{model_result}{A list that contains model output. The list should have a "report" component which contains a "BL" component representing counts in length groups.}
-
-\item{data.CatL}{A data frame that contains a "Year" column and multiple length group columns.}
 
 \item{line_size}{Numeric. The thickness of the line in the plot. Default is 1.5.}
 
@@ -34,6 +31,6 @@ This function takes a list and a data frame as input, and plots BL (counts in le
 }
 \examples{
 \dontrun{
-plot_BL(model_result, data.CatL)
+plot_BL(model_result)
 }
 }
