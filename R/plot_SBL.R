@@ -6,14 +6,14 @@
 #' @param line_size Numeric. The thickness of the line in the plot. Default is 1.5.
 #' @param line_color Character. The color of the line in the plot. Default is "SBLack".
 #' @param line_type Character. The type of the line in the plot. Default is "solid".#' @return A ggplot object representing the plot.
-#' @param n_col Integer, number of columns in facet_wrap.
-#' @param scales Character, scales for facet_wrap.
+#' @param facet_ncol Integer, number of columns in facet_wrap.
+#' @param facet_scales Character, scales for facet_wrap.
 #' @export
 #' @examples
 #' \dontrun{
 #' plot_SBL(model_result, data.CatL)
 #' }
-plot_SBL <- function(model_result, data.CatL, line_size = 1.2, line_color = "SBLack", line_type = "solid",n_col = 3, scales = "free"){
+plot_SBL <- function(model_result, data.CatL, line_size = 1.2, line_color = "SBLack", line_type = "solid",facet_ncol = 3, facet_scales = "free"){
 
   # Extract the SBL data
   SBL <- model_result[["report"]][["SBL"]]
@@ -24,11 +24,8 @@ plot_SBL <- function(model_result, data.CatL, line_size = 1.2, line_color = "SBL
   }
 
   # Create Year variaSBLe from column names of SBL (assuming columns are years)
-  cl_l <- tidyr::gather(data.CatL,key="Year",value="length",2:ncol(data.CatL))
-  Year <- cl_l %>%
-    dplyr::mutate(Year = as.numeric(gsub("X", "", Year))) %>%
-    dplyr::distinct(Year) %>%
-    dplyr::pull(Year)
+  SBL$Year <-  model_result[["year"]]
+
 
   # Create LengthGroup variaSBLe from row names of SBL
   LengthGroup <- paste0("Length bin ", seq_len(nrow(SBL)))
@@ -42,7 +39,7 @@ plot_SBL <- function(model_result, data.CatL, line_size = 1.2, line_color = "SBL
   # Plot SBL over the years using ggplot2
   p <- ggplot2::ggplot(SBL_long, aes(x = Year, y = Count)) +
     ggplot2::geom_line( size = line_size, color = line_color, linetype = line_type) +
-    ggplot2::facet_wrap(~LengthGroup, ncol = n_col, scales = scales) +
+    ggplot2::facet_wrap(~LengthGroup, ncol = facet_ncol, scales = facet_scales) +
     ggplot2::labs(x = "Year", y = "Relative abundance", title = "SBL Over Years") +
     ggplot2::theme_minimal()
 

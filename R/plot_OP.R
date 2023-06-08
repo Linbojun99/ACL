@@ -9,14 +9,14 @@
 #' @param point_color Character. The color of the point in the plot. Default is "black".
 #' @param point_size Character. The size of the point in the plot. Default is "solid".#' @return A ggplot object representing the plot.
 #' @param point_shape Character. The shape of the point in the plot. Default is "solid".#' @return A ggplot object representing the plot.
-#' @param n_col Integer, number of columns in facet_wrap.
-#' @param scales Character, scales for facet_wrap.
+#' @param facet_ncol Integer, number of columns in facet_wrap.
+#' @param facet_scales Character, scales for facet_wrap.
 #' @export
 #' @examples
 #' \dontrun{
 #' plot_OP(model_result, data.CatL)
 #' }
-plot_OP <- function(model_result, data.CatL,point_size=1,point_color="black",point_shape=1 ,line_size = 1.2, line_color = "black", line_type = "solid",n_col = 3, scales = "free"){
+plot_OP <- function(model_result, data.CatL,point_size=1,point_color="black",point_shape=1 ,line_size = 1.2, line_color = "black", line_type = "solid",facet_ncol = 3, facet_scales = "free"){
 
   # Transform the logN_at_len data
 
@@ -63,7 +63,7 @@ plot_OP <- function(model_result, data.CatL,point_size=1,point_color="black",poi
   p <- ggplot2::ggplot() +
     ggplot2::geom_point(logN_at_len_long, mapping=aes(x = Year, y = Count),size= point_size, color= point_color,shape=point_shape) +
     ggplot2::geom_line(Elog_index_long,  mapping=aes(x = Year, y = Count), size = line_size, color = line_color, linetype = line_type) +
-    ggplot2::facet_wrap(~LengthGroup, ncol = n_col, scales = scales) +
+    ggplot2::facet_wrap(~LengthGroup, ncol = facet_ncol, scales = facet_scales) +
     ggplot2::labs(x = "Year", y = "Count", title = "Elog_index Over Years") +
     ggplot2::theme_minimal()
 

@@ -34,13 +34,8 @@ plot_VB <- function(model_result, age_range = c(1, 25), line_size = 1.2, line_co
     mutate(length = VB_func(Linf, k, t0, age))
 
 
-  data <- data.frame(age = seq(age_range[1], age_range[2], by = 1))
-  data <- data %>%
-    mutate(
-      length = VB_func(Linf, k, t0, age),
-      length_lower = VB_func(Linf, ss_k$lower, t0, age),
-      length_upper = VB_func(Linf, ss_k$upper, t0, age)
-    )
+
+
 
   if (!se)
     {
@@ -48,7 +43,7 @@ plot_VB <- function(model_result, age_range = c(1, 25), line_size = 1.2, line_co
   p <- ggplot2::ggplot(data, aes(x = age, y = length)) +
     ggplot2::geom_line(size = line_size, color = line_color, linetype = line_type) +
     ggplot2::labs(x = "Age", y = "Length", title = "Von Bertalanffy growth function") +
-    ggplot2::geom_text(aes(x = age_range[1] + 1, y = max(length_upper) - 1,
+    ggplot2::geom_text(aes(x = age_range[1] + 1, y = max(length) - 1,
                            label = paste("Linf = ", round(Linf, 2), "\nk = ", round(k, 2))),
               hjust = 0, vjust = 1, size = 5, color = "black") +
     ggplot2::theme_minimal()

@@ -13,8 +13,8 @@ plot_OP(
   line_size = 1.2,
   line_color = "black",
   line_type = "solid",
-  n_col = 3,
-  scales = "free"
+  facet_ncol = 3,
+  facet_scales = "free"
 )
 }
 \arguments{
@@ -34,9 +34,9 @@ plot_OP(
 
 \item{line_type}{Character. The type of the line in the plot. Default is "solid".#' @return A ggplot object representing the plot.}
 
-\item{n_col}{Integer, number of columns in facet_wrap.}
+\item{facet_ncol}{Integer, number of columns in facet_wrap.}
 
-\item{scales}{Character, scales for facet_wrap.}
+\item{facet_scales}{Character, scales for facet_wrap.}
 }
 \description{
 This function takes a list and a data frame as input, and plots Elog_index (counts in length groups) over the years using ggplot2. The plot is faceted by the length groups.

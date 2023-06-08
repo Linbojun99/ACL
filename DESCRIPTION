@@ -12,7 +12,7 @@ Description: operating model: ALSCL, ACL. An age- and length-structured statisti
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-LinkingTo: Rcpp, TMB, RcppEigen
+LinkingTo: Rcpp, TMB, RcppEigen, ggplot2, dplyr, tidyverse,reshape2
 Imports:
     stats,
     dplyr,
@@ -26,5 +26,9 @@ Imports:
     reshape2
 Depends:
     Rcpp,
-    TMB
+    TMB,
+    dplyr,
+    ggplot2,
+    tidyverse,
+    reshape2
 RoxygenNote: 7.2.3
