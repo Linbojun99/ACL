@@ -64,7 +64,7 @@ plot_OP <- function(model_result, data.CatL,point_size=1,point_color="black",poi
     ggplot2::geom_point(logN_at_len_long, mapping=aes(x = Year, y = Count),size= point_size, color= point_color,shape=point_shape) +
     ggplot2::geom_line(Elog_index_long,  mapping=aes(x = Year, y = Count), size = line_size, color = line_color, linetype = line_type) +
     ggplot2::facet_wrap(~LengthGroup, ncol = facet_ncol, scales = facet_scales) +
-    ggplot2::labs(x = "Year", y = "Count", title = "Elog_index Over Years") +
+    ggplot2::labs(x = "Year", y = "Abundance", title = "Elog_index Over Years") +
     ggplot2::theme_minimal()
 
   return(p)
