@@ -32,7 +32,7 @@ run_acl(
 
 \item{nage}{Numeric, number of age classes.}
 
-\item{M}{Numeric, natural mortality (default: 0.2)}
+\item{M}{Numeric, natural mortality}
 
 \item{sel_L50}{Numeric, length at which 50\% of individuals are mature.}
 

@@ -13,7 +13,7 @@
 #' @param parameters.L A list containing the custom lower bounds for the parameters (default is NULL).
 #' @param parameters.U A list containing the custom upper bounds for the parameters (default is NULL).
 #' @param map A list containing the custom values for the map elements (default is NULL).
-#' @param M Numeric, natural mortality (default: 0.2)
+#' @param M Numeric, natural mortality
 #' @param len_mid Numeric vector, user-specified median length values (default is NULL).
 #' @param len_border Numeric vector, user-specified border length values (default is NULL).
 #'
@@ -198,7 +198,7 @@ run_acl <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L95,
 
 
 
-    result <- list(obj = obj, opt = opt, report = report, est_std=est_std, year=year,bound_hit = bound_hit, bound_check = bound_check, converge = opt$message)
+    result <- list(obj = obj, opt = opt, report = report, est_std=est_std, year=year, len_mid=len_mid, len_border=len_border,   bound_hit = bound_hit, bound_check = bound_check, converge = opt$message)
 
     #dyn.unload("ACL")
 

@@ -24,7 +24,8 @@ plot_SBL <- function(model_result, data.CatL, line_size = 1.2, line_color = "SBL
   }
 
   # Create Year variaSBLe from column names of SBL (assuming columns are years)
-  SBL$Year <-  model_result[["year"]]
+  colnames(SBL) <-  model_result[["year"]]
+  Year<- model_result[["year"]]
 
 
   # Create LengthGroup variaSBLe from row names of SBL
@@ -33,7 +34,6 @@ plot_SBL <- function(model_result, data.CatL, line_size = 1.2, line_color = "SBL
   # Convert matrix to data frame in long format
   SBL_long <- reshape2::melt(SBL)
   colnames(SBL_long) <- c("LengthGroup", "Year", "Count")
-  SBL_long$Year <- Year[match(SBL_long$Year, 1:length(Year))]
   SBL_long$LengthGroup <- LengthGroup[as.numeric(SBL_long$LengthGroup)]
 
   # Plot SBL over the years using ggplot2
