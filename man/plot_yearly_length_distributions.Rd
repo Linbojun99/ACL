@@ -6,7 +6,7 @@
 \usage{
 plot_yearly_length_distributions(
   model_result,
-  point_size = 1,
+  point_size = 1.5,
   point_color = "black",
   point_shape = 1,
   line_size = 1.2,

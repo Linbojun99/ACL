@@ -8,7 +8,7 @@ plot_SBL(
   model_result,
   data.CatL,
   line_size = 1.2,
-  line_color = "SBLack",
+  line_color = "bLack",
   line_type = "solid",
   facet_ncol = 3,
   facet_scales = "free"

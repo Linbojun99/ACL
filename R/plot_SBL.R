@@ -13,7 +13,7 @@
 #' \dontrun{
 #' plot_SBL(model_result, data.CatL)
 #' }
-plot_SBL <- function(model_result, data.CatL, line_size = 1.2, line_color = "SBLack", line_type = "solid",facet_ncol = 3, facet_scales = "free"){
+plot_SBL <- function(model_result, data.CatL, line_size = 1.2, line_color = "bLack", line_type = "solid",facet_ncol = 3, facet_scales = "free"){
 
   # Extract the SBL data
   SBL <- model_result[["report"]][["SBL"]]
@@ -23,13 +23,13 @@ plot_SBL <- function(model_result, data.CatL, line_size = 1.2, line_color = "SBL
     SBL <- as.matrix(SBL)
   }
 
-  # Create Year variaSBLe from column names of SBL (assuming columns are years)
-  colnames(SBL) <-  model_result[["year"]]
-  Year<- model_result[["year"]]
+  # Create Year variable from column names of SBL (assuming columns are years)
+  colnames(SBL) <- as.character(model_result[["year"]])
+  Year <- model_result[["year"]]
 
-
-  # Create LengthGroup variaSBLe from row names of SBL
+  # Create LengthGroup variable from row names of SBL
   LengthGroup <- paste0("Length bin ", seq_len(nrow(SBL)))
+
 
   # Convert matrix to data frame in long format
   SBL_long <- reshape2::melt(SBL)
