@@ -8,14 +8,19 @@
 #' @param se_color Character. The color of the confidence interval ribbon. Default is "blue".
 #' @param se_alpha Numeric. The transparency of the confidence interval ribbon. Default is 0.2.
 #' @param se Logical. Whether to calculate and plot standard error as confidence intervals. Default is FALSE.
+#' @param facet_ncol Number of columns in facet wrap. Default is 3.
+#' @param facet_scales Scales for facet wrap. Default is "free".
+#' @param type Character. It specifies which the catch is plot for "CN" , "CNA" . Default is "CN".
 #' @return A ggplot object representing the plot.
 #' @export
 #' @examples
 #' \dontrun{
-#' plot_CN(model_result, line_size = 1.2, line_color = "red", line_type = "solid")
+#' plot_catch(model_result, line_size = 1.2, line_color = "red", line_type = "solid")
 #' }
-plot_CN <- function(model_result, line_size = 1.2, line_color = "red", line_type = "solid", se = FALSE, se_color = "red", se_alpha = 0.2){
-  # Extract the CN data
+plot_catch <- function(model_result, line_size = 1.2, line_color = "red", line_type = "solid", se = FALSE, se_color = "red", se_alpha = 0.2,facet_ncol = 3, facet_scales = "free",type=c("CN","CNA")){
+  if(type=="CN")
+    {
+    # Extract the CN data
   CN <- model_result[["report"]][["CN"]]
 
   # Make sure it's a data frame
@@ -57,7 +62,34 @@ plot_CN <- function(model_result, line_size = 1.2, line_color = "red", line_type
       ggplot2::labs(y = "CN", x = "Year", title = "CN Over Years with Confidence Intervals") +
       ggplot2::theme_minimal()
   }
+  }
+  if(type=="CNA"){
 
+    # Extract the CNA data
+    CNA<- model_result[["report"]][["CNA"]]
+
+    # Create Year variable from column names of CNA (assuming columns are years)
+    Year <- model_result[["year"]]
+
+    # Create AgeGroup variable from row names of CNA
+    AgeGroup <- paste0("Age group ", seq_len(nrow(CNA)))
+    AgeGroup <- factor(paste("Age bin ", seq_len(nrow(CNA))), levels=paste("Age bin ",seq_len(nrow(CNA))))
+
+    # Convert matrix to data frame in long format
+    CNA_long <- reshape2::melt(CNA)
+    colnames(CNA_long) <- c("AgeGroup", "Year", "CNA")
+    CNA_long$Year <- Year[as.numeric(CNA_long$Year)]
+    CNA_long$AgeGroup <- AgeGroup[as.numeric(CNA_long$AgeGroup)]
+
+
+    # Plot catch numbers by age over the years using ggplot2
+    p <- ggplot2::ggplot(CNA_long, aes(x = Year, y = CNA)) +
+      ggplot2::geom_line( size = line_size, color = line_color, linetype = line_type) +
+      ggplot2::facet_wrap(~AgeGroup, ncol = facet_ncol, scales = facet_scales) +
+      ggplot2::labs(x = "Year", y = "Catch numbers by age", title = "Catch numbers by age Over Years") +
+      ggplot2::theme_minimal()
+
+  }
   return(p)
 }
 
