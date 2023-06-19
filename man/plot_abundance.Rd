@@ -12,7 +12,7 @@ plot_abundance(
   se = FALSE,
   se_color = "red",
   se_alpha = 0.2,
-  type = c("N", "NA"),
+  type = c("N", "NA", "NL"),
   facet_ncol = 3,
   facet_scales = "free"
 )
@@ -32,7 +32,7 @@ plot_abundance(
 
 \item{se_alpha}{Numeric. The transparency of the confidence interval ribbon. Default is 0.2.}
 
-\item{type}{Character. It specifies which the abundance is ploted for "N" or "NA". Default is "N".}
+\item{type}{Character. It specifies which the abundance is ploted for "N" , "NA" or "NL". Default is "N".}
 
 \item{facet_ncol}{Number of columns in facet wrap. Default is 3.}
 
