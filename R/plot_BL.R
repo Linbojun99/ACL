@@ -27,6 +27,7 @@ plot_BL <- function(model_result, line_size = 1.2, line_color = "black", line_ty
 
   # Create LengthGroup variable from row names of BL
   LengthGroup <- paste0("Length bin ", seq_len(nrow(BL)))
+  LengthGroup <- factor(paste("Length bin ", seq_len(nrow(BL))), levels=paste("Length bin ", seq_len(nrow(BL))))
 
   # Convert matrix to data frame in long format
   BL_long <- reshape2::melt(BL)

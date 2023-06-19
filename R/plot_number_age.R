@@ -26,6 +26,7 @@ plot_number_age <- function(model_result, line_size = 1, line_color = "red", lin
 
   # Create AgeGroup variable from row names of na
   AgeGroup <- paste0("Age group ", seq_len(nrow(na)))
+  AgeGroup <- factor(paste("Age bin ", seq_len(nrow(na))), levels=paste("Age bin ",seq_len(nrow(na))))
 
   # Convert matrix to data frame in long format
   na_long <- reshape2::melt(na)

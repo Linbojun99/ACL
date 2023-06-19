@@ -29,6 +29,7 @@ plot_SBL <- function(model_result, data.CatL, line_size = 1.2, line_color = "bLa
 
   # Create LengthGroup variable from row names of SBL
   LengthGroup <- paste0("Length bin ", seq_len(nrow(SBL)))
+  LengthGroup <- factor(paste("Length bin ", seq_len(nrow(SBL))), levels=paste("Length bin ", seq_len(nrow(SBL))))
 
 
   # Convert matrix to data frame in long format

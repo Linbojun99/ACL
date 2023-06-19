@@ -23,6 +23,7 @@ plot_CNA <- function(model_result, line_size = 1, line_color = "red", line_type 
 
   # Create AgeGroup variable from row names of CNA
   AgeGroup <- paste0("Age group ", seq_len(nrow(CNA)))
+  AgeGroup <- factor(paste("Age bin ", seq_len(nrow(CNA))), levels=paste("Age bin ",seq_len(nrow(CNA))))
 
   # Convert matrix to data frame in long format
   CNA_long <- reshape2::melt(CNA)

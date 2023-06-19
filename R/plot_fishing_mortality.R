@@ -26,6 +26,7 @@ plot_fishing_mortality <- function(model_result, line_size = 1, line_color = "re
 
   # Create AgeGroup variable from row names of F
   AgeGroup <- paste0("Age group ", seq_len(nrow(F)))
+  AgeGroup <- factor(paste("Age bin ", seq_len(nrow(F))), levels=paste("Age bin ",seq_len(nrow(F))))
 
   # Convert matrix to data frame in long format
   F_long <- reshape2::melt(F)

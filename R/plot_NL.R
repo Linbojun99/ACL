@@ -30,6 +30,7 @@ plot_NL <- function(model_result, line_size = 1.2, line_color = "red", line_type
 
   # Create LengthGroup variable from row names of NL
   LengthGroup <- paste0("Length bin ", seq_len(nrow(NL)))
+  LengthGroup <- factor(paste("Length bin ", seq_len(nrow(NL))), levels=paste("Length bin ", seq_len(nrow(NL))))
 
   # Convert matrix to data frame in long format
   NL_long <- reshape2::melt(NL)

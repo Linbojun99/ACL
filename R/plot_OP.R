@@ -39,6 +39,7 @@ plot_OP <- function(model_result, data.CatL,point_size=1,point_color="black",poi
 
   # Create LengthGroup variable from row names of Elog_index
   LengthGroup <- paste0("Length bin ", seq_len(nrow(Elog_index)))
+  LengthGroup <- factor(paste("Length bin ", seq_len(nrow(Elog_index))), levels=paste("Length bin ", seq_len(nrow(Elog_index))))
 
   # Convert matrix to data frame in long format
   Elog_index_long <- reshape2::melt(Elog_index)
