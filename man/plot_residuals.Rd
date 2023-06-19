@@ -12,7 +12,7 @@ plot_residuals(
   hline_color = "red",
   line_size = 1,
   facet_scales = "free",
-  type = c("length", "age")
+  type = c("length", "year")
 )
 }
 \arguments{
@@ -30,7 +30,7 @@ plot_residuals(
 
 \item{facet_scales}{Character. The scale argument for facet_wrap. Default is "free".}
 
-\item{type}{Character. It specifies whether the residuals are calculated for "length" or "age". Default is "length".}
+\item{type}{Character. It specifies whether the residuals are calculated for "length" or "year". Default is "length".}
 }
 \value{
 A ggplot object representing the facet plot.

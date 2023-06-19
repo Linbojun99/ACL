@@ -9,14 +9,14 @@
 #' @param hline_color Character. The color of the horizontal line in the plot. Default is "red".
 #' @param line_size Numeric. The size of the lines in the plot. Default is 1.
 #' @param facet_scales Character. The scale argument for facet_wrap. Default is "free".
-#' @param type Character. It specifies whether the residuals are calculated for "length" or "age". Default is "length".
+#' @param type Character. It specifies whether the residuals are calculated for "length" or "year". Default is "length".
 #' @return A ggplot object representing the facet plot.
 #' @export
 #' @examples
 #' \dontrun{
 #' plot_residuals(model_result)
 #' }
-plot_residuals <- function(model_result, f = 0.4, line_color = "black", smooth_color = "blue", hline_color = "red", line_size = 1, facet_scales = "free", type=c("length","age")) {
+plot_residuals <- function(model_result, f = 0.4, line_color = "black", smooth_color = "blue", hline_color = "red", line_size = 1, facet_scales = "free", type=c("length","year")) {
   if(type=="length"){
 
     num_indices <- dim(model_result[["report"]][["resid_index"]])[1]
@@ -36,23 +36,31 @@ plot_residuals <- function(model_result, f = 0.4, line_color = "black", smooth_c
       facet_wrap(~LengthGroup, scales = facet_scales)+
       theme_minimal()
   }
-  if (type=="age")
+  if (type=="year")
   {
-    num_indices <-dim(model_result[["report"]][["resid_index"]])[2]
-    plot_data <- data.frame()
-    for(i in seq_len(num_indices)){
-      temp_data <- as.data.frame(model_result[["report"]][["resid_index"]][,i])
-      temp_data$AgeGroup <- factor(paste("Age bin ", i), levels=paste("Age bin ", 1:num_indices))
-      temp_data$length <- 1:nrow(temp_data)
-      plot_data <- rbind(plot_data, temp_data)
-    }
-    colnames(plot_data) <- c("residual", "AgeGroup","length")
 
-    p <- ggplot(plot_data, aes(x=length, y=residual)) +
+    # Define the data
+    resid_index <- model_result[["report"]][["resid_index"]]
+    year <- model_result[["year"]]
+    len_mid <- model_result[["len_mid"]]
+
+    # Transform the matrix into a data frame and add column names
+    df <- as.data.frame(resid_index)
+    colnames(df) <- year
+    df$len_mid <- len_mid
+
+    # Reshape the data from wide to long format
+    df_long <- df %>%
+      tidyr::pivot_longer(-len_mid, names_to = "year", values_to = "residuals")
+
+
+    colnames(df_long) <- c("length", "Year","residual")
+
+    p <- ggplot(df_long, aes(x=length, y=residual)) +
       geom_line(color = line_color, size = line_size) +
       geom_smooth(method="loess", formula=y~x, se=FALSE, color=smooth_color, linetype=2, size=line_size) +
       geom_hline(yintercept=0, color=hline_color, size=line_size) +
-      facet_wrap(~AgeGroup, scales = facet_scales)+
+      facet_wrap(~Year, scales = facet_scales)+
       theme_minimal()
   }
   return(p)

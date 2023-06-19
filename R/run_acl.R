@@ -176,7 +176,10 @@ run_acl <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L95,
     dyn.load(acl_dll_path)
 
     #dyn.load("ACL")
-    obj<-MakeADFun(tmb.data,parameters,random=rnames,map=map,DLL="ACL0",inner.control=list(trace=F, maxit=500))
+    obj<-MakeADFun(tmb.data,parameters,niyrandom=rnames,map=map,DLL="ACL0",inner.control=list(trace=F, maxit=500))
+
+    cat("\nRunning optimization with nlminb...\n")
+
     opt<-nlminb(obj$par,obj$fn,obj$gr,lower=lower,upper=upper,control=list(trace=0,iter.max=2000,eval.max=10000))
     # opt1<-nlminb(opt$par,obj$fn,obj$gr,lower=lower,upper=upper,control=list(trace=0,iter.max=2000,eval.max=10000))
     # obj$gr(opt$par)
@@ -185,6 +188,7 @@ run_acl <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L95,
     bound_check<-c((as.vector(opt$par)-as.vector(lower)),(as.vector(upper)-as.vector(opt$par)))
     bound_hit<-min(bound_check)==0
 
+    cat("\nRunning sdreport...\n")
 
     sdresult<-sdreport(obj)
     est_std<-summary(sdresult)

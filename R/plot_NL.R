@@ -13,7 +13,7 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' plot_NL(model_result, data.CatL)
+#' plot_NL(model_result)
 #' }
 plot_NL <- function(model_result, line_size = 1.2, line_color = "red", line_type = "solid",facet_ncol = 3, facet_scales = "free" ,se = FALSE, se_color = "red", se_alpha = 0.2){
 
@@ -62,7 +62,11 @@ plot_NL <- function(model_result, line_size = 1.2, line_color = "red", line_type
 
 
     # Create LengthGroup and Year columns for ss_NL
-    ss_NL$LengthGroup <- rep(paste0("Lenth bin ", seq_len(nrow(NL))), times = ncol(NL))
+    #ss_NL$LengthGroup <- rep(paste0("Lenth bin ", seq_len(nrow(NL))), times = ncol(NL))
+
+
+    ss_NL$LengthGroup <- factor(paste("Length bin ", seq_len(nrow(NL))), levels=paste("Length bin ", seq_len(nrow(NL))))
+
     ss_NL$Year <- rep(Year, each = nrow(NL))
 
 

@@ -40,6 +40,6 @@ This function takes a list and a data frame as input, and plots NL (counts in le
 }
 \examples{
 \dontrun{
-plot_NL(model_result, data.CatL)
+plot_NL(model_result)
 }
 }
