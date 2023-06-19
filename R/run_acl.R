@@ -202,7 +202,7 @@ run_acl <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L95,
 
 
 
-    result <- list(obj = obj, opt = opt, report = report, est_std=est_std, year=year, len_mid=len_mid, len_border=len_border,   bound_hit = bound_hit, bound_check = bound_check, converge = opt$message)
+    result <- list(obj = obj, opt = opt, report = report, est_std=est_std, year=year, len_mid=len_mid,   bound_hit = bound_hit, bound_check = bound_check, converge = opt$message)
 
     #dyn.unload("ACL")
 

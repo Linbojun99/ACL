@@ -81,6 +81,9 @@ sim_acl <- function(iter_range = 4:100,sim_data_path = ".",output_dir=".", param
 
     #dyn.load("ACL")
     obj<-MakeADFun(tmb.data,parameters,random=rnames,map=map,DLL="ACL",inner.control=list(trace=F, maxit=500))
+
+     cat("\nRunning optimization with nlminb...\n")
+
     opt<-nlminb(obj$par,obj$fn,obj$gr,lower=lower,upper=upper,control=list(trace=0,iter.max=2000,eval.max=10000))
     # opt1<-nlminb(opt$par,obj$fn,obj$gr,lower=lower,upper=upper,control=list(trace=0,iter.max=2000,eval.max=10000))
     # obj$gr(opt$par)
@@ -89,7 +92,13 @@ sim_acl <- function(iter_range = 4:100,sim_data_path = ".",output_dir=".", param
     bound_check<-c((as.vector(opt$par)-as.vector(lower)),(as.vector(upper)-as.vector(opt$par)))
     bound_hit<-min(bound_check)==0
 
-    result <- list(obj = obj, opt = opt, report = report, bound_hit = bound_hit, bound_check = bound_check, converge = opt$message)
+    cat("\nRunning sdreport...\n")
+
+    sdresult<-sdreport(obj)
+    est_std<-summary(sdresult)
+
+    year=1:sim.data$nyear
+    result <- list(obj = obj, opt = opt, report = report,est_std=est_std, len_mid=sim.data$len_mid,year=year,bound_hit = bound_hit, bound_check = bound_check, converge = opt$message)
 
     #dyn.unload("ACL")
 

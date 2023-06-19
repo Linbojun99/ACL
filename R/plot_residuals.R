@@ -24,12 +24,12 @@ plot_residuals <- function(model_result, f = 0.4, line_color = "black", smooth_c
     for(i in seq_len(num_indices)){
       temp_data <- as.data.frame(model_result[["report"]][["resid_index"]][i,])
       temp_data$LengthGroup <- factor(paste("Length bin ", i), levels=paste("Length bin ", 1:num_indices))
-      temp_data$age <- 1:nrow(temp_data)
+      temp_data$year <- model_result[["year"]]
       plot_data <- rbind(plot_data, temp_data)
     }
-    colnames(plot_data) <- c("residual", "LengthGroup","age")
+    colnames(plot_data) <- c("residual", "LengthGroup","year")
 
-    p <- ggplot(plot_data, aes(x=age, y=residual)) +
+    p <- ggplot(plot_data, aes(x=year, y=residual)) +
       geom_line(color = line_color, size = line_size) +
       geom_smooth(method="loess", formula=y~x, se=FALSE, color=smooth_color, linetype=2, size=line_size) +
       geom_hline(yintercept=0, color=hline_color, size=line_size) +
