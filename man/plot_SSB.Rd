@@ -11,7 +11,10 @@ plot_SSB(
   line_type = "solid",
   se = FALSE,
   se_color = "red",
-  se_alpha = 0.2
+  se_alpha = 0.2,
+  type = c("SSB", "SBL"),
+  facet_ncol = 3,
+  facet_scales = "free"
 )
 }
 \arguments{
@@ -28,6 +31,12 @@ plot_SSB(
 \item{se_color}{Character. The color of the confidence interval ribbon. Default is "blue".}
 
 \item{se_alpha}{Numeric. The transparency of the confidence interval ribbon. Default is 0.2.}
+
+\item{type}{Character. It specifies which the SSB is plot for "SSB" , "SBL" . Default is "SSB".}
+
+\item{facet_ncol}{Number of columns in facet wrap. Default is 3.}
+
+\item{facet_scales}{Scales for facet wrap. Default is "free".}
 }
 \value{
 A ggplot object representing the plot.

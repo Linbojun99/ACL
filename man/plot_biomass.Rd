@@ -11,7 +11,10 @@ plot_biomass(
   line_type = "solid",
   se = FALSE,
   se_color = "red",
-  se_alpha = 0.2
+  se_alpha = 0.2,
+  type = c("B", "BL"),
+  facet_ncol = 3,
+  facet_scales = "free"
 )
 }
 \arguments{
@@ -28,6 +31,12 @@ plot_biomass(
 \item{se_color}{Character. The color of the confidence interval ribbon. Default is "blue".}
 
 \item{se_alpha}{Numeric. The transparency of the confidence interval ribbon. Default is 0.2.}
+
+\item{type}{Character. It specifies which the biomass is plot for "B" , "BL" . Default is "N".}
+
+\item{facet_ncol}{Integer, number of columns in facet_wrap.}
+
+\item{facet_scales}{Character, scales for facet_wrap.}
 }
 \value{
 A ggplot object representing the plot.
