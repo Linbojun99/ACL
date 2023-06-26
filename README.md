@@ -1,7 +1,7 @@
 # ACL
 a package for R
 
-An Survey-based statistical catch-at-length model for fisheries stocks
+A Survey-based statistical catch-at-length model for fisheries stocks
 
 Survey-based statistical catch-at-length model
 
