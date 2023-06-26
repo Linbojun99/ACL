@@ -25,7 +25,7 @@ diagnose_model <- function(model_result) {
 
   # Check if the model has converged
   # Check model convergence
-  if("converge" %in% names(model)) {
+  if("converge" %in% names(model_result)) {
     convergence <- grepl("relative convergence", model_result[["converge"]])
     if(convergence==TRUE) {
       cat("\nThe model has converged.\n")
