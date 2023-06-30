@@ -1,7 +1,7 @@
 # ACL
 a package for R
 
-An age structured statistical catch-at-length model for hard-to-age fisheries stocks
+A Survey-based statistical catch-at-length model for fisheries stocks
 
 Survey-based statistical catch-at-length model
 
