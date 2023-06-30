@@ -48,6 +48,16 @@ run_acl <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L95,
     weight=data.wgt[,2:ncol(data.CatL)]
     mat=data.mat[,2:ncol(data.CatL)]
 
+    # 检查是否只有一个数值
+    contains_only_one_number <- function(s) {
+      return(!grepl("-", s))
+    }
+
+    # 如果只有一个数值，使用 len_border
+    if (contains_only_one_number(data.CatL[,1][1])) {
+      len_mid <- len_border
+      log_q <- log(mat_func(sel_L50, sel_L95, len_mid))
+    } else {
 
     if (is.null(len_mid)) {
 
@@ -106,7 +116,7 @@ run_acl <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L95,
     }
 
     log_q<-log(mat_func(sel_L50,sel_L95,len_mid))
-
+}
     if (is.null(len_border)) {
       extract_last_number <- function(range_str) {
         parts <- strsplit(range_str, "-")[[1]]

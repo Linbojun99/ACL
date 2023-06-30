@@ -21,14 +21,18 @@ plot_pla <- function(model_result, low_col = "white", high_col = "red") {
   df <- as.data.frame(pla)
 
   #
-  colnames(df) <- paste0("Age", 1:ncol(df))
-  df$Length <- paste("Length",1:nrow(df), sep="")
+
+  colnames(df) <- factor(paste("Age bin ", seq_len(ncol(df))), levels=paste("Age bin ",seq_len(ncol(df))))
+
+  LengthGroup <- factor(paste("Length bin ", seq_len(nrow(df))), levels=paste("Length bin ", seq_len(nrow(df))))
+
+  df$LengthGroup <- LengthGroup[as.numeric(LengthGroup)]
 
   #
-  dfm <- melt(df, id.vars = "Length")
+  dfm <- melt(df, id.vars = "LengthGroup")
 
   #
-  p <- ggplot(dfm, aes(x=variable, y=Length, fill=value)) +
+  p <- ggplot(dfm, aes(x=variable, y=LengthGroup, fill=value)) +
     geom_tile() +
     scale_fill_gradient(low = low_col, high = high_col) +
     theme_minimal() +
