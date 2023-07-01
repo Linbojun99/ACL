@@ -2,7 +2,7 @@
 % Please edit documentation in R/run_acl.R
 \name{run_acl}
 \alias{run_acl}
-\title{Run stock assessment model for user's data}
+\title{Run Age-Length Structured Stock Assessment Model for User's Data}
 \usage{
 run_acl(
   data.CatL,
@@ -22,37 +22,53 @@ run_acl(
 )
 }
 \arguments{
-\item{data.CatL}{A matrix containing the length grouping of the catch length.}
+\item{data.CatL}{A matrix containing the length grouping of the catch length,
+which represents the observed catch data in different length groups across years.}
 
-\item{data.wgt}{A matrix containing the length grouping of the weight.}
+\item{data.wgt}{A matrix containing the length grouping of the weight,
+which indicates the average weight of fish in different length groups across years.}
 
-\item{data.mat}{A matrix containing the length grouping of the maturity.}
+\item{data.mat}{A matrix containing the length grouping of the maturity,
+which represents the proportion of mature individuals in different length groups across years.}
 
-\item{rec.age}{Numeric, the age of recruitment.}
+\item{rec.age}{Numeric, the age at which individuals are assumed to be recruited to the fishery.}
 
-\item{nage}{Numeric, number of age classes.}
+\item{nage}{Numeric, the number of age classes considered in the model.}
 
-\item{M}{Numeric, natural mortality}
+\item{M}{Numeric, the natural mortality rate,
+which is an important input to the stock assessment model.}
 
-\item{sel_L50}{Numeric, length at which 50\% of individuals are mature.}
+\item{sel_L50}{Numeric, the length at which 50\% of individuals are mature,
+representing the midpoint of the logistic selectivity curve.}
 
-\item{sel_L95}{Numeric, length at which 95\% of individuals are mature.}
+\item{sel_L95}{Numeric, the length at which 95\% of individuals are mature,
+representing the point near the maximum of the logistic selectivity curve.}
 
-\item{parameters}{A list containing the custom initial values for the parameters (default is NULL).}
+\item{parameters}{A list containing the custom initial values for the parameters (default is NULL),
+which can be used to fine-tune the model fitting.}
 
-\item{parameters.L}{A list containing the custom lower bounds for the parameters (default is NULL).}
+\item{parameters.L}{A list containing the custom lower bounds for the parameters (default is NULL),
+which can be used to constrain the parameter search space during model fitting.}
 
-\item{parameters.U}{A list containing the custom upper bounds for the parameters (default is NULL).}
+\item{parameters.U}{A list containing the custom upper bounds for the parameters (default is NULL),
+which can also be used to constrain the parameter search space during model fitting.}
 
-\item{map}{A list containing the custom values for the map elements (default is NULL).}
+\item{map}{A list containing the custom values for the map elements (default is NULL),
+which may help in defining the structure of random effects.}
 
-\item{len_mid}{Numeric vector, user-specified median length values (default is NULL).}
+\item{len_mid}{Numeric vector, user-specified median length values (default is NULL),
+which can help in defining the length intervals for model fitting.}
 
-\item{len_border}{Numeric vector, user-specified border length values (default is NULL).}
+\item{len_border}{Numeric vector, user-specified border length values (default is NULL),
+which can also help in defining the length intervals for model fitting.}
 }
 \value{
-A list containing the results of the stock assessment model.
+A list containing the results of the ACL stock assessment model,
+including model outputs (estimated parameters and their standard errors),
+model fit diagnostics, and some other auxiliary information.
 }
 \description{
-This function runs a stock assessment model using the specified iteration range.
+This function implements an age-length structured (ACL) model to
+assess the status of a fish population given user's data. It aims to determine
+the health of a fish stock and guide the sustainable management of fishery resources.
 }

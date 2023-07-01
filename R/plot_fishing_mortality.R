@@ -1,21 +1,40 @@
-#' Plot fishing mortality over the years
+#' @title Plot Fishing Mortality Over Years from an Age-Structured Assessment Model (ACL)
 #'
-#' This function takes a matrix and a data frame as input, and plots fishing mortality over the years using ggplot2.
-#' @param model_result A list that contains model output. The list should have a "report" component which contains a "BL" component representing counts in length groups.
-#' @param line_size Line size for geom_line. Default is 1.
-#' @param line_color Line color for geom_line. Default is "black".
-#' @param line_type Line type for geom_line. Default is "solid".
-#' @param facet_ncol Number of columns in facet wrap. Default is 3.
-#' @param facet_scales Scales for facet wrap. Default is "free".
-#' @param se_color Character. The color of the confidence interval ribbon. Default is "blue".
+#' @description This function takes the output from the `run_acl` function and plots fishing mortality over the years using ggplot2.
+#' The function can also calculate and display the standard error as confidence intervals.
+#'
+#' @param model_result A list obtained from the `run_acl` function. This list should contain a "report" component that includes
+#' a "F" component representing fishing mortality for each age group over years.
+#' @param line_size Numeric. The thickness of the line in the plot. Default is 1.
+#' @param line_color Character. The color of the line in the plot. Default is "red".
+#' @param line_type Character. The type of the line in the plot. Default is "solid".
+#' @param se Logical. Whether to calculate and plot standard error as confidence intervals. Default is FALSE. If TRUE, standard error
+#' will be calculated and confidence intervals will be shown as a shaded area around the line.
+#' @param se_color Character. The color of the confidence interval ribbon. Default is "red".
 #' @param se_alpha Numeric. The transparency of the confidence interval ribbon. Default is 0.2.
-#' @param se Logical. Whether to calculate and plot standard error as confidence intervals. Default is FALSE.
-#' @return A ggplot object representing the plot.
-#' @export
+#' @param facet_ncol Integer. The number of columns in facet_wrap.
+#' @param facet_scales Character. Scales for facet_wrap. Default is "free".
+#'
+#' @return A ggplot object representing the plot of fishing mortality over years.
+#'
 #' @examples
 #' \dontrun{
-#' plot_fishing_mortality(F, data.cl)
+#' # Use 'run_acl' to get 'model_result'
+#' model_result <- run_acl(...)
+#'
+#' # Call the function with standard error set to TRUE
+#' p_mortality <- plot_fishing_mortality(model_result, se = TRUE)
+#'
+#' # Print the plot with standard error
+#' print(p_mortality)
+#'
+#' # Call the function with standard error set to FALSE
+#' p_mortality <- plot_fishing_mortality(model_result, se = FALSE)
+#'
+#' # Print the plot without standard error
+#' print(p_mortality)
 #' }
+#' @export
 plot_fishing_mortality <- function(model_result, line_size = 1, line_color = "red", line_type = "solid", facet_ncol = 3, facet_scales = "free" ,se = FALSE, se_color = "red", se_alpha = 0.2){
 
   # Extract the F data

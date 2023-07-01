@@ -1,6 +1,6 @@
 Package: ACL
 Title: an survey-based statistical catch-at-length model
-Version: 1.2.1
+Version: 1.2.3
 Authors@R: c(person("Hongyu", "Lin",  role = "cre",email = "linbojun99@gmail.com",
            comment = c(ORCID = "0000-0001-6226-179X")),
              person("Fan", "Zhang",  role = "aut", email = "f-zhang@shou.edu.cn",
@@ -23,7 +23,9 @@ Imports:
     ggplot2,
     tidyverse,
     dplyr,
-    reshape2
+    reshape2,
+    ggridges,
+    gridExtra
 Depends:
     Rcpp,
     TMB,

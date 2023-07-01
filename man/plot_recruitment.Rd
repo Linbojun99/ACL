@@ -15,28 +15,39 @@ plot_recruitment(
 )
 }
 \arguments{
-\item{model_result}{A list that contains model output. The list should have a "report" component which contains a "F" component representing Recruitment.}
+\item{model_result}{A list that contains the model output. The list should have a "report" component which contains a "Rec" component representing Recruitment.}
 
-\item{line_size}{Numeric. The thickness of the line in the plot. Default is 1.5.}
+\item{line_size}{Numeric. Specifies the thickness of the line in the plot. Default is 1.2.}
 
-\item{line_color}{Character. The color of the line in the plot. Default is "black".}
+\item{line_color}{Character. Specifies the color of the line in the plot. Default is "red".}
 
-\item{line_type}{Character. The type of the line in the plot. Default is "solid".}
+\item{line_type}{Character. Specifies the type of the line in the plot. Default is "solid".}
 
-\item{se}{Logical. Whether to calculate and plot standard error as confidence intervals. Default is FALSE.}
+\item{se}{Logical. Determines whether to calculate and plot the standard error as confidence intervals. Default is FALSE.}
 
-\item{se_color}{Character. The color of the confidence interval ribbon. Default is "blue".}
+\item{se_color}{Character. Specifies the color of the confidence interval ribbon. Default is "red".}
 
-\item{se_alpha}{Numeric. The transparency of the confidence interval ribbon. Default is 0.2.}
+\item{se_alpha}{Numeric. Specifies the transparency of the confidence interval ribbon. Default is 0.2.}
 }
 \value{
 A ggplot object representing the plot.
 }
 \description{
-This function takes a list and a data frame as input, and plots recruitment over the years using ggplot2.
+This function visualizes the recruitment of a population over a period of time.
+Recruitment is a key parameter in population dynamics, representing the amount of new individuals added to a population,
+either by birth or immigration, over a specific time frame. The resulting plot is a line graph, with the option to add a
+ribbon that illustrates the standard error, if the \code{se} argument is set to TRUE.
 }
 \examples{
 \dontrun{
-plot_recruitment(model_result, line_size = 1.2, line_color = "red", line_type = "solid")
+# Use 'run_acl' to obtain 'model_result'
+model_result <- run_acl(...)
+
+# Plot recruitment without standard error
+plot_recruitment(model_result)
+
+# Plot recruitment with standard error
+plot_recruitment(model_result, se = TRUE)
 }
+
 }

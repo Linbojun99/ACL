@@ -1,21 +1,43 @@
-#' Plot model residuals with facets
+#' @title Plot the Distribution of Model Residuals from an Age-Structured Assessment Model (ACL)
 #'
-#' This function creates a facet plot of the residuals for each index in the model result. Each index is represented in a separate facet.
+#' @description This function takes the output from the `run_acl` function and creates a facet plot of the residuals for each index.
+#' The residuals reflect the difference between the observed and expected values from the ACL model, a type of age-structured
+#' assessment model commonly used in fishery science. The function can handle two types of residuals:
+#' 1) "length", where residuals are calculated over length groups for each year, and
+#' 2) "year", where residuals are calculated over years for each length group.
+#' Each index is represented in a separate facet.
 #'
-#' @param model_result A list that contains the model output. The list should have a "report" component which contains a "resid_index" component representing the residuals for each index.
-#' @param f Numeric. The smoother span. This gives the proportion of points in the plot which influence the smooth at each value. Larger values give more smoothness. Default is 0.4.
-#' @param line_color Character. The color of the lines in the plot. Default is "black".
+#' @param model_result A list obtained from the `run_acl` function. This list should contain a "report" component that includes
+#' a "resid_index" component, representing the residuals for each index.
+#' @param f Numeric. The smoother span for the loess smooth line in the plot. This gives the proportion of points in the plot which
+#' influence the smooth at each value. Larger values result in more smoothing. Default is 0.4.
+#' @param line_color Character. The color of the line in the plot. Default is "black".
 #' @param smooth_color Character. The color of the smooth line in the plot. Default is "blue".
-#' @param hline_color Character. The color of the horizontal line in the plot. Default is "red".
+#' @param hline_color Character. The color of the horizontal line (at y=0) in the plot. Default is "red".
 #' @param line_size Numeric. The size of the lines in the plot. Default is 1.
-#' @param facet_scales Character. The scale argument for facet_wrap. Default is "free".
-#' @param type Character. It specifies whether the residuals are calculated for "length" or "year". Default is "length".
-#' @return A ggplot object representing the facet plot.
-#' @export
+#' @param facet_scales Character. The "scales" argument for the facet_wrap function in ggplot2. Default is "free".
+#' @param type Character. Specifies whether the residuals are calculated over "length" or "year". Default is "length".
+#'
+#' @return A ggplot object representing the facet plot of residuals.
+#'
 #' @examples
 #' \dontrun{
-#' plot_residuals(model_result)
+#' # Use 'run_acl' to get 'model_result'
+#' model_result <- run_acl(...)
+#'
+#' # Call the function with type = "length"
+#' p_length <- plot_residuals(model_result, type = "length")
+#'
+#' # Print the plot for "length"
+#' print(p_length)
+#'
+#' # Call the function with type = "year"
+#' p_year <- plot_residuals(model_result, type = "year")
+#'
+#' # Print the plot for "year"
+#' print(p_year)
 #' }
+#' @export
 plot_residuals <- function(model_result, f = 0.4, line_color = "black", smooth_color = "blue", hline_color = "red", line_size = 1, facet_scales = "free", type=c("length","year")) {
   if(type=="length"){
 

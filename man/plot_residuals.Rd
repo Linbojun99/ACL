@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_residuals.R
 \name{plot_residuals}
 \alias{plot_residuals}
-\title{Plot model residuals with facets}
+\title{Plot the Distribution of Model Residuals from an Age-Structured Assessment Model (ACL)}
 \usage{
 plot_residuals(
   model_result,
@@ -16,30 +16,52 @@ plot_residuals(
 )
 }
 \arguments{
-\item{model_result}{A list that contains the model output. The list should have a "report" component which contains a "resid_index" component representing the residuals for each index.}
+\item{model_result}{A list obtained from the \code{run_acl} function. This list should contain a "report" component that includes
+a "resid_index" component, representing the residuals for each index.}
 
-\item{f}{Numeric. The smoother span. This gives the proportion of points in the plot which influence the smooth at each value. Larger values give more smoothness. Default is 0.4.}
+\item{f}{Numeric. The smoother span for the loess smooth line in the plot. This gives the proportion of points in the plot which
+influence the smooth at each value. Larger values result in more smoothing. Default is 0.4.}
 
-\item{line_color}{Character. The color of the lines in the plot. Default is "black".}
+\item{line_color}{Character. The color of the line in the plot. Default is "black".}
 
 \item{smooth_color}{Character. The color of the smooth line in the plot. Default is "blue".}
 
-\item{hline_color}{Character. The color of the horizontal line in the plot. Default is "red".}
+\item{hline_color}{Character. The color of the horizontal line (at y=0) in the plot. Default is "red".}
 
 \item{line_size}{Numeric. The size of the lines in the plot. Default is 1.}
 
-\item{facet_scales}{Character. The scale argument for facet_wrap. Default is "free".}
+\item{facet_scales}{Character. The "scales" argument for the facet_wrap function in ggplot2. Default is "free".}
 
-\item{type}{Character. It specifies whether the residuals are calculated for "length" or "year". Default is "length".}
+\item{type}{Character. Specifies whether the residuals are calculated over "length" or "year". Default is "length".}
 }
 \value{
-A ggplot object representing the facet plot.
+A ggplot object representing the facet plot of residuals.
 }
 \description{
-This function creates a facet plot of the residuals for each index in the model result. Each index is represented in a separate facet.
+This function takes the output from the \code{run_acl} function and creates a facet plot of the residuals for each index.
+The residuals reflect the difference between the observed and expected values from the ACL model, a type of age-structured
+assessment model commonly used in fishery science. The function can handle two types of residuals:
+\enumerate{
+\item "length", where residuals are calculated over length groups for each year, and
+\item "year", where residuals are calculated over years for each length group.
+Each index is represented in a separate facet.
+}
 }
 \examples{
 \dontrun{
-plot_residuals(model_result)
+# Use 'run_acl' to get 'model_result'
+model_result <- run_acl(...)
+
+# Call the function with type = "length"
+p_length <- plot_residuals(model_result, type = "length")
+
+# Print the plot for "length"
+print(p_length)
+
+# Call the function with type = "year"
+p_year <- plot_residuals(model_result, type = "year")
+
+# Print the plot for "year"
+print(p_year)
 }
 }

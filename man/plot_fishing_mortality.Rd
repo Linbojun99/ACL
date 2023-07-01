@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_fishing_mortality.R
 \name{plot_fishing_mortality}
 \alias{plot_fishing_mortality}
-\title{Plot fishing mortality over the years}
+\title{Plot Fishing Mortality Over Years from an Age-Structured Assessment Model (ACL)}
 \usage{
 plot_fishing_mortality(
   model_result,
@@ -17,32 +17,48 @@ plot_fishing_mortality(
 )
 }
 \arguments{
-\item{model_result}{A list that contains model output. The list should have a "report" component which contains a "BL" component representing counts in length groups.}
+\item{model_result}{A list obtained from the \code{run_acl} function. This list should contain a "report" component that includes
+a "F" component representing fishing mortality for each age group over years.}
 
-\item{line_size}{Line size for geom_line. Default is 1.}
+\item{line_size}{Numeric. The thickness of the line in the plot. Default is 1.}
 
-\item{line_color}{Line color for geom_line. Default is "black".}
+\item{line_color}{Character. The color of the line in the plot. Default is "red".}
 
-\item{line_type}{Line type for geom_line. Default is "solid".}
+\item{line_type}{Character. The type of the line in the plot. Default is "solid".}
 
-\item{facet_ncol}{Number of columns in facet wrap. Default is 3.}
+\item{facet_ncol}{Integer. The number of columns in facet_wrap.}
 
-\item{facet_scales}{Scales for facet wrap. Default is "free".}
+\item{facet_scales}{Character. Scales for facet_wrap. Default is "free".}
 
-\item{se}{Logical. Whether to calculate and plot standard error as confidence intervals. Default is FALSE.}
+\item{se}{Logical. Whether to calculate and plot standard error as confidence intervals. Default is FALSE. If TRUE, standard error
+will be calculated and confidence intervals will be shown as a shaded area around the line.}
 
-\item{se_color}{Character. The color of the confidence interval ribbon. Default is "blue".}
+\item{se_color}{Character. The color of the confidence interval ribbon. Default is "red".}
 
 \item{se_alpha}{Numeric. The transparency of the confidence interval ribbon. Default is 0.2.}
 }
 \value{
-A ggplot object representing the plot.
+A ggplot object representing the plot of fishing mortality over years.
 }
 \description{
-This function takes a matrix and a data frame as input, and plots fishing mortality over the years using ggplot2.
+This function takes the output from the \code{run_acl} function and plots fishing mortality over the years using ggplot2.
+The function can also calculate and display the standard error as confidence intervals.
 }
 \examples{
 \dontrun{
-plot_fishing_mortality(F, data.cl)
+# Use 'run_acl' to get 'model_result'
+model_result <- run_acl(...)
+
+# Call the function with standard error set to TRUE
+p_mortality <- plot_fishing_mortality(model_result, se = TRUE)
+
+# Print the plot with standard error
+print(p_mortality)
+
+# Call the function with standard error set to FALSE
+p_mortality <- plot_fishing_mortality(model_result, se = FALSE)
+
+# Print the plot without standard error
+print(p_mortality)
 }
 }

@@ -1,34 +1,51 @@
-#' Retrospective analysis function with plot option
+#' Retrospective Analysis in Annual Catch Limit (ACL) with Plotting Option
+#' @description
+#' Conduct a retrospective analysis using an Annual Catch Limit (ACL) model in fisheries stock assessment.
+#' The model calculates Mohn's rho, a measure of retrospective bias in the model, which helps in understanding
+#' potential biases in the ACL calculations and for setting appropriate catch limits.
+#' Mohn's rho is calculated by comparing model parameters from a retrospective analysis with model parameters
+#' from the full data set.
 #'
-#' @param nyear Number of years to look back in the retrospective analysis.
-#' @param data.CatL Data for CatL.
-#' @param data.wgt Data for weight.
-#' @param data.mat Data for mat.
-#' @param rec.age Recreational age.
-#' @param nage Number of age.
-#' @param M Natural mortality rate.
-#' @param sel_L50 Length at 50% selection.
-#' @param sel_L95 Length at 95% selection.
+#' @param nyear The number of years to look back in the retrospective analysis.
+#' @param data.CatL The Catch-at-Length data.
+#' @param data.wgt The weight data.
+#' @param data.mat The maturity data.
+#' @param rec.age The recreational age.
+#' @param nage The number of age.
+#' @param M The natural mortality rate.
+#' @param sel_L50 The length at 50% selection.
+#' @param sel_L95 The length at 95% selection.
 #' @param parameters Optional parameters for the ACL model.
-#' @param parameters.L Optional L parameters for the ACL model.
-#' @param parameters.U Optional U parameters for the ACL model.
+#' @param parameters.L Optional lower limit parameters for the ACL model.
+#' @param parameters.U Optional upper limit parameters for the ACL model.
 #' @param map Optional map for the ACL model.
 #' @param len_mid Optional length mid for the ACL model.
 #' @param len_border Optional length border for the ACL model.
 #' @param plot Logical indicating whether to plot the results. Defaults to FALSE.
-#' @param point_size Character. The size of the point in the plot. Default is "solid".
-#' @param point_shape Character. The shape of the point in the plot. Default is "solid".
-#' @param line_size Line size for the plot. Defaults to 1.
-#' @param facet_col Defaults to "NULL".
-#' @param facet_row Defaults to "NULL".
+#' @param line_size The line size for the plot. Defaults to 1.2.
+#' @param point_size The size of the point in the plot. Defaults to 3.
+#' @param point_shape The shape of the point in the plot. Default is 21.
 #' @param facet_scales Argument passed to `facet_wrap()`. Defaults to "free".
+#' @param facet_col The number of columns for facet_wrap. Defaults to NULL.
+#' @param facet_row The number of rows for facet_wrap. Defaults to NULL.
 #'
-#' @return If `plot` is TRUE, returns a ggplot object. Otherwise, returns a dataframe with the results.
+#' @return If `plot` is TRUE, returns a ggplot object and a dataframe with the results. Otherwise, returns only the dataframe with the results.
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' retro_acl(nyear, data.CatL, data.wgt, data.mat, rec.age, nage, M, sel_L50, sel_L95, plot = TRUE)
+#' # Assume we have the necessary data and parameters for the ACL model
+#' data.CatL <- get_CatL_data()
+#' data.wgt <- get_wgt_data()
+#' data.mat <- get_mat_data()
+#' rec.age <- 2
+#' nage <- 10
+#' M <- 0.2
+#' sel_L50 <- 20
+#' sel_L95 <- 30
+#'
+#' # Conduct a retrospective analysis for the past 5 years
+#' retro_acl(nyear = 5, data.CatL, data.wgt, data.mat, rec.age, nage, M, sel_L50, sel_L95, plot = TRUE)
 #' }
 
 retro_acl <- function(nyear, data.CatL, data.wgt, data.mat, rec.age, nage, M, sel_L50, sel_L95,
@@ -41,17 +58,17 @@ retro_acl <- function(nyear, data.CatL, data.wgt, data.mat, rec.age, nage, M, se
 
   results <- data.frame(Year = integer(), Variable = character(), Value = numeric(), RetrospectiveYear = integer(), Rho = numeric())
 
-  # 先获取完整数据模型的结果
+  # Get the results of the full data model first
   model_result <- run_acl(data.CatL = data.CatL,
                           data.wgt = data.wgt,
                           data.mat = data.mat,
                           rec.age, nage, M, sel_L50, sel_L95,
                           parameters, parameters.L, parameters.U, map, len_mid, len_border)
 
-  # 提取完整的年份数据
+  # Extracting complete year data
   year <- model_result[["year"]]
 
-  # 提取完整的B，SSB，Rec和N数据
+  # Extracts complete B, SSB, Rec and N data
   variables <- list(
     B = model_result[["report"]][["B"]],
     Rec = model_result[["report"]][["Rec"]],
@@ -59,7 +76,7 @@ retro_acl <- function(nyear, data.CatL, data.wgt, data.mat, rec.age, nage, M, se
     N = model_result[["report"]][["N"]]
   )
 
-  # 将完整的结果保存到data.frame中
+  # Save the complete result to data.frame
   for (variable_name in names(variables)) {
     temp_full <- data.frame(Year = year,
                             Variable = rep(variable_name, each = length(year)),
@@ -71,10 +88,10 @@ retro_acl <- function(nyear, data.CatL, data.wgt, data.mat, rec.age, nage, M, se
 
   for (i in 1:(nyear)) {
 
-    # 计算需要的年份数据
+    # Calculate the required year data
     year1 = ncol(data.CatL) - i
 
-    # 运行ACL模型
+    # Running the ACL model
     model_result <- run_acl(data.CatL = data.CatL[ , 1:year1],
                             data.wgt = data.wgt[ , 1:year1],
                             data.mat = data.mat[ , 1:year1],
@@ -82,7 +99,7 @@ retro_acl <- function(nyear, data.CatL, data.wgt, data.mat, rec.age, nage, M, se
                             parameters, parameters.L, parameters.U, map, len_mid, len_border)
     year2 <- model_result[["year"]]
 
-    # 提取最后一年的参数值
+    # Extracting the last year's parameter values
     variables <- list(
       B = model_result[["report"]][["B"]],
       Rec = model_result[["report"]][["Rec"]],
@@ -90,22 +107,24 @@ retro_acl <- function(nyear, data.CatL, data.wgt, data.mat, rec.age, nage, M, se
       N = model_result[["report"]][["N"]]
     )
 
-    # 提取回溯性分析的年份
+    # Year of retrospective analysis extracted
     retrospectiveYear <- tail(model_result[["year"]], 1)
 
-    # 对于每个变量，计算rho值并将结果保存到data.frame中
+
+    # For each variable, calculate the rho value and save the result to data.frame
     for (variable_name in names(variables)) {
-      # 提取与回溯数据相同年份的原始数据
+      # Extracts the original data for the same year as the backtracked data
       original_values <- results[results$Year %in% year2 & results$Variable == variable_name, "Value"]
 
-      # 计算rho值
+      # Calculate rho value
       if(length(variables[[variable_name]]) != length(original_values)){
         stop("Vectors are not of the same length.")
       } else {
-        rho <- cor(variables[[variable_name]], original_values)
+        # Use Mohn's rho instead of correlation
+        rho <- mean((variables[[variable_name]] - original_values) / original_values)
       }
 
-      # 将结果保存到data.frame中
+      # Save the results to data.frame
       temp <- data.frame(Year = year2,
                          Variable = rep(variable_name, each = length(year2)),
                          Value = variables[[variable_name]],

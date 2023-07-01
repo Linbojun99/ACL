@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_biomass.R
 \name{plot_biomass}
 \alias{plot_biomass}
-\title{Plot biomass over the years}
+\title{Plot Biomass Over Years from an Age-Structured Assessment Model (ACL)}
 \usage{
 plot_biomass(
   model_result,
@@ -18,34 +18,51 @@ plot_biomass(
 )
 }
 \arguments{
-\item{model_result}{A list that contains model output. The list should have a "report" component which contains a "B" component representing biomass.}
+\item{model_result}{A list obtained from the \code{run_acl} function. This list should contain a "report" component that includes
+a "B" component (absolute biomass) and a "BL" component (length-grouped biomass).}
 
 \item{line_size}{Numeric. The thickness of the line in the plot. Default is 1.2.}
 
-\item{line_color}{Character. The color of the line in the plot. Default is "black".}
+\item{line_color}{Character. The color of the line in the plot. Default is "red".}
 
 \item{line_type}{Character. The type of the line in the plot. Default is "solid".}
 
-\item{se}{Logical. Whether to calculate and plot standard error as confidence intervals. Default is FALSE.}
+\item{se}{Logical. Whether to calculate and plot standard error as confidence intervals. Default is FALSE. If TRUE, standard error
+will be calculated and confidence intervals will be shown as a shaded area around the line.}
 
-\item{se_color}{Character. The color of the confidence interval ribbon. Default is "blue".}
+\item{se_color}{Character. The color of the confidence interval ribbon. Default is "red".}
 
 \item{se_alpha}{Numeric. The transparency of the confidence interval ribbon. Default is 0.2.}
 
-\item{type}{Character. It specifies which the biomass is plot for "B" , "BL" . Default is "N".}
+\item{type}{Character. Specifies whether to plot "B" (absolute biomass) or "BL" (length-grouped biomass). Default is "B".}
 
-\item{facet_ncol}{Integer, number of columns in facet_wrap.}
+\item{facet_ncol}{Integer. The number of columns in facet_wrap. Only applicable when type = "BL".}
 
-\item{facet_scales}{Character, scales for facet_wrap.}
+\item{facet_scales}{Character. Scales for facet_wrap. Only applicable when type = "BL".}
 }
 \value{
-A ggplot object representing the plot.
+A ggplot object representing the plot of biomass over years.
 }
 \description{
-This function takes a list and a data frame as input, and plots biomass over the years using ggplot2.
+This function takes the output from the \code{run_acl} function and plots biomass over the years using ggplot2.
+The biomass can be of two types, "B", representing the absolute biomass, and "BL", representing the biomass distributed
+over length groups for each year.
 }
 \examples{
 \dontrun{
-plot_biomass(model_result, line_size = 1.2, line_color = "red", line_type = "solid")
+# Use 'run_acl' to get 'model_result'
+model_result <- run_acl(...)
+
+# Call the function with type = "B", standard error set to TRUE
+p_biomass_B <- plot_biomass(model_result, type = "B", se = TRUE)
+
+# Print the plot for "B" with standard error
+print(p_biomass_B)
+
+# Call the function with type = "BL", standard error set to FALSE
+p_biomass_BL <- plot_biomass(model_result, type = "BL", se = FALSE)
+
+# Print the plot for "BL" without standard error
+print(p_biomass_BL)
 }
 }

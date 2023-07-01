@@ -2,7 +2,7 @@
 % Please edit documentation in R/retro_acl.R
 \name{retro_acl}
 \alias{retro_acl}
-\title{Retrospective analysis function with plot option}
+\title{Retrospective Analysis in Annual Catch Limit (ACL) with Plotting Option}
 \usage{
 retro_acl(
   nyear,
@@ -30,29 +30,29 @@ retro_acl(
 )
 }
 \arguments{
-\item{nyear}{Number of years to look back in the retrospective analysis.}
+\item{nyear}{The number of years to look back in the retrospective analysis.}
 
-\item{data.CatL}{Data for CatL.}
+\item{data.CatL}{The Catch-at-Length data.}
 
-\item{data.wgt}{Data for weight.}
+\item{data.wgt}{The weight data.}
 
-\item{data.mat}{Data for mat.}
+\item{data.mat}{The maturity data.}
 
-\item{rec.age}{Recreational age.}
+\item{rec.age}{The recreational age.}
 
-\item{nage}{Number of age.}
+\item{nage}{The number of age.}
 
-\item{M}{Natural mortality rate.}
+\item{M}{The natural mortality rate.}
 
-\item{sel_L50}{Length at 50\% selection.}
+\item{sel_L50}{The length at 50\% selection.}
 
-\item{sel_L95}{Length at 95\% selection.}
+\item{sel_L95}{The length at 95\% selection.}
 
 \item{parameters}{Optional parameters for the ACL model.}
 
-\item{parameters.L}{Optional L parameters for the ACL model.}
+\item{parameters.L}{Optional lower limit parameters for the ACL model.}
 
-\item{parameters.U}{Optional U parameters for the ACL model.}
+\item{parameters.U}{Optional upper limit parameters for the ACL model.}
 
 \item{map}{Optional map for the ACL model.}
 
@@ -62,26 +62,41 @@ retro_acl(
 
 \item{plot}{Logical indicating whether to plot the results. Defaults to FALSE.}
 
-\item{line_size}{Line size for the plot. Defaults to 1.}
+\item{line_size}{The line size for the plot. Defaults to 1.2.}
 
-\item{point_size}{Character. The size of the point in the plot. Default is "solid".}
+\item{point_size}{The size of the point in the plot. Defaults to 3.}
 
-\item{point_shape}{Character. The shape of the point in the plot. Default is "solid".}
+\item{point_shape}{The shape of the point in the plot. Default is 21.}
 
 \item{facet_scales}{Argument passed to \code{facet_wrap()}. Defaults to "free".}
 
-\item{facet_col}{Defaults to "NULL".}
+\item{facet_col}{The number of columns for facet_wrap. Defaults to NULL.}
 
-\item{facet_row}{Defaults to "NULL".}
+\item{facet_row}{The number of rows for facet_wrap. Defaults to NULL.}
 }
 \value{
-If \code{plot} is TRUE, returns a ggplot object. Otherwise, returns a dataframe with the results.
+If \code{plot} is TRUE, returns a ggplot object and a dataframe with the results. Otherwise, returns only the dataframe with the results.
 }
 \description{
-Retrospective analysis function with plot option
+Conduct a retrospective analysis using an Annual Catch Limit (ACL) model in fisheries stock assessment.
+The model calculates Mohn's rho, a measure of retrospective bias in the model, which helps in understanding
+potential biases in the ACL calculations and for setting appropriate catch limits.
+Mohn's rho is calculated by comparing model parameters from a retrospective analysis with model parameters
+from the full data set.
 }
 \examples{
 \dontrun{
-retro_acl(nyear, data.CatL, data.wgt, data.mat, rec.age, nage, M, sel_L50, sel_L95, plot = TRUE)
+# Assume we have the necessary data and parameters for the ACL model
+data.CatL <- get_CatL_data()
+data.wgt <- get_wgt_data()
+data.mat <- get_mat_data()
+rec.age <- 2
+nage <- 10
+M <- 0.2
+sel_L50 <- 20
+sel_L95 <- 30
+
+# Conduct a retrospective analysis for the past 5 years
+retro_acl(nyear = 5, data.CatL, data.wgt, data.mat, rec.age, nage, M, sel_L50, sel_L95, plot = TRUE)
 }
 }

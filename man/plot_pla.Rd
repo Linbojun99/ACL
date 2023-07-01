@@ -2,25 +2,36 @@
 % Please edit documentation in R/plot_pla.R
 \name{plot_pla}
 \alias{plot_pla}
-\title{Plot probability length at age}
+\title{Visualize the Probability Length at Age in Fisheries Stock Assessment through Heatmap}
 \usage{
 plot_pla(model_result, low_col = "white", high_col = "red")
 }
 \arguments{
-\item{model_result}{A list that contains model output.}
+\item{model_result}{A list that contains model output. The model output should include a PLA report.}
 
-\item{low_col}{color for low probabilities}
+\item{low_col}{A string specifying the color for low probabilities. Default is "white".}
 
-\item{high_col}{color for high probabilities}
+\item{high_col}{A string specifying the color for high probabilities. Default is "red".}
 }
 \value{
-ggplot object
+A ggplot object showing the heatmap of the probability length at age.
 }
 \description{
-Plot probability length at age
+This function plays an essential part in the process of Annual Catch Limit (ACL) in Fisheries Stock Assessment.
+It generates a heatmap to visualize the Probability Length at Age (PLA) derived from a given model result.
+The PLA matrix is an essential output from fish stock assessment models which shows the probability that a fish of a certain age is within a certain length group.
+This visualization is beneficial to understand the size structure of the fish population over age, which is crucial for setting appropriate catch limits.
+The function also allows customization of the color gradient used in the heatmap to make the contrast between different probability values more apparent.
 }
 \examples{
 \dontrun{
-plot_prob_heatmap(model_result, "white", "steelblue")
+# Assume we have a model_result list from a fishery stock assessment model
+model_result <- run_model()
+
+# Generate a heatmap with the default color gradient
+plot_pla(model_result)
+
+# Generate a heatmap with a custom color gradient from white to steelblue
+plot_pla(model_result, "white", "steelblue")
 }
 }

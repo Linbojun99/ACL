@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_SSB_Rec.R
 \name{plot_SSB_Rec}
 \alias{plot_SSB_Rec}
-\title{Plot SSB and Rec from model results}
+\title{Plot the Relationship between Spawning Stock Biomass (SSB) and Recruitment (Rec)}
 \usage{
 plot_SSB_Rec(
   model_result,
@@ -12,22 +12,31 @@ plot_SSB_Rec(
 )
 }
 \arguments{
-\item{model_result}{A list containing model results, including "report" that has "SSB" and "Rec".}
+\item{model_result}{A list containing the model results. It includes a component "report" that comprises "SSB" and "Rec".}
 
-\item{point_size}{Character. The size of the point in the plot. Default is "solid".#' @return A ggplot object representing the plot.}
+\item{point_size}{Numeric. The size of the points in the scatter plot. Default is 2.}
 
-\item{point_color}{Character. The color of the point in the plot. Default is "black".}
+\item{point_color}{Character. The color of the points in the scatter plot. Default is "black".}
 
-\item{point_shape}{Character. The shape of the point in the plot. Default is "solid".#' @return A ggplot object representing the plot.}
+\item{point_shape}{Numeric. The shape of the points in the scatter plot, as an integer value (see ?points in base R for more info). Default is 16 (filled circle).}
 }
 \value{
-ggplot object
+A ggplot object representing the scatter plot of SSB versus Recruitment.
 }
 \description{
-This function takes the model result, extracts the SSB and Rec components, and plots them.
+This function takes the model result as an input and creates a scatter plot to visualize the relationship between
+Spawning Stock Biomass (SSB) and Recruitment (Rec). These metrics are fundamental in the context of fishery stock assessment.
 }
 \examples{
 \dontrun{
-plot_SSB_Rec(model_result)
+# The model_result is typically obtained from the run_acl() function. Here, we create a dummy example.
+# Use 'run_acl' to get 'model_result'
+model_result <- run_acl(...)
+
+# Call the function
+p <- plot_SSB_Rec(model_result)
+
+# Print the plot
+print(p)
 }
 }

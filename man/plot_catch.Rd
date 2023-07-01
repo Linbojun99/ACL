@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_catch.R
 \name{plot_catch}
 \alias{plot_catch}
-\title{Plot Catch number over the years}
+\title{Plot Catch Number (CN) or Catch Number by Age (CNA) over the years}
 \usage{
 plot_catch(
   model_result,
@@ -18,34 +18,46 @@ plot_catch(
 )
 }
 \arguments{
-\item{model_result}{A list that contains model output. The list should have a "report" component which contains a "CN" component representing CN}
+\item{model_result}{A list containing model output. The list should have a "report" component containing either a "CN" or "CNA" component.}
 
 \item{line_size}{Numeric. The thickness of the line in the plot. Default is 1.2.}
 
-\item{line_color}{Character. The color of the line in the plot. Default is "black".}
+\item{line_color}{Character. The color of the line in the plot. Default is "red".}
 
 \item{line_type}{Character. The type of the line in the plot. Default is "solid".}
 
 \item{se}{Logical. Whether to calculate and plot standard error as confidence intervals. Default is FALSE.}
 
-\item{se_color}{Character. The color of the confidence interval ribbon. Default is "blue".}
+\item{se_color}{Character. The color of the confidence interval ribbon. Default is "red".}
 
 \item{se_alpha}{Numeric. The transparency of the confidence interval ribbon. Default is 0.2.}
 
-\item{facet_ncol}{Number of columns in facet wrap. Default is 3.}
+\item{facet_ncol}{Numeric. Number of columns in facet wrap. Default is 3.}
 
-\item{facet_scales}{Scales for facet wrap. Default is "free".}
+\item{facet_scales}{Character. Scales for facet wrap. Default is "free".}
 
-\item{type}{Character. It specifies which the catch is plot for "CN" , "CNA" . Default is "CN".}
+\item{type}{Character vector. It specifies which type of catch is to be plotted: "CN" or "CNA". Default is c("CN","CNA").}
 }
 \value{
 A ggplot object representing the plot.
 }
 \description{
-This function takes a list and a data frame as input, and plots CN over the years using ggplot2.
+This function visualizes model outputs in the form of time-series plots of CN or CNA using ggplot2.
+For CN, it plots a simple time-series. For CNA, it creates a separate time-series plot for each age group.
 }
 \examples{
 \dontrun{
-plot_catch(model_result, line_size = 1.2, line_color = "red", line_type = "solid")
+# Use 'run_acl' to get 'model_result'
+model_result <- run_acl(...)
+
+# Plot CN
+plot_catch(model_result, type = "CN")
+
+# Plot CN with standard error
+plot_catch(model_result, type = "CN", se = TRUE)
+
+# Plot CNA
+plot_catch(model_result, type = "CNA")
 }
+
 }

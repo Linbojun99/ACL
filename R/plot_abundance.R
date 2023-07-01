@@ -1,22 +1,43 @@
-#' Plot number over the years
+#' Plot Abundance over the Years in ACL model
 #'
-#' This function takes a list and a data frame as input, and plots number over the years using ggplot2.
-#' @param model_result A list that contains model output. The list should have a "report" component which contains a "N" component representing number.
+#' This function is specifically designed for visualizing fish abundance data obtained from ACL fishery resource assessments.
+#' It can handle and plot three different types of abundance: total number ("N"), number at age ("NA"), and number at length ("NL").
+#'
+#' @param model_result A list that contains model output. The model output should be the result of a ACL fishery resource assessment,
+#' and it should have a "report" component which contains "N", "NA", or "NL" components representing the abundance.
 #' @param line_size Numeric. The thickness of the line in the plot. Default is 1.2.
-#' @param line_color Character. The color of the line in the plot. Default is "black".
+#' @param line_color Character. The color of the line in the plot. Default is "red".
 #' @param line_type Character. The type of the line in the plot. Default is "solid".
-#' @param se_color Character. The color of the confidence interval ribbon. Default is "blue".
-#' @param se_alpha Numeric. The transparency of the confidence interval ribbon. Default is 0.2.
 #' @param se Logical. Whether to calculate and plot standard error as confidence intervals. Default is FALSE.
+#' @param se_color Character. The color of the confidence interval ribbon. Default is "red".
+#' @param se_alpha Numeric. The transparency of the confidence interval ribbon. Default is 0.2.
+#' @param type Character. It specifies which the abundance is ploted for "N" , "NA" or "NL". Default is "N".
 #' @param facet_ncol Number of columns in facet wrap. Default is 3.
 #' @param facet_scales Scales for facet wrap. Default is "free".
-#' @param type Character. It specifies which the abundance is ploted for "N" , "NA" or "NL". Default is "N".
 #' @return A ggplot object representing the plot.
 #' @export
 #' @examples
+#' @examples
 #' \dontrun{
-#' plot_abundance(model_result, line_size = 1.2, line_color = "red", line_type = "solid")
+#' # Simulate a model_result list to run the function
+#' model_result <- run_acl(model)
+#'
+#' # Type "N" for total number
+#' # In this case, we're plotting the total number over the years, without standard error.
+#' # line_size, line_color and line_type are customized.
+#' plot_abundance(model_result, type = "N", line_size = 1.2, line_color = "red", line_type = "solid")
+#'
+#' # Type "NA" for number at age
+#' # Here, we're plotting the number at age, with standard error (se = TRUE).
+#' # The plot will be faceted into 2 columns (facet_ncol = 2).
+#' plot_abundance(model_result, type = "NA", se = TRUE, facet_ncol = 2)
+#'
+#' # Type "NL" for number at length
+#' # In this example, we're plotting the number at length, with standard error (se = TRUE).
+#' # The plot will be faceted into 4 columns (facet_ncol = 4), and the scales for each facet will be fixed (facet_scales = "fixed").
+#' plot_abundance(model_result, type = "NL", se = TRUE, facet_ncol = 4, facet_scales = "fixed")
 #' }
+
 plot_abundance <- function(model_result, line_size = 1.2, line_color = "red", line_type = "solid", se = FALSE, se_color = "red", se_alpha = 0.2,type=c("N","NA","NL"), facet_ncol = 3, facet_scales = "free" ){
  if(type=="N"){
 

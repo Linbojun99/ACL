@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_SSB.R
 \name{plot_SSB}
 \alias{plot_SSB}
-\title{Plot Spawning stock biomass over the years}
+\title{Plot Spawning Stock Biomass (SSB) or Spawning Biomass at Length (SBL) Over the Years}
 \usage{
 plot_SSB(
   model_result,
@@ -18,34 +18,48 @@ plot_SSB(
 )
 }
 \arguments{
-\item{model_result}{A list that contains model output. The list should have a "report" component which contains a "SSB" component representing SSB}
+\item{model_result}{A list that contains model output. The list should have a "report" component which contains a "SSB" or "SBL" component representing Spawning Stock Biomass or Spawning Biomass at Length respectively.}
 
-\item{line_size}{Numeric. The thickness of the line in the plot. Default is 1.2.}
+\item{line_size}{Numeric, optional. The thickness of the line in the plot. Default is 1.2.}
 
-\item{line_color}{Character. The color of the line in the plot. Default is "black".}
+\item{line_color}{Character, optional. The color of the line in the plot. Default is "red".}
 
-\item{line_type}{Character. The type of the line in the plot. Default is "solid".}
+\item{line_type}{Character, optional. The type of the line in the plot. Default is "solid".}
 
-\item{se}{Logical. Whether to calculate and plot standard error as confidence intervals. Default is FALSE.}
+\item{se}{Logical, optional. Whether to calculate and plot standard error as confidence intervals. Default is FALSE.}
 
-\item{se_color}{Character. The color of the confidence interval ribbon. Default is "blue".}
+\item{se_color}{Character, optional. The color of the confidence interval ribbon. Default is "red".}
 
-\item{se_alpha}{Numeric. The transparency of the confidence interval ribbon. Default is 0.2.}
+\item{se_alpha}{Numeric, optional. The transparency of the confidence interval ribbon. Default is 0.2.}
 
-\item{type}{Character. It specifies which the SSB is plot for "SSB" , "SBL" . Default is "SSB".}
+\item{type}{Character, optional. It specifies whether to plot for "SSB" or "SBL". Default is "SSB".}
 
-\item{facet_ncol}{Number of columns in facet wrap. Default is 3.}
+\item{facet_ncol}{Numeric, optional. Number of columns in facet wrap. This parameter is only applicable when type is "SBL". Default is 3.}
 
-\item{facet_scales}{Scales for facet wrap. Default is "free".}
+\item{facet_scales}{Character, optional. Scales for facet wrap. This parameter is only applicable when type is "SBL". Default is "free".}
 }
 \value{
-A ggplot object representing the plot.
+A ggplot object representing the plot of Spawning Stock Biomass or Spawning Biomass at Length over the years.
 }
 \description{
-This function takes a list and a data frame as input, and plots SSB over the years using ggplot2.
+This function takes a list and a data frame as input, and plots SSB or SBL over the years using ggplot2.
 }
 \examples{
 \dontrun{
-plot_SSB(model_result, line_size = 1.2, line_color = "red", line_type = "solid")
+# Use 'run_acl' to get 'model_result'
+model_result <- run_acl(...)
+
+
+# Plot SSB with confidence intervals
+plot_SSB(model_result = model_result, type = "SSB", se = TRUE)
+
+# Plot SSB without confidence intervals
+plot_SSB(model_result = model_result, type = "SSB", se = FALSE)
+
+# Plot SBL with confidence intervals
+plot_SSB(model_result = model_result, type = "SBL", se = TRUE)
+
+# Plot SBL without confidence intervals
+plot_SSB(model_result = model_result, type = "SBL", se = FALSE)
 }
 }

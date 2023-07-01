@@ -1,22 +1,42 @@
-#' Plot biomass over the years
+#' @title Plot Biomass Over Years from an Age-Structured Assessment Model (ACL)
 #'
-#' This function takes a list and a data frame as input, and plots biomass over the years using ggplot2.
-#' @param model_result A list that contains model output. The list should have a "report" component which contains a "B" component representing biomass.
+#' @description This function takes the output from the `run_acl` function and plots biomass over the years using ggplot2.
+#' The biomass can be of two types, "B", representing the absolute biomass, and "BL", representing the biomass distributed
+#' over length groups for each year.
+#'
+#' @param model_result A list obtained from the `run_acl` function. This list should contain a "report" component that includes
+#' a "B" component (absolute biomass) and a "BL" component (length-grouped biomass).
 #' @param line_size Numeric. The thickness of the line in the plot. Default is 1.2.
-#' @param line_color Character. The color of the line in the plot. Default is "black".
+#' @param line_color Character. The color of the line in the plot. Default is "red".
 #' @param line_type Character. The type of the line in the plot. Default is "solid".
-#' @param se_color Character. The color of the confidence interval ribbon. Default is "blue".
+#' @param se Logical. Whether to calculate and plot standard error as confidence intervals. Default is FALSE. If TRUE, standard error
+#' will be calculated and confidence intervals will be shown as a shaded area around the line.
+#' @param se_color Character. The color of the confidence interval ribbon. Default is "red".
 #' @param se_alpha Numeric. The transparency of the confidence interval ribbon. Default is 0.2.
-#' @param se Logical. Whether to calculate and plot standard error as confidence intervals. Default is FALSE.
-#' @param facet_ncol Integer, number of columns in facet_wrap.
-#' @param facet_scales Character, scales for facet_wrap.
-#' @param type Character. It specifies which the biomass is plot for "B" , "BL" . Default is "N".
-#' @return A ggplot object representing the plot.
-#' @export
+#' @param type Character. Specifies whether to plot "B" (absolute biomass) or "BL" (length-grouped biomass). Default is "B".
+#' @param facet_ncol Integer. The number of columns in facet_wrap. Only applicable when type = "BL".
+#' @param facet_scales Character. Scales for facet_wrap. Only applicable when type = "BL".
+#'
+#' @return A ggplot object representing the plot of biomass over years.
+#'
 #' @examples
 #' \dontrun{
-#' plot_biomass(model_result, line_size = 1.2, line_color = "red", line_type = "solid")
+#' # Use 'run_acl' to get 'model_result'
+#' model_result <- run_acl(...)
+#'
+#' # Call the function with type = "B", standard error set to TRUE
+#' p_biomass_B <- plot_biomass(model_result, type = "B", se = TRUE)
+#'
+#' # Print the plot for "B" with standard error
+#' print(p_biomass_B)
+#'
+#' # Call the function with type = "BL", standard error set to FALSE
+#' p_biomass_BL <- plot_biomass(model_result, type = "BL", se = FALSE)
+#'
+#' # Print the plot for "BL" without standard error
+#' print(p_biomass_BL)
 #' }
+#' @export
 plot_biomass <- function(model_result, line_size = 1.2, line_color = "red", line_type = "solid", se = FALSE, se_color = "red", se_alpha = 0.2,type=c("B","BL"),facet_ncol = 3, facet_scales = "free"){
   if(type=="B"){
 

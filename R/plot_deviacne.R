@@ -1,6 +1,12 @@
-#' Plot dev_log_R Over Years
+#' Plot Deviation of Recruitment (R) and Fishing Mortality (F) Over Years
 #'
-#' @param model_result A list that contains model output.
+#' This function calculates the deviations of R and F in the ACL model results,
+#' which are used to measure the deviance of the model. These deviations are calculated
+#' as the difference between the observed and expected values, with the model's residuals
+#' as the measurement errors. This function can plot either R or F deviation over years,
+#' depending on the 'type' parameter.
+#'
+#' @param model_result A list that contains the Annual Catch Limit (ACL) model output.
 #' @param se Logical, whether to draw the standard error bar.
 #' @param line_size Numeric, the line size.
 #' @param line_color Character, the line color.
@@ -10,20 +16,33 @@
 #' @param point_shape Character. The shape of the point in the plot. Default is "solid".
 #' @param se_color Character, the color of the standard error.
 #' @param se_width Numeric, the width of the standard error.
-#' @param log Logical, whether to transform exp.
+#' @param log Logical, whether to apply an exponential transformation to the results.
 #' @param facet_ncol Number of columns in facet wrap. Default is 3.
 #' @param facet_scales Scales for facet wrap. Default is "free".
-#' @param type Character. It specifies which the catch is plot for "CN" , "CNA" . Default is "CN".
+#' @param type Character. It specifies whether the deviation plot is for "R" or "F". Default is "R".
 #'
 #' @return A ggplot2 object.
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' plot_deviance(confidence_intervals_dev_log_R, se = TRUE,
-#'          point_size=1,point_color="black",point_shape=1,line_size = 1,
-#'          line_color = "black", line_type = "solid", se_color = "blue", se_alpha = 0.4)
-#'          }
+#' # If you want to plot the deviation of recruitment (R) with standard error bars
+#' plot_deviance(model_result = your_model_results, se = TRUE, type = "R",
+#'               point_size = 1, point_color = "black", point_shape = 1,
+#'               line_size = 1, line_color = "black", line_type = "solid",
+#'               se_color = "blue", se_alpha = 0.4)
+#'
+#' # If you do not want to plot the standard error bars
+#' plot_deviance(model_result = your_model_results, se = FALSE, type = "R",
+#'               point_size = 1, point_color = "black", point_shape = 1,
+#'               line_size = 1, line_color = "black", line_type = "solid")
+#'
+#' # If you want to plot the deviation of fishing mortality (F) with standard error bars
+#' plot_deviance(model_result = your_model_results, se = TRUE, type = "F",
+#'               point_size = 1, point_color = "black", point_shape = 1,
+#'               line_size = 1, line_color = "black", line_type = "solid",
+#'               se_color = "blue", se_alpha = 0.4)
+#' }
 
 plot_deviance <- function(model_result, se = TRUE, point_size=3,point_color="white",point_shape=21 ,line_size = 1, line_color = "black", line_type = "solid",se_color="black", se_width=0.5,facet_ncol = 3, facet_scales = "free",log=T,type=c("R","F")) {
 
