@@ -13,7 +13,7 @@ plot_biomass(
   se_color = "red",
   se_alpha = 0.2,
   type = c("B", "BL"),
-  facet_ncol = 3,
+  facet_ncol = NULL,
   facet_scales = "free"
 )
 }

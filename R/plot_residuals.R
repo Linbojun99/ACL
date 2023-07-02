@@ -15,6 +15,7 @@
 #' @param smooth_color Character. The color of the smooth line in the plot. Default is "blue".
 #' @param hline_color Character. The color of the horizontal line (at y=0) in the plot. Default is "red".
 #' @param line_size Numeric. The size of the lines in the plot. Default is 1.
+#' @param facet_ncol Numeric, optional. Number of columns in facet wrap.  Default is NULL.
 #' @param facet_scales Character. The "scales" argument for the facet_wrap function in ggplot2. Default is "free".
 #' @param type Character. Specifies whether the residuals are calculated over "length" or "year". Default is "length".
 #'
@@ -38,7 +39,7 @@
 #' print(p_year)
 #' }
 #' @export
-plot_residuals <- function(model_result, f = 0.4, line_color = "black", smooth_color = "blue", hline_color = "red", line_size = 1, facet_scales = "free", type=c("length","year")) {
+plot_residuals <- function(model_result, f = 0.4, line_color = "black", smooth_color = "blue", hline_color = "red", line_size = 1, facet_scales = "free", facet_ncol=NULL,type=c("length","year")) {
   if(type=="length"){
 
     num_indices <- dim(model_result[["report"]][["resid_index"]])[1]
@@ -82,7 +83,7 @@ plot_residuals <- function(model_result, f = 0.4, line_color = "black", smooth_c
       geom_line(color = line_color, size = line_size) +
       geom_smooth(method="loess", formula=y~x, se=FALSE, color=smooth_color, linetype=2, size=line_size) +
       geom_hline(yintercept=0, color=hline_color, size=line_size) +
-      facet_wrap(~Year, scales = facet_scales)+
+      facet_wrap(~Year, scales = facet_scales,ncol = facet_ncol)+
       theme_minimal()
   }
   return(p)

@@ -13,7 +13,7 @@ plot_abundance(
   se_color = "red",
   se_alpha = 0.2,
   type = c("N", "NA", "NL"),
-  facet_ncol = 3,
+  facet_ncol = NULL,
   facet_scales = "free"
 )
 }
@@ -35,7 +35,7 @@ and it should have a "report" component which contains "N", "NA", or "NL" compon
 
 \item{type}{Character. It specifies which the abundance is ploted for "N" , "NA" or "NL". Default is "N".}
 
-\item{facet_ncol}{Number of columns in facet wrap. Default is 3.}
+\item{facet_ncol}{Number of columns in facet wrap. Default is NULL.}
 
 \item{facet_scales}{Scales for facet wrap. Default is "free".}
 }

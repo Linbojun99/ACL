@@ -12,7 +12,7 @@ plot_catch(
   se = FALSE,
   se_color = "red",
   se_alpha = 0.2,
-  facet_ncol = 3,
+  facet_ncol = NULL,
   facet_scales = "free",
   type = c("CN", "CNA")
 )
@@ -32,7 +32,7 @@ plot_catch(
 
 \item{se_alpha}{Numeric. The transparency of the confidence interval ribbon. Default is 0.2.}
 
-\item{facet_ncol}{Numeric. Number of columns in facet wrap. Default is 3.}
+\item{facet_ncol}{Numeric. Number of columns in facet wrap. Default is NULL.}
 
 \item{facet_scales}{Character. Scales for facet wrap. Default is "free".}
 

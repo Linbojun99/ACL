@@ -37,7 +37,7 @@
 #' print(p_biomass_BL)
 #' }
 #' @export
-plot_biomass <- function(model_result, line_size = 1.2, line_color = "red", line_type = "solid", se = FALSE, se_color = "red", se_alpha = 0.2,type=c("B","BL"),facet_ncol = 3, facet_scales = "free"){
+plot_biomass <- function(model_result, line_size = 1.2, line_color = "red", line_type = "solid", se = FALSE, se_color = "red", se_alpha = 0.2,type=c("B","BL"),facet_ncol = NULL, facet_scales = "free"){
   if(type=="B"){
 
   # Extract the biomass data

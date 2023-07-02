@@ -9,7 +9,7 @@ plot_fishing_mortality(
   line_size = 1,
   line_color = "red",
   line_type = "solid",
-  facet_ncol = 3,
+  facet_ncol = NULL,
   facet_scales = "free",
   se = FALSE,
   se_color = "red",

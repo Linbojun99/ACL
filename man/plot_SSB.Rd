@@ -13,7 +13,7 @@ plot_SSB(
   se_color = "red",
   se_alpha = 0.2,
   type = c("SSB", "SBL"),
-  facet_ncol = 3,
+  facet_ncol = NULL,
   facet_scales = "free"
 )
 }
@@ -34,7 +34,7 @@ plot_SSB(
 
 \item{type}{Character, optional. It specifies whether to plot for "SSB" or "SBL". Default is "SSB".}
 
-\item{facet_ncol}{Numeric, optional. Number of columns in facet wrap. This parameter is only applicable when type is "SBL". Default is 3.}
+\item{facet_ncol}{Numeric, optional. Number of columns in facet wrap. This parameter is only applicable when type is "SBL". Default is NULL.}
 
 \item{facet_scales}{Character, optional. Scales for facet wrap. This parameter is only applicable when type is "SBL". Default is "free".}
 }

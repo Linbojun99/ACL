@@ -17,7 +17,7 @@
 #' @param se_color Character, the color of the standard error.
 #' @param se_width Numeric, the width of the standard error.
 #' @param log Logical, whether to apply an exponential transformation to the results.
-#' @param facet_ncol Number of columns in facet wrap. Default is 3.
+#' @param facet_ncol Number of columns in facet wrap. Default is NULL.
 #' @param facet_scales Scales for facet wrap. Default is "free".
 #' @param type Character. It specifies whether the deviation plot is for "R" or "F". Default is "R".
 #'
@@ -44,7 +44,7 @@
 #'               se_color = "blue", se_alpha = 0.4)
 #' }
 
-plot_deviance <- function(model_result, se = TRUE, point_size=3,point_color="white",point_shape=21 ,line_size = 1, line_color = "black", line_type = "solid",se_color="black", se_width=0.5,facet_ncol = 3, facet_scales = "free",log=T,type=c("R","F")) {
+plot_deviance <- function(model_result, se = TRUE, point_size=3,point_color="white",point_shape=21 ,line_size = 1, line_color = "black", line_type = "solid",se_color="black", se_width=0.5,facet_ncol = NULL, facet_scales = "free",log=T,type=c("R","F")) {
 
   if(type=="R"){
   dev_log_R<-model_result[["est_std"]][grep("^dev_log_R", rownames(model_result[["est_std"]])),]

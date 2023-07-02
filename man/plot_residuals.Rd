@@ -12,6 +12,7 @@ plot_residuals(
   hline_color = "red",
   line_size = 1,
   facet_scales = "free",
+  facet_ncol = NULL,
   type = c("length", "year")
 )
 }
@@ -31,6 +32,8 @@ influence the smooth at each value. Larger values result in more smoothing. Defa
 \item{line_size}{Numeric. The size of the lines in the plot. Default is 1.}
 
 \item{facet_scales}{Character. The "scales" argument for the facet_wrap function in ggplot2. Default is "free".}
+
+\item{facet_ncol}{Numeric, optional. Number of columns in facet wrap.  Default is NULL.}
 
 \item{type}{Character. Specifies whether the residuals are calculated over "length" or "year". Default is "length".}
 }

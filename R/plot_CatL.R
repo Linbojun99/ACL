@@ -14,7 +14,7 @@
 #' @param point_color Character. Specifies the color of the point in the plot. Default is "black".
 #' @param point_size Numeric. Specifies the size of the point in the plot. Default is 1.
 #' @param point_shape Numeric. Specifies the shape of the point in the plot. Default is 1.
-#' @param facet_ncol Integer. Specifies the number of columns in the facet_wrap. Default is 3.
+#' @param facet_ncol Integer. Specifies the number of columns in the facet_wrap. Default is NULL.
 #' @param facet_scales Character. Specifies scales for facet_wrap. Default is "free".
 #' @param type Character. It specifies whether the Elog_index is plotted across "length" or "year". Default is "length".
 #' @param exp_transform Logical. Specifies whether to apply the exponential function to the data before plotting. If TRUE, the exponential of the data values is plotted. Default is FALSE.
@@ -38,7 +38,7 @@
 #'
 #' @export
 
-plot_CatL <- function(model_result, point_size=1, point_color="black", point_shape=1, line_size = 1.2, line_color = "black", line_type = "solid", line_color1 = "red", line_color2 = "blue", facet_ncol = 3, facet_scales = "free", type = c("length","year"), exp_transform = FALSE){
+plot_CatL <- function(model_result, point_size=1, point_color="black", point_shape=1, line_size = 1.2, line_color = "black", line_type = "solid", line_color1 = "red", line_color2 = "blue", facet_ncol = NULL, facet_scales = "free", type = c("length","year"), exp_transform = FALSE){
 
 
   # Apply exp transformation if exp_transform is TRUE

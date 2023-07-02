@@ -12,7 +12,7 @@
 #' @param se_color Character. The color of the confidence interval ribbon. Default is "red".
 #' @param se_alpha Numeric. The transparency of the confidence interval ribbon. Default is 0.2.
 #' @param type Character. It specifies which the abundance is ploted for "N" , "NA" or "NL". Default is "N".
-#' @param facet_ncol Number of columns in facet wrap. Default is 3.
+#' @param facet_ncol Number of columns in facet wrap. Default is NULL.
 #' @param facet_scales Scales for facet wrap. Default is "free".
 #' @return A ggplot object representing the plot.
 #' @export
@@ -38,7 +38,7 @@
 #' plot_abundance(model_result, type = "NL", se = TRUE, facet_ncol = 4, facet_scales = "fixed")
 #' }
 
-plot_abundance <- function(model_result, line_size = 1.2, line_color = "red", line_type = "solid", se = FALSE, se_color = "red", se_alpha = 0.2,type=c("N","NA","NL"), facet_ncol = 3, facet_scales = "free" ){
+plot_abundance <- function(model_result, line_size = 1.2, line_color = "red", line_type = "solid", se = FALSE, se_color = "red", se_alpha = 0.2,type=c("N","NA","NL"), facet_ncol = NULL, facet_scales = "free" ){
  if(type=="N"){
 
 
@@ -58,7 +58,7 @@ plot_abundance <- function(model_result, line_size = 1.2, line_color = "red", li
     # Plot number over the years using ggplot2
     p <- ggplot2::ggplot(number, aes(x = Year, y = number)) +
       ggplot2::geom_line(size = line_size, color = line_color, linetype = line_type) +
-      ggplot2::labs(x = "Year", y = "number", title = "number Over Years") +
+      ggplot2::labs(x = "Year", y = "Relative abundance", title = "Number Over Years") +
       ggplot2::theme_minimal()
   }
 
@@ -81,7 +81,7 @@ plot_abundance <- function(model_result, line_size = 1.2, line_color = "red", li
     p <- ggplot2::ggplot(confidence_intervals_n, aes(x = Year, y = estimate)) +
       ggplot2::geom_line(size = line_size, color = line_color, linetype = line_type) +
       ggplot2::geom_ribbon(aes(ymin = lower, ymax = upper),  fill = se_color,alpha = se_alpha) +
-      ggplot2::labs(y = "Number", x = "Year", title = "Number Over Years with Confidence Intervals") +
+      ggplot2::labs(y = "Relative abundance", x = "Year", title = "Number Over Years with Confidence Intervals") +
       ggplot2::theme_minimal()
   }
  }
@@ -182,7 +182,7 @@ plot_abundance <- function(model_result, line_size = 1.2, line_color = "red", li
       p <- ggplot2::ggplot(NL_long, aes(x = Year, y = Count)) +
         ggplot2::geom_line( size = line_size, color = line_color, linetype = line_type) +
         ggplot2::facet_wrap(~LengthGroup, ncol = facet_ncol, scales = facet_scales) +
-        ggplot2::labs(x = "Year", y = "Relative abundance", title = "NL Over Years") +
+        ggplot2::labs(x = "Year", y = "Relative abundance", title = "Number of different length groups Over Years") +
         ggplot2::theme_minimal()
     }
     else{
@@ -219,12 +219,11 @@ plot_abundance <- function(model_result, line_size = 1.2, line_color = "red", li
 
 
 
-
       p <- ggplot2::ggplot(confidence_intervals_NL, aes(x = Year, y = estimate)) +
         ggplot2::geom_line( size = line_size, color = line_color, linetype = line_type) +
         ggplot2::geom_ribbon(aes(ymin = lower, ymax = upper),  fill = se_color,alpha = se_alpha) +
         ggplot2::facet_wrap(~LengthGroup, ncol = facet_ncol, scales = facet_scales) +
-        ggplot2::labs(x = "Year", y = "Relative abundance", title = "NL Over Years with Confidence Intervals") +
+        ggplot2::labs(x = "Year", y = "Relative abundance", title = "Number of different length groups Over Years with Confidence Intervals") +
         ggplot2::theme_minimal()
 
 

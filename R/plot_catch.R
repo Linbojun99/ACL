@@ -10,7 +10,7 @@
 #' @param se Logical. Whether to calculate and plot standard error as confidence intervals. Default is FALSE.
 #' @param se_color Character. The color of the confidence interval ribbon. Default is "red".
 #' @param se_alpha Numeric. The transparency of the confidence interval ribbon. Default is 0.2.
-#' @param facet_ncol Numeric. Number of columns in facet wrap. Default is 3.
+#' @param facet_ncol Numeric. Number of columns in facet wrap. Default is NULL.
 #' @param facet_scales Character. Scales for facet wrap. Default is "free".
 #' @param type Character vector. It specifies which type of catch is to be plotted: "CN" or "CNA". Default is c("CN","CNA").
 #'
@@ -33,7 +33,7 @@
 #' }
 #'
 #' @export
-plot_catch <- function(model_result, line_size = 1.2, line_color = "red", line_type = "solid", se = FALSE, se_color = "red", se_alpha = 0.2,facet_ncol = 3, facet_scales = "free",type=c("CN","CNA")){
+plot_catch <- function(model_result, line_size = 1.2, line_color = "red", line_type = "solid", se = FALSE, se_color = "red", se_alpha = 0.2,facet_ncol = NULL, facet_scales = "free",type=c("CN","CNA")){
   if(type=="CN")
     {
     # Extract the CN data

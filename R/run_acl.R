@@ -30,6 +30,7 @@
 #' which can help in defining the length intervals for model fitting.
 #' @param len_border Numeric vector, user-specified border length values (default is NULL),
 #' which can also help in defining the length intervals for model fitting.
+#' @param output Logical, if TRUE, it will generate plots and save them in the "output" subfolder of the current directory.
 #'
 #' @return A list containing the results of the ACL stock assessment model,
 #' including model outputs (estimated parameters and their standard errors),
@@ -38,7 +39,7 @@
 
 run_acl <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L95,
                     parameters = NULL, parameters.L = NULL, parameters.U = NULL,
-                    map = NULL,len_mid = NULL, len_border = NULL)
+                    map = NULL,len_mid = NULL, len_border = NULL,output=T)
 {
   {
 
@@ -65,12 +66,12 @@ run_acl <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L95,
     weight=data.wgt[,2:ncol(data.CatL)]
     mat=data.mat[,2:ncol(data.CatL)]
 
-    # 检查是否只有一个数值
+    # Check if there is only one value
     contains_only_one_number <- function(s) {
       return(!grepl("-", s))
     }
 
-    # 如果只有一个数值，使用 len_border
+    # If there is only one value, use len_border
     if (contains_only_one_number(data.CatL[,1][1])) {
       len_mid <- len_border
       log_q <- log(mat_func(sel_L50, sel_L95, len_mid))
@@ -153,7 +154,7 @@ run_acl <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L95,
       stop("ACL.cpp not found in the package directory.")
     }
 
-    # 编译ACL.cpp
+    # Compile ACL.cpp
     compile(file = acl_cpp_path, "&> /tmp/logfile.log")
 
     logN_at_len <- as.matrix(log(data.CatL[, 2:ncol(data.CatL)]+1e-5 ))
@@ -239,5 +240,31 @@ run_acl <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L95,
     rm(obj, opt, report, result)
 
   }
+
+  # Check output parameters
+  if (!dir.exists("output")) {
+    {
+    dir.create("output")
+    if (!dir.exists("output")) {
+      stop("Failed to create output directory.")
+    }
+  }
+
+    # Save the image in the output folder
+    png(filename="output/plot_abundance_N.png",width = 16, height = 9, units = "in", res = 600)
+    plot_abundance(results_list, type = "N", line_size = 1.2, line_color = "red", se=T,line_type = "solid")
+    dev.off()
+
+    png(filename="output/plot_abundance_NA.png",width = 16, height = 9, units = "in", res = 600)
+    plot_abundance(results_list, type = "NA", line_size = 1.2, line_color = "red", line_type = "solid",se=T,facet_ncol = NULL)
+    dev.off()
+
+    png(filename="output/plot_abundance_NL.png",width = 16, height = 9, units = "in", res = 600)
+    plot_abundance(results_list, type = "NL", line_size = 1.2, line_color = "red", line_type = "solid",se=T,facet_ncol = NULL)
+    dev.off()
+
+
+  }
   return(results_list)
 }
+

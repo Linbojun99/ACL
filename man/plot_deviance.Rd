@@ -15,7 +15,7 @@ plot_deviance(
   line_type = "solid",
   se_color = "black",
   se_width = 0.5,
-  facet_ncol = 3,
+  facet_ncol = NULL,
   facet_scales = "free",
   log = T,
   type = c("R", "F")
@@ -42,7 +42,7 @@ plot_deviance(
 
 \item{se_width}{Numeric, the width of the standard error.}
 
-\item{facet_ncol}{Number of columns in facet wrap. Default is 3.}
+\item{facet_ncol}{Number of columns in facet wrap. Default is NULL.}
 
 \item{facet_scales}{Scales for facet wrap. Default is "free".}
 

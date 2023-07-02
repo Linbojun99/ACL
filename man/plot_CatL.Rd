@@ -14,7 +14,7 @@ plot_CatL(
   line_type = "solid",
   line_color1 = "red",
   line_color2 = "blue",
-  facet_ncol = 3,
+  facet_ncol = NULL,
   facet_scales = "free",
   type = c("length", "year"),
   exp_transform = FALSE
@@ -39,7 +39,7 @@ plot_CatL(
 
 \item{line_color2}{Character. The color of the line for observed abundance (logN_at_len). Default is "blue".}
 
-\item{facet_ncol}{Integer. Specifies the number of columns in the facet_wrap. Default is 3.}
+\item{facet_ncol}{Integer. Specifies the number of columns in the facet_wrap. Default is NULL.}
 
 \item{facet_scales}{Character. Specifies scales for facet_wrap. Default is "free".}
 

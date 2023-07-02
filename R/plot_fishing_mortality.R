@@ -35,7 +35,7 @@
 #' print(p_mortality)
 #' }
 #' @export
-plot_fishing_mortality <- function(model_result, line_size = 1, line_color = "red", line_type = "solid", facet_ncol = 3, facet_scales = "free" ,se = FALSE, se_color = "red", se_alpha = 0.2){
+plot_fishing_mortality <- function(model_result, line_size = 1, line_color = "red", line_type = "solid", facet_ncol = NULL, facet_scales = "free" ,se = FALSE, se_color = "red", se_alpha = 0.2){
 
   # Extract the F data
   F<- model_result[["report"]][["F"]]
