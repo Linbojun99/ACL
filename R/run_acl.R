@@ -39,7 +39,7 @@
 
 run_acl <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L95,
                     parameters = NULL, parameters.L = NULL, parameters.U = NULL,
-                    map = NULL,len_mid = NULL, len_border = NULL,output=T)
+                    map = NULL,len_mid = NULL, len_border = NULL,output=TRUE)
 {
   {
 
@@ -239,10 +239,11 @@ run_acl <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L95,
 
     rm(obj, opt, report, result)
 
-  }
+
 
   # Check output parameters
-  if (!dir.exists("output")) {
+  if (output) {
+  if (!dir.exists("output"))
     {
     dir.create("output")
     if (!dir.exists("output")) {
@@ -252,19 +253,20 @@ run_acl <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L95,
 
     # Save the image in the output folder
     png(filename="output/plot_abundance_N.png",width = 16, height = 9, units = "in", res = 600)
-    plot_abundance(results_list, type = "N", line_size = 1.2, line_color = "red", se=T,line_type = "solid")
+    plot_abundance(model_result=results_list, type = "N", line_size = 1.2, line_color = "red", se=T,line_type = "solid")
     dev.off()
 
     png(filename="output/plot_abundance_NA.png",width = 16, height = 9, units = "in", res = 600)
-    plot_abundance(results_list, type = "NA", line_size = 1.2, line_color = "red", line_type = "solid",se=T,facet_ncol = NULL)
+    plot_abundance(model_result=results_list, type = "NA", line_size = 1.2, line_color = "red", line_type = "solid",se=T,facet_ncol = NULL)
     dev.off()
 
     png(filename="output/plot_abundance_NL.png",width = 16, height = 9, units = "in", res = 600)
-    plot_abundance(results_list, type = "NL", line_size = 1.2, line_color = "red", line_type = "solid",se=T,facet_ncol = NULL)
+    plot_abundance(model_result=results_list, type = "NL", line_size = 1.2, line_color = "red", line_type = "solid",se=T,facet_ncol = NULL)
     dev.off()
 
-
-  }
-  return(results_list)
 }
 
+  return(results_list)
+    }
+
+}

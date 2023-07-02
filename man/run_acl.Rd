@@ -19,7 +19,7 @@ run_acl(
   map = NULL,
   len_mid = NULL,
   len_border = NULL,
-  output = T
+  output = TRUE
 )
 }
 \arguments{
