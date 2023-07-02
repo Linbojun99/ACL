@@ -56,6 +56,8 @@ retro_acl <- function(nyear, data.CatL, data.wgt, data.mat, rec.age, nage, M, se
   library(ggplot2)
   library(dplyr)
 
+  results <- data.frame(Year = integer(), Variable = character(), Value = numeric(), RetrospectiveYear = integer(), Rho = numeric())
+
   results1 <- data.frame(Year = integer(), Variable = character(), Value = numeric(), RetrospectiveYear = integer(), Rho = numeric())
 
   # Get the results of the full data model first
