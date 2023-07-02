@@ -56,7 +56,7 @@ retro_acl <- function(nyear, data.CatL, data.wgt, data.mat, rec.age, nage, M, se
   library(ggplot2)
   library(dplyr)
 
-  results <- data.frame(Year = integer(), Variable = character(), Value = numeric(), RetrospectiveYear = integer(), Rho = numeric())
+  results1 <- data.frame(Year = integer(), Variable = character(), Value = numeric(), RetrospectiveYear = integer(), Rho = numeric())
 
   # Get the results of the full data model first
   model_result <- run_acl(data.CatL = data.CatL,
@@ -83,7 +83,7 @@ retro_acl <- function(nyear, data.CatL, data.wgt, data.mat, rec.age, nage, M, se
                             Value = variables[[variable_name]],
                             RetrospectiveYear = rep(tail(year, 1), length(year)),
                             Rho = rep(NA, length(year)))  # Rho值对于完整数据集为NA
-    results <- rbind(results, temp_full)
+    results1 <- rbind(results1, temp_full)
   }
 
   for (i in 1:(nyear)) {
@@ -114,11 +114,21 @@ retro_acl <- function(nyear, data.CatL, data.wgt, data.mat, rec.age, nage, M, se
     # For each variable, calculate the rho value and save the result to data.frame
     for (variable_name in names(variables)) {
       # Extracts the original data for the same year as the backtracked data
-      original_values <- results[results$Year %in% year2 & results$Variable == variable_name, "Value"]
+      original_values <- results1[results1$Year %in% year2 & results1$Variable == variable_name, "Value"]
+
 
       # Calculate rho value
       if(length(variables[[variable_name]]) != length(original_values)){
-        stop("Vectors are not of the same length.")
+
+        # Before extracting original_values
+        print(head(results1[results1$Year %in% year2 & results1$Variable == variable_name, ]))
+
+
+        print(paste("Processing year: ", year2))
+        print(paste("Length of variables[[variable_name]]: ", length(variables[[variable_name]])))
+        print(paste("Length of original_values: ", length(original_values)))
+
+         stop("Vectors are not of the same length.")
       } else {
         # Use Mohn's rho instead of correlation
         rho <- mean((variables[[variable_name]] - original_values) / original_values)
@@ -133,6 +143,7 @@ retro_acl <- function(nyear, data.CatL, data.wgt, data.mat, rec.age, nage, M, se
       results <- rbind(results, temp)
     }
   }
+  results <- rbind(results1, results)
 
 
   results$RetrospectiveYear <- factor(results$RetrospectiveYear, levels = sort(unique(results$RetrospectiveYear), decreasing = TRUE))
