@@ -18,8 +18,7 @@ run_acl(
   parameters.U = NULL,
   map = NULL,
   len_mid = NULL,
-  len_border = NULL,
-  output = TRUE
+  len_border = NULL
 )
 }
 \arguments{
@@ -62,8 +61,6 @@ which can help in defining the length intervals for model fitting.}
 
 \item{len_border}{Numeric vector, user-specified border length values (default is NULL),
 which can also help in defining the length intervals for model fitting.}
-
-\item{output}{Logical, if TRUE, it will generate plots and save them in the "output" subfolder of the current directory.}
 }
 \value{
 A list containing the results of the ACL stock assessment model,
