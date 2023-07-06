@@ -59,10 +59,10 @@ p_biomass_B <- plot_biomass(model_result, type = "B", se = TRUE)
 # Print the plot for "B" with standard error
 print(p_biomass_B)
 
-# Call the function with type = "BL", standard error set to FALSE
-p_biomass_BL <- plot_biomass(model_result, type = "BL", se = FALSE)
+# Call the function with type = "BL"
+p_biomass_BL <- plot_biomass(model_result, type = "BL")
 
-# Print the plot for "BL" without standard error
+# Print the plot for "BL"
 print(p_biomass_BL)
 }
 }

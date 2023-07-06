@@ -100,6 +100,8 @@ plot_CatL <- function(model_result, point_size=1, point_color="black", point_sha
     ggplot2::facet_wrap(~LengthGroup, ncol = facet_ncol, scales = facet_scales) +
     ggplot2::labs(x = "Year", y = "Abundance", title = "Estimated(Line) and Observed(Point) Catch-at-Length Over Years") +
     ggplot2::theme_minimal()
+
+  return(p)
   }
 
     if(type=="year"){

@@ -251,21 +251,65 @@ run_acl <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L95,
   }
 
     # Save the image in the output folder
-    png(filename="output/plot_abundance_N.png",width = 16, height = 9, units = "in", res = 600)
+    #png(filename="output/plot_abundance_N.png",width = 16, height = 9, units = "in", res = 600)
     plot_abundance(model_result=results_list, type = "N", line_size = 1.2, line_color = "red", se=T,line_type = "solid")
-    dev.off()
+    ggsave(filename="output/plot_abundance_N.png",width = 16, height = 9, units = "in", dpi = 600)
 
-    png(filename="output/plot_abundance_NA.png",width = 16, height = 9, units = "in", res = 600)
     plot_abundance(model_result=results_list, type = "NA", line_size = 1.2, line_color = "red", line_type = "solid",se=T,facet_ncol = NULL)
-    dev.off()
+    ggsave(filename="output/plot_abundance_NA.png",width = 16, height = 9, units = "in", dpi = 600)
 
-    png(filename="output/plot_abundance_NL.png",width = 16, height = 9, units = "in", res = 600)
+
     plot_abundance(model_result=results_list, type = "NL", line_size = 1.2, line_color = "red", line_type = "solid",se=T,facet_ncol = NULL)
-    dev.off()
+    ggsave(filename="output/plot_abundance_NL.png",width = 16, height = 9, units = "in", dpi = 600)
 
 
 
-  return(results_list)
+    plot_biomass(model_result=results_list, type = "B", line_size = 1.2, line_color = "red", line_type = "solid",se=T,facet_ncol = NULL)
+    ggsave(filename="output/plot_biomass_B.png",width = 16, height = 9, units = "in", dpi = 600)
+
+
+    plot_biomass(model_result=results_list, type = "BL", line_size = 1.2, line_color = "red", line_type = "solid",facet_ncol = NULL)
+    ggsave(filename="output/plot_biomass_BL.png",width = 16, height = 9, units = "in", dpi = 600)
+
+
+    plot_catch(model_result=results_list, type = "CN", line_size = 1.2, line_color = "red", line_type = "solid",se=T,facet_ncol = NULL)
+    ggsave(filename="output/plot_catch_CN.png",width = 16, height = 9, units = "in", dpi = 600)
+
+
+    plot_catch(model_result=results_list, type = "CNA", line_size = 1.2, line_color = "red", line_type = "solid",se=T,facet_ncol = NULL)
+    ggsave(filename="output/plot_catch_CNA.png",width = 16, height = 9, units = "in", dpi = 600)
+
+    plot_CatL(model_result=results_list,type = "length")
+    ggsave(filename="output/plot_CatL_length.png",width = 16, height = 9, units = "in", dpi = 600)
+
+    plot_CatL(model_result=results_list,type = "year",exp_transform = T)
+    ggsave(filename="output/plot_CatL_Year(exp=T).png",width = 16, height = 9, units = "in", dpi = 600)
+
+    plot_fishing_mortality(model_result=results_list, line_size = 1.2, line_color = "red", line_type = "solid")
+    ggsave(filename="output/plot_fishing_mortality.png",width = 16, height = 9, units = "in", dpi = 600)
+
+    plot_pla(model_result=results_list)
+    ggsave(filename="output/plot_pla.png",width = 16, height = 9, units = "in", dpi = 600)
+
+    plot_recruitment(model_result=results_list, line_size = 1.2, line_color = "red", line_type = "solid",se=T)
+    ggsave(filename="output/plot_recruitment.png",width = 16, height = 9, units = "in", dpi = 600)
+
+    plot_ridges(model_result=results_list)
+    ggsave(filename="output/plot_ridges.png",width = 16, height = 9, units = "in", dpi = 600)
+
+    plot_SSB_Rec(model_result=results_list)
+    ggsave(filename="output/plot_SSB_Rec.png",width = 16, height = 9, units = "in", dpi = 600)
+
+    plot_SSB(model_result=results_list,type="SSB", line_size = 1.2, line_color = "red", line_type = "solid",se=T,facet_ncol = NULL)
+    ggsave(filename="output/plot_SSB.png",width = 16, height = 9, units = "in", dpi = 600)
+
+    plot_SSB(model_result=results_list,type="SBL", line_size = 1.2, line_color = "red", line_type = "solid",se=T,facet_ncol = NULL)
+    ggsave(filename="output/plot_SBL.png",width = 16, height = 9, units = "in", dpi = 600)
+
+    plot_VB(model_result=results_list, line_size = 1.2, line_color = "red", line_type = "solid",se=T)
+    ggsave(filename="output/plot_VB.png",width = 16, height = 9, units = "in", dpi = 600)
+
+    return(results_list)
     }
 
 }

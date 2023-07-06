@@ -30,10 +30,10 @@
 #' # Print the plot for "B" with standard error
 #' print(p_biomass_B)
 #'
-#' # Call the function with type = "BL", standard error set to FALSE
-#' p_biomass_BL <- plot_biomass(model_result, type = "BL", se = FALSE)
+#' # Call the function with type = "BL"
+#' p_biomass_BL <- plot_biomass(model_result, type = "BL")
 #'
-#' # Print the plot for "BL" without standard error
+#' # Print the plot for "BL"
 #' print(p_biomass_BL)
 #' }
 #' @export
@@ -113,7 +113,7 @@ if(!se)
     p <- ggplot2::ggplot(BL_long, aes(x = Year, y = Count)) +
       ggplot2::geom_line( size = line_size, color = line_color, linetype = line_type) +
       ggplot2::facet_wrap(~LengthGroup, ncol = facet_ncol, scales = facet_scales) +
-      ggplot2::labs(x = "Year", y = "Relative abundance", title = "BL Over Years") +
+      ggplot2::labs(x = "Year", y = "Relative abundance", title = "Biomass at length group Over Years") +
       ggplot2::theme_minimal()
 
   }
