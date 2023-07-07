@@ -85,6 +85,14 @@ diagnose_model <- function(data.CatL,model_result) {
   # Calculate Max Error
   max_error <- max(abs(observed_data - estimated_data))
 
-  return(list(MSE = MSE, MAE = MAE, RMSE = RMSE, Rsquared = Rsquared, MAPE = MAPE, exp_var_score = exp_var_score, max_error = max_error))
 
+  bound_hit<-model_result[["bound_hit"]]
+  converge<-model_result[["converge"]]
+  final_outer_mgc<-model_result[["final_outer_mgc"]][length(model_result[["final_outer_mgc"]]) - 2]
+  # Create a data frame with the results
+  diagnostics <- data.frame(Metric = c("MSE", "MAE", "RMSE", "Rsquared", "MAPE", "Explained Variance Score", "Max Error",
+                                       "Boundary Hit", "Model Converged", "Final Outer mgc"),
+                            Value = c(MSE, MAE, RMSE, Rsquared, MAPE, exp_var_score, max_error,
+                                      bound_hit, converge, final_outer_mgc))
+  return(diagnostics)
 }

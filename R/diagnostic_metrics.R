@@ -50,5 +50,8 @@ diagnostic_metrics <- function(data.CatL, model_result) {
   # Calculate Max Error
   max_error <- max(abs(observed_data - estimated_data))
 
-  return(list(MSE = MSE, MAE = MAE, RMSE = RMSE, Rsquared = Rsquared, MAPE = MAPE, exp_var_score = exp_var_score, max_error = max_error))
+  # Create a data frame with the results
+  diagnostics <- data.frame(Metric = c("MSE", "MAE", "RMSE", "Rsquared", "MAPE", "Explained Variance Score", "Max Error"),
+                            Value = c(MSE, MAE, RMSE, Rsquared, MAPE, exp_var_score, max_error))
+  return(diagnostics)
 }
