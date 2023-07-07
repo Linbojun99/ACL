@@ -4,10 +4,13 @@
 \alias{diagnose_model}
 \title{Diagnose model results}
 \usage{
-diagnose_model(model_result)
+diagnose_model(data.CatL, model_result)
 }
 \arguments{
-\item{model_result}{The model output. This should be a list that contains "bound_hit", "converge", and "final_outer_mgc" components.}
+\item{data.CatL}{A matrix containing the length grouping of the catch length,
+which represents the observed catch data in different length groups across years.}
+
+\item{model_result}{A list that contains the model output. The list should have a "report" component which contains an "Elog_index" component representing counts in length groups.}
 }
 \value{
 NULL. The function prints out the diagnostics and does not return anything.
@@ -17,6 +20,6 @@ This function receives a model output and performs various checks, including che
 }
 \examples{
 \dontrun{
-diagnose_model(model_result)
+diagnose_model(data.CatL,model_result)
 }
 }

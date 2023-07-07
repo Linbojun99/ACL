@@ -3,6 +3,7 @@
 export(VB_func)
 export(create_parameters)
 export(diagnose_model)
+export(diagnostic_metrics)
 export(generate_map)
 export(initialize_params)
 export(mat_func)

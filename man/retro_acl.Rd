@@ -26,7 +26,8 @@ retro_acl(
   point_shape = 21,
   facet_scales = "free",
   facet_col = NULL,
-  facet_row = NULL
+  facet_row = NULL,
+  train_times = 1
 )
 }
 \arguments{
@@ -73,6 +74,8 @@ retro_acl(
 \item{facet_col}{The number of columns for facet_wrap. Defaults to NULL.}
 
 \item{facet_row}{The number of rows for facet_wrap. Defaults to NULL.}
+
+\item{train_times}{Numeric, the number of times the model is to be trained,}
 }
 \value{
 If \code{plot} is TRUE, returns a ggplot object and a dataframe with the results. Otherwise, returns only the dataframe with the results.

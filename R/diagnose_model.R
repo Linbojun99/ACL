@@ -2,14 +2,16 @@
 #'
 #' This function receives a model output and performs various checks, including checking if the model has reached its boundaries, if it has converged, and printing the final likelihood estimate.
 #'
-#' @param model_result The model output. This should be a list that contains "bound_hit", "converge", and "final_outer_mgc" components.
+#' @param data.CatL A matrix containing the length grouping of the catch length,
+#' which represents the observed catch data in different length groups across years.
+#' @param model_result A list that contains the model output. The list should have a "report" component which contains an "Elog_index" component representing counts in length groups.
 #' @return NULL. The function prints out the diagnostics and does not return anything.
 #' @export
 #' @examples
 #' \dontrun{
-#' diagnose_model(model_result)
+#' diagnose_model(data.CatL,model_result)
 #' }
-diagnose_model <- function(model_result) {
+diagnose_model <- function(data.CatL,model_result) {
   if(!is.list(model_result)) stop("Model output should be a list.")
 
   # Check if the model result has hit the boundaries
@@ -43,5 +45,46 @@ diagnose_model <- function(model_result) {
     cat("\nWarning: 'final_outer_mgc' not found in the model output.\n")
   }
 
-  return(NULL)
+  observed_data <-data.CatL[,2:ncol(data.CatL)]
+  Elog_index <- model_result[["report"]][["Elog_index"]]
+  estimated_data<-exp(Elog_index)
+
+
+  # Remove observations equal to 0, and remove the corresponding predicted values
+  non_zero_indices <- observed_data != 0
+  observed_data <- observed_data[non_zero_indices]
+  estimated_data <- estimated_data[non_zero_indices]
+
+  # Calculation error
+  errors <- observed_data - estimated_data
+
+  # Calculation MSE
+  MSE <- mean(errors^2)
+
+  # Calculation MAE
+  MAE <- mean(abs(errors))
+
+  # Calculation RMSE
+  RMSE <- sqrt(MSE)
+
+  # Calculate the sum of squared residuals
+  sse <- sum(errors^2)
+
+  # Calculate the total sum of squares
+  sst <- sum((observed_data - mean(observed_data))^2)
+
+  # Calculate R-squared
+  Rsquared <- 1 - sse/sst
+
+  # Calculate MAPE
+  MAPE <- mean(abs((observed_data - estimated_data) / observed_data)) * 100
+
+  # Calculate Explained Variance Score
+  exp_var_score <- 1 - var(observed_data - estimated_data) / var(observed_data)
+
+  # Calculate Max Error
+  max_error <- max(abs(observed_data - estimated_data))
+
+  return(list(MSE = MSE, MAE = MAE, RMSE = RMSE, Rsquared = Rsquared, MAPE = MAPE, exp_var_score = exp_var_score, max_error = max_error))
+
 }
