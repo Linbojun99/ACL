@@ -18,7 +18,9 @@ run_acl(
   parameters.U = NULL,
   map = NULL,
   len_mid = NULL,
-  len_border = NULL
+  len_border = NULL,
+  output = FALSE,
+  train_times = 1
 )
 }
 \arguments{
@@ -61,6 +63,12 @@ which can help in defining the length intervals for model fitting.}
 
 \item{len_border}{Numeric vector, user-specified border length values (default is NULL),
 which can also help in defining the length intervals for model fitting.}
+
+\item{output}{Logical, If True, output the results of the model run in plots, tables, etc.(default is FALSE),}
+
+\item{train_times}{Numeric, the number of times the model is to be trained,
+with a default value of 1, corresponding to running the optimization routine once.
+The user can specify a different number of training times to refine the model fit.}
 }
 \value{
 A list containing the results of the ACL stock assessment model,

@@ -56,7 +56,7 @@ plot_ridges <- function(model_result,ridges_alpha=0.8){
     ggplot2::labs(x = "Body Length", y = "Year", title = "Estimated Catch-at-Length Over Years") +
     ggplot2::theme_minimal()
 
-  p<- gridExtra::grid.arrange(p_observed,p_estimated, ncol = 2)
+  p<- cowplot::plot_grid(p_observed,p_estimated, ncol = 2)
 
   # Return the plots as a list
   return(p)

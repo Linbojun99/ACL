@@ -25,7 +25,7 @@ Imports:
     dplyr,
     reshape2,
     ggridges,
-    gridExtra
+    cowplot
 Depends:
     Rcpp,
     TMB,

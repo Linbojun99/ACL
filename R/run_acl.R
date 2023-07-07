@@ -30,6 +30,10 @@
 #' which can help in defining the length intervals for model fitting.
 #' @param len_border Numeric vector, user-specified border length values (default is NULL),
 #' which can also help in defining the length intervals for model fitting.
+#' @param output Logical, If True, output the results of the model run in plots, tables, etc.(default is FALSE),
+#' @param train_times Numeric, the number of times the model is to be trained,
+#' with a default value of 1, corresponding to running the optimization routine once.
+#' The user can specify a different number of training times to refine the model fit.
 #'
 #' @return A list containing the results of the ACL stock assessment model,
 #' including model outputs (estimated parameters and their standard errors),
@@ -38,7 +42,7 @@
 
 run_acl <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L95,
                     parameters = NULL, parameters.L = NULL, parameters.U = NULL,
-                    map = NULL,len_mid = NULL, len_border = NULL)
+                    map = NULL,len_mid = NULL, len_border = NULL,output=FALSE,train_times=1)
 {
   {
 
@@ -208,6 +212,10 @@ run_acl <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L95,
     cat("\nRunning optimization with nlminb...\n")
 
     opt<-nlminb(obj$par,obj$fn,obj$gr,lower=lower,upper=upper,control=list(trace=0,iter.max=2000,eval.max=10000))
+
+     for(i in 2:train_times) {
+      opt<-nlminb(opt$par,obj$fn,obj$gr,lower=lower,upper=upper,control=list(trace=0,iter.max=2000,eval.max=10000))
+    }
     # opt1<-nlminb(opt$par,obj$fn,obj$gr,lower=lower,upper=upper,control=list(trace=0,iter.max=2000,eval.max=10000))
     final_outer_mgc<-obj$gr(opt$par)
     par_low_up<- cbind(opt$par,lower,upper)
@@ -241,7 +249,7 @@ run_acl <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L95,
 
 
   # Check output parameters
-
+if(output==TRUE){
   if (!dir.exists("output"))
     {
     dir.create("output")
@@ -308,7 +316,7 @@ run_acl <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L95,
 
     plot_VB(model_result=results_list, line_size = 1.2, line_color = "red", line_type = "solid",se=T)
     ggsave(filename="output/plot_VB.png",width = 16, height = 9, units = "in", dpi = 600)
-
+}
     return(results_list)
     }
 

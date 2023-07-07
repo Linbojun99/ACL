@@ -28,6 +28,7 @@
 #' @param facet_scales Argument passed to `facet_wrap()`. Defaults to "free".
 #' @param facet_col The number of columns for facet_wrap. Defaults to NULL.
 #' @param facet_row The number of rows for facet_wrap. Defaults to NULL.
+#' @param train_times Numeric, the number of times the model is to be trained,
 #'
 #' @return If `plot` is TRUE, returns a ggplot object and a dataframe with the results. Otherwise, returns only the dataframe with the results.
 #' @export
@@ -51,7 +52,7 @@
 retro_acl <- function(nyear, data.CatL, data.wgt, data.mat, rec.age, nage, M, sel_L50, sel_L95,
                                    parameters = NULL, parameters.L = NULL, parameters.U = NULL,
                                    map = NULL, len_mid = NULL, len_border = NULL, plot = FALSE,
-                                   line_size = 1.2, point_size=3,point_shape=21,facet_scales = "free", facet_col = NULL, facet_row = NULL) {
+                                   line_size = 1.2, point_size=3,point_shape=21,facet_scales = "free", facet_col = NULL, facet_row = NULL,train_times=1) {
 
   library(ggplot2)
   library(dplyr)
@@ -65,7 +66,7 @@ retro_acl <- function(nyear, data.CatL, data.wgt, data.mat, rec.age, nage, M, se
                           data.wgt = data.wgt,
                           data.mat = data.mat,
                           rec.age, nage, M, sel_L50, sel_L95,
-                          parameters, parameters.L, parameters.U, map, len_mid, len_border)
+                          parameters, parameters.L, parameters.U, map, len_mid, len_border,train_times)
 
   # Extracting complete year data
   year <- model_result[["year"]]
