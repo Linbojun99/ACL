@@ -4,13 +4,13 @@
 #'
 #' @param bio_fishing_vars A list containing the biological and fishing variables.
 #' @param init_state_vars A list containing the initial state variables.
-#' @param nyear Integer, number of years to simulate.
+#' @param sim_year Integer, number of years to simulate.Defaults to 100
 #' @param output_dir Character, the directory where simulation results will be saved.(default is the current working directory).
 #'
 #' @return A list containing simulated fishery data.
 #' @export
-sim_data <- function(bio_fishing_vars, init_state_vars, nyear,output_dir=".") {
-  nyear<-nyear
+sim_data <- function(bio_fishing_vars, init_state_vars, sim_year = 100,output_dir=".") {
+  sim_year<-sim_year
   # Extract biological and fishing variables from the input list
   len_lower <- bio_fishing_vars$len_lower
   len_upper <- bio_fishing_vars$len_upper
@@ -31,7 +31,6 @@ sim_data <- function(bio_fishing_vars, init_state_vars, nyear,output_dir=".") {
   M <- init_state_vars$M
   Linf <- init_state_vars$Linf
   init_Z <- init_state_vars$init_Z
-  t0 <- init_state_vars$t0
   len_mid <- init_state_vars$len_mid
   std_logR <- init_state_vars$std_logR
   std_logN0 <- init_state_vars$std_logN0
@@ -45,48 +44,48 @@ sim_data <- function(bio_fishing_vars, init_state_vars, nyear,output_dir=".") {
   # Initialize arrays or data structures for storing simulated data
   # recruitment
   for(iter in 4:100){
-  Rec<-rep(NA,nyear)
+  Rec<-rep(NA,sim_year)
   R_init=500 # initial number of recruitment
   set.seed(iter)
-  dev_logR = arima.sim(list(order=c(1,0,0), ar=0.1), n=nyear)*std_logR # std of rec is 0.2
-  for(i in 1:nyear){
+  dev_logR = arima.sim(list(order=c(1,0,0), ar=0.1), n=sim_year)*std_logR # std of rec is 0.2
+  for(i in 1:sim_year){
     Rec[i]<-exp(log(R_init)+dev_logR[i])
   }
 
   # mortality
-  Z_at_age<-matrix(NA,nrow=nyear,ncol=nage) # total mortality at age
-  F_at_age<-matrix(NA,nrow=nyear,ncol=nage) # fishing mortality at age
-  M_at_age<-matrix(M,nrow=nyear,ncol=nage) # natural mortality at age
+  Z_at_age<-matrix(NA,nrow=sim_year,ncol=nage) # total mortality at age
+  F_at_age<-matrix(NA,nrow=sim_year,ncol=nage) # fishing mortality at age
+  M_at_age<-matrix(M,nrow=sim_year,ncol=nage) # natural mortality at age
   set.seed(iter)
-  F_yr<-0.3*exp(arima.sim(list(order=c(1,0,0), ar=0.75), n=nyear)*0.2) # annual fishing mortality
+  F_yr<-0.3*exp(arima.sim(list(order=c(1,0,0), ar=0.75), n=sim_year)*0.2) # annual fishing mortality
 
 
 
 
-  # Run the simulation for nyear
-  for (year in 1:nyear) {
+  # Run the simulation for sim_year
+  for (year in 1:sim_year) {
     # recruitment
-    Rec<-rep(NA,nyear)
+    Rec<-rep(NA,sim_year)
     R_init=500 # initial number of recruitment
     set.seed(iter)
-    dev_logR = arima.sim(list(order=c(1,0,0), ar=0.1), n=nyear)*std_logR # std of rec is 0.2
-    for(i in 1:nyear){
+    dev_logR = arima.sim(list(order=c(1,0,0), ar=0.1), n=sim_year)*std_logR # std of rec is 0.2
+    for(i in 1:sim_year){
       Rec[i]<-exp(log(R_init)+dev_logR[i])
     }
 
     # mortality
-    Z_at_age<-matrix(NA,nrow=nyear,ncol=nage) # total mortality at age
-    F_at_age<-matrix(NA,nrow=nyear,ncol=nage) # fishing mortality at age
-    M_at_age<-matrix(M,nrow=nyear,ncol=nage) # natural mortality at age
+    Z_at_age<-matrix(NA,nrow=sim_year,ncol=nage) # total mortality at age
+    F_at_age<-matrix(NA,nrow=sim_year,ncol=nage) # fishing mortality at age
+    M_at_age<-matrix(M,nrow=sim_year,ncol=nage) # natural mortality at age
     set.seed(iter)
-    F_yr<-0.3*exp(arima.sim(list(order=c(1,0,0), ar=0.75), n=nyear)*0.2) # annual fishing mortality
-    for(i in 1:nyear){
+    F_yr<-0.3*exp(arima.sim(list(order=c(1,0,0), ar=0.75), n=sim_year)*0.2) # annual fishing mortality
+    for(i in 1:sim_year){
       F_at_age[i,]<-F_yr[i]*sel
       Z_at_age[i,]<-F_at_age[i,]+M_at_age[i,]
     }
 
-    N_at_age<-matrix(NA,nrow=nyear,ncol=nage) # abundance at age
-    N_at_len<-matrix(NA,nrow=nyear,ncol=nlen) # abundance at length
+    N_at_age<-matrix(NA,nrow=sim_year,ncol=nage) # abundance at age
+    N_at_len<-matrix(NA,nrow=sim_year,ncol=nlen) # abundance at length
 
     # first year age structure
     set.seed(iter)
@@ -100,21 +99,21 @@ sim_data <- function(bio_fishing_vars, init_state_vars, nyear,output_dir=".") {
     # age-based cohort dynamics
 
     # define variables
-    N_at_age<-matrix(NA,nrow=nyear,ncol=nage) # number at age
-    N_at_len<-matrix(NA,nrow=nyear,ncol=nlen) # number at length
-    #B_at_age<-matrix(NA,nrow=nyear,ncol=nage) # biomass at age
-    B_at_len<-matrix(NA,nrow=nyear,ncol=nlen) # biomass at length
-    #SB_at_age<-matrix(NA,nrow=nyear,ncol=nage) # spawning biomass at age
-    SB_at_len<-matrix(NA,nrow=nyear,ncol=nlen) # spawning biomass at length
-    CN_at_age<-matrix(NA,nrow=nyear,ncol=nage) # catch number at age
-    CN_at_len<-matrix(NA,nrow=nyear,ncol=nlen) # catch number at length
-    #CB_at_age<-matrix(NA,nrow=nyear,ncol=nage) # catch biomass at age
-    CB_at_len<-matrix(NA,nrow=nyear,ncol=nlen) # catch biomass at length
-    SSB=rep(NA,nyear)
-    TN=rep(NA,nyear)
-    TB=rep(NA,nyear)
-    CN=rep(NA,nyear)
-    CB=rep(NA,nyear)
+    N_at_age<-matrix(NA,nrow=sim_year,ncol=nage) # number at age
+    N_at_len<-matrix(NA,nrow=sim_year,ncol=nlen) # number at length
+    #B_at_age<-matrix(NA,nrow=sim_year,ncol=nage) # biomass at age
+    B_at_len<-matrix(NA,nrow=sim_year,ncol=nlen) # biomass at length
+    #SB_at_age<-matrix(NA,nrow=sim_year,ncol=nage) # spawning biomass at age
+    SB_at_len<-matrix(NA,nrow=sim_year,ncol=nlen) # spawning biomass at length
+    CN_at_age<-matrix(NA,nrow=sim_year,ncol=nage) # catch number at age
+    CN_at_len<-matrix(NA,nrow=sim_year,ncol=nlen) # catch number at length
+    #CB_at_age<-matrix(NA,nrow=sim_year,ncol=nage) # catch biomass at age
+    CB_at_len<-matrix(NA,nrow=sim_year,ncol=nlen) # catch biomass at length
+    SSB=rep(NA,sim_year)
+    TN=rep(NA,sim_year)
+    TB=rep(NA,sim_year)
+    CN=rep(NA,sim_year)
+    CB=rep(NA,sim_year)
 
     # Initialization
     N_at_age[1,]=N0_at_age
@@ -124,7 +123,7 @@ sim_data <- function(bio_fishing_vars, init_state_vars, nyear,output_dir=".") {
     SSB[1]=sum(SB_at_len[1,])
 
     # forward dynamics
-    for(i in 2:nyear)
+    for(i in 2:sim_year)
     {
       # recruitment process
       logR=log(alpha*SSB[i-1]/(beta + SSB[i-1])) # BH model
@@ -147,7 +146,7 @@ sim_data <- function(bio_fishing_vars, init_state_vars, nyear,output_dir=".") {
     }
 
     # derive other quantities
-    for(i in 1:nyear)
+    for(i in 1:sim_year)
     {
       for(j in 1:nage)
       {
@@ -163,18 +162,18 @@ sim_data <- function(bio_fishing_vars, init_state_vars, nyear,output_dir=".") {
 
     # calculate research vessel survey index
 
-    RVN_at_len=matrix(NA,nrow=nyear,ncol=nlen)
-    RVB_at_len=matrix(NA,nrow=nyear,ncol=nlen)
+    RVN_at_len=matrix(NA,nrow=sim_year,ncol=nlen)
+    RVB_at_len=matrix(NA,nrow=sim_year,ncol=nlen)
 
     set.seed(iter)
-    surv_error<-rnorm(nyear,0,std_SN)
-    for(i in 1:nyear)
+    surv_error<-rnorm(sim_year,0,std_SN)
+    for(i in 1:sim_year)
     {
       RVN_at_len[i,]=N_at_len[i,]*q_surv*exp(surv_error[i])
       RVB_at_len[i,]=RVN_at_len[i,]*W_at_len
     }
 
-    for(i in 1:nyear)
+    for(i in 1:sim_year)
     {
       for(j in 1:nlen)
       {
@@ -193,12 +192,12 @@ sim_data <- function(bio_fishing_vars, init_state_vars, nyear,output_dir=".") {
     SN_at_len = RVN_at_len[81:100,],
     q_surv = q_surv,
     len_mid = len_mid,
-    nyear=nyear-80,
+    nyear=sim_year-80,
     nage=nage,
     nlen=nlen,
     ages=c(1:nage),
-    weight=matrix(rep(W_at_len,nyear-80),nrow=nlen,ncol=nyear-80),
-    mat=matrix(rep(mat,nyear-80),nrow=nlen,ncol=nyear-80),
+    weight=matrix(rep(W_at_len,sim_year-80),nrow=nlen,ncol=sim_year-80),
+    mat=matrix(rep(mat,sim_year-80),nrow=nlen,ncol=sim_year-80),
 
     sel = sel,
     F_at_age = F_at_age[81:100,],

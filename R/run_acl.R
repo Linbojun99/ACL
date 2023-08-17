@@ -151,7 +151,7 @@ run_acl <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L95,
     } else {
       len_border <- len_border
     }
-    acl_cpp_path <- system.file("extdata", "ACL0.cpp", package = "ALSCL")
+    acl_cpp_path <- system.file("extdata", "ACL.cpp", package = "ACL")
 
     if (acl_cpp_path == "") {
       stop("ACL.cpp not found in the package directory.")
@@ -201,13 +201,13 @@ run_acl <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L95,
     acl_cpp_dir <- dirname(acl_cpp_path)
 
     #
-    acl_dll_path <- file.path(acl_cpp_dir, "ACL0.dll")
+    acl_dll_path <- file.path(acl_cpp_dir, "ACL.dll")
 
     #
     dyn.load(acl_dll_path)
 
     #dyn.load("ACL")
-    obj<-MakeADFun(tmb.data,parameters,random=rnames,map=map,DLL="ACL0",inner.control=list(trace=F, maxit=500))
+    obj<-MakeADFun(tmb.data,parameters,random=rnames,map=map,DLL="ACL",inner.control=list(trace=F, maxit=500))
 
     cat("\nRunning optimization with nlminb...\n")
 
@@ -251,9 +251,17 @@ run_acl <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L95,
   # Check output parameters
 if(output==TRUE){
   # Create 'figures' and 'tables' folders
-  if (!dir.exists("output/figures")) {
-    dir.create("output/figures")
-    if (!dir.exists("output/figures")) {
+  if (!dir.exists("output/figures/result")) {
+    dir.create("output/figures/result")
+    if (!dir.exists("output/figures/result")) {
+      stop("Failed to create figures directory.")
+    }
+  }
+
+
+  if (!dir.exists("output/figures/diagnostic")) {
+    dir.create("output/figures/diagnostic")
+    if (!dir.exists("output/figures/diagnostic")) {
       stop("Failed to create figures directory.")
     }
   }
@@ -268,61 +276,61 @@ if(output==TRUE){
     # Save the image in the output folder
     #png(filename="output/plot_abundance_N.png",width = 16, height = 9, units = "in", res = 600)
     plot_abundance(model_result=results_list, type = "N", line_size = 1.2, line_color = "red", se=T,line_type = "solid")
-    ggsave(filename="output/figures/plot_abundance_N.png",width = 16, height = 9, units = "in", dpi = 600)
+    ggsave(filename="output/figures/result/plot_abundance_N.png",width = 16, height = 9, units = "in", dpi = 600)
 
     plot_abundance(model_result=results_list, type = "NA", line_size = 1.2, line_color = "red", line_type = "solid",se=T,facet_ncol = NULL)
-    ggsave(filename="output/figures/plot_abundance_NA.png",width = 16, height = 9, units = "in", dpi = 600)
+    ggsave(filename="output/figures/result/plot_abundance_NA.png",width = 16, height = 9, units = "in", dpi = 600)
 
 
     plot_abundance(model_result=results_list, type = "NL", line_size = 1.2, line_color = "red", line_type = "solid",se=T,facet_ncol = NULL)
-    ggsave(filename="output/figures/plot_abundance_NL.png",width = 16, height = 9, units = "in", dpi = 600)
+    ggsave(filename="output/figures/result/plot_abundance_NL.png",width = 16, height = 9, units = "in", dpi = 600)
 
 
 
     plot_biomass(model_result=results_list, type = "B", line_size = 1.2, line_color = "red", line_type = "solid",se=T,facet_ncol = NULL)
-    ggsave(filename="output/figures/plot_biomass_B.png",width = 16, height = 9, units = "in", dpi = 600)
+    ggsave(filename="output/figures/result/plot_biomass_B.png",width = 16, height = 9, units = "in", dpi = 600)
 
 
     plot_biomass(model_result=results_list, type = "BL", line_size = 1.2, line_color = "red", line_type = "solid",facet_ncol = NULL)
-    ggsave(filename="output/figures/plot_biomass_BL.png",width = 16, height = 9, units = "in", dpi = 600)
+    ggsave(filename="output/figures/result/plot_biomass_BL.png",width = 16, height = 9, units = "in", dpi = 600)
 
 
     plot_catch(model_result=results_list, type = "CN", line_size = 1.2, line_color = "red", line_type = "solid",se=T,facet_ncol = NULL)
-    ggsave(filename="output/figures/plot_catch_CN.png",width = 16, height = 9, units = "in", dpi = 600)
+    ggsave(filename="output/figures/result/plot_catch_CN.png",width = 16, height = 9, units = "in", dpi = 600)
 
 
     plot_catch(model_result=results_list, type = "CNA", line_size = 1.2, line_color = "red", line_type = "solid",se=T,facet_ncol = NULL)
-    ggsave(filename="output/figures/plot_catch_CNA.png",width = 16, height = 9, units = "in", dpi = 600)
+    ggsave(filename="output/figures/result/plot_catch_CNA.png",width = 16, height = 9, units = "in", dpi = 600)
 
     plot_CatL(model_result=results_list,type = "length")
-    ggsave(filename="output/figures/plot_CatL_length.png",width = 16, height = 9, units = "in", dpi = 600)
+    ggsave(filename="output/figures/result/plot_CatL_length.png",width = 16, height = 9, units = "in", dpi = 600)
 
     plot_CatL(model_result=results_list,type = "year",exp_transform = T)
-    ggsave(filename="output/figures/plot_CatL_Year(exp=T).png",width = 16, height = 9, units = "in", dpi = 600)
+    ggsave(filename="output/figures/result/plot_CatL_Year(exp=T).png",width = 16, height = 9, units = "in", dpi = 600)
 
-    plot_fishing_mortality(model_result=results_list, line_size = 1.2, line_color = "red", line_type = "solid")
-    ggsave(filename="output/figures/plot_fishing_mortality.png",width = 16, height = 9, units = "in", dpi = 600)
+    plot_fishing_mortality(model_result=results_list, line_size = 1.2, line_color = "red", line_type = "solid",se=T)
+    ggsave(filename="output/figures/result/plot_fishing_mortality.png",width = 16, height = 9, units = "in", dpi = 600)
 
     plot_pla(model_result=results_list)
-    ggsave(filename="output/figures/plot_pla.png",width = 16, height = 9, units = "in", dpi = 600)
+    ggsave(filename="output/figures/result/plot_pla.png",width = 16, height = 9, units = "in", dpi = 600)
 
     plot_recruitment(model_result=results_list, line_size = 1.2, line_color = "red", line_type = "solid",se=T)
-    ggsave(filename="output/figures/plot_recruitment.png",width = 16, height = 9, units = "in", dpi = 600)
+    ggsave(filename="output/figures/result/plot_recruitment.png",width = 16, height = 9, units = "in", dpi = 600)
 
     plot_ridges(model_result=results_list)
-    ggsave(filename="output/figures/plot_ridges.png",width = 16, height = 9, units = "in", dpi = 600)
+    ggsave(filename="output/figures/result/plot_ridges.png",width = 16, height = 9, units = "in", dpi = 600)
 
     plot_SSB_Rec(model_result=results_list)
-    ggsave(filename="output/figures/plot_SSB_Rec.png",width = 16, height = 9, units = "in", dpi = 600)
+    ggsave(filename="output/figures/result/plot_SSB_Rec.png",width = 16, height = 9, units = "in", dpi = 600)
 
     plot_SSB(model_result=results_list,type="SSB", line_size = 1.2, line_color = "red", line_type = "solid",se=T,facet_ncol = NULL)
-    ggsave(filename="output/figures/plot_SSB.png",width = 16, height = 9, units = "in", dpi = 600)
+    ggsave(filename="output/figures/result/plot_SSB.png",width = 16, height = 9, units = "in", dpi = 600)
 
     plot_SSB(model_result=results_list,type="SBL", line_size = 1.2, line_color = "red", line_type = "solid",se=T,facet_ncol = NULL)
-    ggsave(filename="output/figures/plot_SBL.png",width = 16, height = 9, units = "in", dpi = 600)
+    ggsave(filename="output/figures/result/plot_SBL.png",width = 16, height = 9, units = "in", dpi = 600)
 
     plot_VB(model_result=results_list, line_size = 1.2, line_color = "red", line_type = "solid",se=T)
-    ggsave(filename="output/figures/plot_VB.png",width = 16, height = 9, units = "in", dpi = 600)
+    ggsave(filename="output/figures/result/plot_VB.png",width = 16, height = 9, units = "in", dpi = 600)
 
     diagnostics<-diagnose_model(data.CatL=data.CatL,model_result=results_list)
     write.csv(diagnostics, file = "output/tables/diagnostics.csv",row.names = F)

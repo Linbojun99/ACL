@@ -12,7 +12,7 @@ generate_map(map = NULL)
 \item log_std_log_F: Custom value for log_std_log_F (default is NA).
 \item logit_log_F_y: Custom value for logit_log_F_y (default is NA).
 \item logit_log_F_a: Custom value for logit_log_F_a (default is NA).
-\item log_t0: Custom value for log_t0 (default is NA).
+\item t0: Custom value for t0 (default is NA).
 \item log_vbk: Custom value for log_vbk (default is NA).
 \item log_Linf: Custom value for log_Linf (default is NA).
 }}

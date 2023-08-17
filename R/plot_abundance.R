@@ -17,7 +17,6 @@
 #' @return A ggplot object representing the plot.
 #' @export
 #' @examples
-#' @examples
 #' \dontrun{
 #' # Simulate a model_result list to run the function
 #' model_result <- run_acl(model)

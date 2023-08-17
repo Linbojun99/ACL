@@ -19,5 +19,7 @@ A list containing the calculated metrics: MSE, MAE, RMSE, Rsquared, MAPE, exp_va
 Diagnostic function for ACL
 }
 \examples{
+\dontrun{
 diagnostic_metrics(data.CatL, model_result)
+}
 }

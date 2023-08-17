@@ -4,14 +4,14 @@
 \alias{sim_data}
 \title{Simulate Fishery Dynamics}
 \usage{
-sim_data(bio_fishing_vars, init_state_vars, nyear, output_dir = ".")
+sim_data(bio_fishing_vars, init_state_vars, sim_year = 100, output_dir = ".")
 }
 \arguments{
 \item{bio_fishing_vars}{A list containing the biological and fishing variables.}
 
 \item{init_state_vars}{A list containing the initial state variables.}
 
-\item{nyear}{Integer, number of years to simulate.}
+\item{sim_year}{Integer, number of years to simulate.Defaults to 100}
 
 \item{output_dir}{Character, the directory where simulation results will be saved.(default is the current working directory).}
 }

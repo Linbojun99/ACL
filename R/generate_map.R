@@ -7,7 +7,7 @@
 #'   - log_std_log_F: Custom value for log_std_log_F (default is NA).
 #'   - logit_log_F_y: Custom value for logit_log_F_y (default is NA).
 #'   - logit_log_F_a: Custom value for logit_log_F_a (default is NA).
-#'   - log_t0: Custom value for log_t0 (default is NA).
+#'   - t0: Custom value for t0 (default is NA).
 #'   - log_vbk: Custom value for log_vbk (default is NA).
 #'   - log_Linf: Custom value for log_Linf (default is NA).
 #'
@@ -20,7 +20,7 @@ generate_map <- function(map = NULL) {
     logit_log_F_a = factor(NA),
     #log_vbk=factor(NA),
     #log_Linf=factor(NA),
-    log_t0 = factor(NA)
+    t0 = factor(NA)
   )
 
   if (!is.null(map)) {

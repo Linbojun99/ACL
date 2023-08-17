@@ -17,7 +17,7 @@ sim_acl <- function(iter_range = 4:100,sim_data_path = ".",output_dir=".", param
 
   library(TMB)
 
-  acl_cpp_path <- system.file("extdata", "ACL.cpp", package = "ALSCL")
+  acl_cpp_path <- system.file("extdata", "ACL.cpp", package = "ACL")
 
   if (acl_cpp_path == "") {
     stop("ACL.cpp not found in the package directory.")
@@ -36,10 +36,17 @@ sim_acl <- function(iter_range = 4:100,sim_data_path = ".",output_dir=".", param
     load(file.path(sim_data_path, paste0("sim_rep", iter)))
 
 
+
+    na_matrix<-t(matrix(1,nrow=nrow(sim.data$SN_at_len),ncol=ncol(sim.data$SN_at_len)))
+
+    na_matrix[which(sim.data$SN_at_len[,]==0)]=0
+
+
     tmb.data=list(
       logN_at_len = t(log(sim.data$SN_at_len)),
       log_q = log(sim.data$q_surv),
       len_border = (sim.data$len_mid + 1)[1:(sim.data$nlen-1)],
+      na_matrix=na_matrix,
       age = sim.data$ages,
       Y = sim.data$nyear,
       A = sim.data$nage,
@@ -79,7 +86,7 @@ sim_acl <- function(iter_range = 4:100,sim_data_path = ".",output_dir=".", param
     #
     dyn.load(acl_dll_path)
 
-    #dyn.load("ACL")
+    #dyn.load("ACL_sim")
     obj<-MakeADFun(tmb.data,parameters,random=rnames,map=map,DLL="ACL",inner.control=list(trace=F, maxit=500))
 
      cat("\nRunning optimization with nlminb...\n")
@@ -100,7 +107,7 @@ sim_acl <- function(iter_range = 4:100,sim_data_path = ".",output_dir=".", param
     year=1:sim.data$nyear
     result <- list(obj = obj, opt = opt, report = report,est_std=est_std, len_mid=sim.data$len_mid,year=year,bound_hit = bound_hit, bound_check = bound_check, converge = opt$message)
 
-    #dyn.unload("ACL")
+    #dyn.unload("ACLsim")
 
     dyn.unload(acl_dll_path)
     save(result, file = file.path(output_dir, paste0("result_rep_", iter)))

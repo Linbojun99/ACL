@@ -6,8 +6,9 @@
 #' @return A list containing the calculated metrics: MSE, MAE, RMSE, Rsquared, MAPE, exp_var_score, max_error
 #' @export
 #' @examples
+#' \dontrun{
 #' diagnostic_metrics(data.CatL, model_result)
-
+#' }
 diagnostic_metrics <- function(data.CatL, model_result) {
 
   observed_data <-data.CatL[,2:ncol(data.CatL)]

@@ -15,7 +15,7 @@
 #'   - logit_log_F_a: logit of log(F_a)
 #'   - log_vbk: log(vBk)
 #'   - log_Linf: log(Linf)
-#'   - log_t0: log(t0)
+#'   - t0: t0
 #'   - log_cv_len: log(cv_len)
 #'   - log_std_index: log(std_index)
 #' @param parameters.L A list containing the custom lower bounds for the parameters (default is NULL).
@@ -39,7 +39,7 @@ create_parameters <- function(parameters = NULL,parameters.L = NULL, parameters.
 
     log_vbk = log(0.2),
     log_Linf = log(60),
-    log_t0 = log(1/60),
+    t0 = (1/60),
     log_cv_len = log(0.3),
 
     log_std_index = log(0.1)
@@ -55,11 +55,11 @@ default_parameters.L = list(
     logit_log_R = -30,
     mean_log_F = log(0.01),
     #log_std_log_F = log(0.01),
-    #logit_log_F_y = -10,
+    #logit_log_F_y = -20,
     #logit_log_F_a = -10,
     log_vbk = log(0.1),
     log_Linf = log(10),
-    #log_t0 = -20,
+    #t0 = -1,
     log_cv_len = log(0.01),
     log_std_index = -20
   )
@@ -76,9 +76,9 @@ default_parameters.L = list(
     #logit_log_F_a = 10,
     log_vbk = log(1),
     log_Linf = log(100),
-    #log_t0 = 0,
+    #t0 = 1,
     log_cv_len = log(1),
-    log_std_index = log(1)
+    log_std_index = log(1.5)
   )
 
   if (!is.null(parameters)) {

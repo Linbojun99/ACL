@@ -20,7 +20,7 @@ create_parameters(parameters = NULL, parameters.L = NULL, parameters.U = NULL)
 \item logit_log_F_a: logit of log(F_a)
 \item log_vbk: log(vBk)
 \item log_Linf: log(Linf)
-\item log_t0: log(t0)
+\item t0: t0
 \item log_cv_len: log(cv_len)
 \item log_std_index: log(std_index)
 }}
