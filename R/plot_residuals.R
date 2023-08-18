@@ -43,48 +43,48 @@ plot_residuals <- function(model_result, f = 0.4, line_color = "black", smooth_c
   if(type=="length"){
 
     num_indices <- dim(model_result[["report"]][["resid_index"]])[1]
+    len_mid <- model_result[["len_mid"]]
     plot_data <- data.frame()
     for(i in seq_len(num_indices)){
       temp_data <- as.data.frame(model_result[["report"]][["resid_index"]][i,])
       temp_data$LengthGroup <- factor(paste("Length bin ", i), levels=paste("Length bin ", 1:num_indices))
+      temp_data$LengthGroup <- factor(paste("Length bin ", i+max(len_mid)-max(num_indices)),
+                                      levels=paste("Length bin ", 1:num_indices+max(len_mid)-max(num_indices)))
       temp_data$year <- model_result[["year"]]
       plot_data <- rbind(plot_data, temp_data)
     }
     colnames(plot_data) <- c("residual", "LengthGroup","year")
-
     p <- ggplot(plot_data, aes(x=year, y=residual)) +
       geom_line(color = line_color, size = line_size) +
       geom_smooth(method="loess", formula=y~x, se=FALSE, color=smooth_color, linetype=2, size=line_size) +
       geom_hline(yintercept=0, color=hline_color, size=line_size) +
       facet_wrap(~LengthGroup, scales = facet_scales)+
       theme_minimal()
+    theme_minimal()+labs(x="Year",y="Residual",title="The Residuals plot by Length bins")+
+      theme(plot.title = element_text(hjust = 0.5))
   }
   if (type=="year")
   {
-
     # Define the data
     resid_index <- model_result[["report"]][["resid_index"]]
     year <- model_result[["year"]]
     len_mid <- model_result[["len_mid"]]
-
     # Transform the matrix into a data frame and add column names
     df <- as.data.frame(resid_index)
     colnames(df) <- year
     df$len_mid <- len_mid
-
     # Reshape the data from wide to long format
     df_long <- df %>%
       tidyr::pivot_longer(-len_mid, names_to = "year", values_to = "residuals")
-
-
     colnames(df_long) <- c("length", "Year","residual")
-
     p <- ggplot(df_long, aes(x=length, y=residual)) +
       geom_line(color = line_color, size = line_size) +
       geom_smooth(method="loess", formula=y~x, se=FALSE, color=smooth_color, linetype=2, size=line_size) +
       geom_hline(yintercept=0, color=hline_color, size=line_size) +
       facet_wrap(~Year, scales = facet_scales,ncol = facet_ncol)+
       theme_minimal()
+    theme_minimal()+labs(x="Length",y="Residual",title="The Residuals plot by Years")+
+      theme(plot.title = element_text(hjust = 0.5))
   }
   return(p)
 }

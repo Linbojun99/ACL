@@ -308,8 +308,11 @@ if(output==TRUE){
     plot_CatL(model_result=results_list,type = "year",exp_transform = T)
     ggsave(filename="output/figures/result/plot_CatL_Year(exp=T).png",width = 16, height = 9, units = "in", dpi = 600)
 
-    plot_fishing_mortality(model_result=results_list, line_size = 1.2, line_color = "red", line_type = "solid",se=T)
-    ggsave(filename="output/figures/result/plot_fishing_mortality.png",width = 16, height = 9, units = "in", dpi = 600)
+    plot_fishing_mortality(model_result=results_list, line_size = 1.2, line_color = "red", line_type = "solid",se=T,type="year")
+    ggsave(filename="output/figures/result/plot_fishing_mortality_year.png",width = 16, height = 9, units = "in", dpi = 600)
+
+    plot_fishing_mortality(model_result=results_list, line_size = 1.2, line_color = "red", line_type = "solid",se=T,type="age")
+    ggsave(filename="output/figures/result/plot_fishing_mortality_age.png",width = 16, height = 9, units = "in", dpi = 600)
 
     plot_pla(model_result=results_list)
     ggsave(filename="output/figures/result/plot_pla.png",width = 16, height = 9, units = "in", dpi = 600)
@@ -331,6 +334,13 @@ if(output==TRUE){
 
     plot_VB(model_result=results_list, line_size = 1.2, line_color = "red", line_type = "solid",se=T)
     ggsave(filename="output/figures/result/plot_VB.png",width = 16, height = 9, units = "in", dpi = 600)
+
+    plot_residuals(model_result=results_list,type="length")
+    ggsave(filename="output/figures/result/plot_residuals_length.png",width = 16, height = 9, units = "in", dpi = 600)
+
+    plot_residuals(model_result=results_list,type="year")
+    ggsave(filename="output/figures/result/plot_residuals_year.png",width = 16, height = 9, units = "in", dpi = 600)
+
 
     diagnostics<-diagnose_model(data.CatL=data.CatL,model_result=results_list)
     write.csv(diagnostics, file = "output/tables/diagnostics.csv",row.names = F)
