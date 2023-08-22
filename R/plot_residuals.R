@@ -18,6 +18,7 @@
 #' @param facet_ncol Numeric, optional. Number of columns in facet wrap.  Default is NULL.
 #' @param facet_scales Character. The "scales" argument for the facet_wrap function in ggplot2. Default is "free".
 #' @param type Character. Specifies whether the residuals are calculated over "length" or "year". Default is "length".
+#' @param return_data A logical indicating whether to return the processed data alongside the plot. Default is FALSE.
 #'
 #' @return A ggplot object representing the facet plot of residuals.
 #'
@@ -39,17 +40,19 @@
 #' print(p_year)
 #' }
 #' @export
-plot_residuals <- function(model_result, f = 0.4, line_color = "black", smooth_color = "blue", hline_color = "red", line_size = 1, facet_scales = "free", facet_ncol=NULL,type=c("length","year")) {
-  if(type=="length"){
+plot_residuals <- function(model_result, f = 0.4, line_color = "black", smooth_color = "blue", hline_color = "red", line_size = 1, facet_scales = "free", facet_ncol=NULL,type=c("length","year"), return_data = FALSE) {
+
+   len_label=model_result[["len_label"]]
+
+   if(type=="length"){
 
     num_indices <- dim(model_result[["report"]][["resid_index"]])[1]
-    len_mid <- model_result[["len_mid"]]
     plot_data <- data.frame()
     for(i in seq_len(num_indices)){
       temp_data <- as.data.frame(model_result[["report"]][["resid_index"]][i,])
-      temp_data$LengthGroup <- factor(paste("Length bin ", i), levels=paste("Length bin ", 1:num_indices))
-      temp_data$LengthGroup <- factor(paste("Length bin ", i+max(len_mid)-max(num_indices)),
-                                      levels=paste("Length bin ", 1:num_indices+max(len_mid)-max(num_indices)))
+
+      temp_data$LengthGroup <- paste("Length bin", len_label[i])
+
       temp_data$year <- model_result[["year"]]
       plot_data <- rbind(plot_data, temp_data)
     }
@@ -59,9 +62,12 @@ plot_residuals <- function(model_result, f = 0.4, line_color = "black", smooth_c
       geom_smooth(method="loess", formula=y~x, se=FALSE, color=smooth_color, linetype=2, size=line_size) +
       geom_hline(yintercept=0, color=hline_color, size=line_size) +
       facet_wrap(~LengthGroup, scales = facet_scales)+
-      theme_minimal()
-    theme_minimal()+labs(x="Year",y="Residual",title="The Residuals plot by Length bins")+
+      theme_minimal()+
+      labs(x="Year",y="Residual",title="The Residuals plot by Length bins")+
       theme(plot.title = element_text(hjust = 0.5))
+
+    data_out <-plot_data
+
   }
   if (type=="year")
   {
@@ -82,9 +88,15 @@ plot_residuals <- function(model_result, f = 0.4, line_color = "black", smooth_c
       geom_smooth(method="loess", formula=y~x, se=FALSE, color=smooth_color, linetype=2, size=line_size) +
       geom_hline(yintercept=0, color=hline_color, size=line_size) +
       facet_wrap(~Year, scales = facet_scales,ncol = facet_ncol)+
-      theme_minimal()
-    theme_minimal()+labs(x="Length",y="Residual",title="The Residuals plot by Years")+
+      theme_minimal()+labs(x="Length",y="Residual",title="The Residuals plot by Years")+
       theme(plot.title = element_text(hjust = 0.5))
+
+    data_out <-df_long
+
   }
-  return(p)
+   if (return_data) {
+     return(list(plot = p, data = data_out))
+   } else {
+     return(p)
+   }
 }

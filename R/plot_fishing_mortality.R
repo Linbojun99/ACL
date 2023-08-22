@@ -15,6 +15,7 @@
 #' @param facet_ncol Integer. The number of columns in facet_wrap.
 #' @param facet_scales Character. Scales for facet_wrap. Default is "free".
 #' @param type Character. Specifies whether to plot "year"  or "age" . Default is "year".
+#' @param return_data A logical indicating whether to return the processed data alongside the plot. Default is FALSE.
 #'
 #' @return A ggplot object representing the plot of fishing mortality over years.
 #'
@@ -37,7 +38,7 @@
 #' }
 #' @export
 plot_fishing_mortality <- function(model_result, line_size = 1, line_color = "red", line_type = "solid", facet_ncol = NULL,
-                                   facet_scales = "free" ,se = FALSE, se_color = "red", se_alpha = 0.2,type=c("year","age")){
+                                   facet_scales = "free" ,se = FALSE, se_color = "red", se_alpha = 0.2,type=c("year","age"), return_data = FALSE){
 
 
   if(type=="year"){
@@ -63,6 +64,8 @@ plot_fishing_mortality <- function(model_result, line_size = 1, line_color = "re
         ggplot2::facet_wrap(~AgeGroup, ncol = facet_ncol, scales = facet_scales) +
         ggplot2::labs(x = "Year", y = "Fishing Mortality", title = "Fishing Mortality Over Years") +
         ggplot2::theme_minimal()
+
+      data_out <-F_long
 
     }
 
@@ -104,6 +107,7 @@ plot_fishing_mortality <- function(model_result, line_size = 1, line_color = "re
         ggplot2::labs(x = "Year", y = "Fishing Mortality", title = "Fishing Mortality Over Years with Confidence Intervals") +
         ggplot2::theme_minimal()
 
+      data_out <-confidence_intervals_f
 
 
     }
@@ -132,6 +136,8 @@ plot_fishing_mortality <- function(model_result, line_size = 1, line_color = "re
         ggplot2::facet_wrap(~Year, ncol = facet_ncol, scales = facet_scales) +
         ggplot2::labs(x = "AgeGroup", y = "Fishing Mortality", title = "Fishing Mortality Over AgeGroups") +
         ggplot2::theme_minimal()
+
+      data_out <-F_long
 
     }
 
@@ -174,9 +180,14 @@ plot_fishing_mortality <- function(model_result, line_size = 1, line_color = "re
         ggplot2::theme_minimal()
 
 
+      data_out <-confidence_intervals_f
 
     }
   }
 
-  return(p)
+  if (return_data) {
+    return(list(plot = p, data = data_out))
+  } else {
+    return(p)
+  }
 }

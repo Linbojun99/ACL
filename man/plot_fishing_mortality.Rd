@@ -14,7 +14,8 @@ plot_fishing_mortality(
   se = FALSE,
   se_color = "red",
   se_alpha = 0.2,
-  type = c("year", "age")
+  type = c("year", "age"),
+  return_data = FALSE
 )
 }
 \arguments{
@@ -39,6 +40,8 @@ will be calculated and confidence intervals will be shown as a shaded area aroun
 \item{se_alpha}{Numeric. The transparency of the confidence interval ribbon. Default is 0.2.}
 
 \item{type}{Character. Specifies whether to plot "year"  or "age" . Default is "year".}
+
+\item{return_data}{A logical indicating whether to return the processed data alongside the plot. Default is FALSE.}
 }
 \value{
 A ggplot object representing the plot of fishing mortality over years.

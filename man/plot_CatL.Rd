@@ -17,7 +17,8 @@ plot_CatL(
   facet_ncol = NULL,
   facet_scales = "free",
   type = c("length", "year"),
-  exp_transform = FALSE
+  exp_transform = FALSE,
+  return_data = FALSE
 )
 }
 \arguments{
@@ -46,6 +47,8 @@ plot_CatL(
 \item{type}{Character. It specifies whether the Elog_index is plotted across "length" or "year". Default is "length".}
 
 \item{exp_transform}{Logical. Specifies whether to apply the exponential function to the data before plotting. If TRUE, the exponential of the data values is plotted. Default is FALSE.}
+
+\item{return_data}{A logical indicating whether to return the processed data alongside the plot. Default is FALSE.}
 }
 \value{
 A ggplot object representing the plot.

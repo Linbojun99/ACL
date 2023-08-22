@@ -14,7 +14,8 @@ plot_abundance(
   se_alpha = 0.2,
   type = c("N", "NA", "NL"),
   facet_ncol = NULL,
-  facet_scales = "free"
+  facet_scales = "free",
+  return_data = FALSE
 )
 }
 \arguments{
@@ -38,6 +39,8 @@ and it should have a "report" component which contains "N", "NA", or "NL" compon
 \item{facet_ncol}{Number of columns in facet wrap. Default is NULL.}
 
 \item{facet_scales}{Scales for facet wrap. Default is "free".}
+
+\item{return_data}{A logical indicating whether to return the processed data alongside the plot. Default is FALSE.}
 }
 \value{
 A ggplot object representing the plot.
@@ -65,5 +68,10 @@ plot_abundance(model_result, type = "NA", se = TRUE, facet_ncol = 2)
 # In this example, we're plotting the number at length, with standard error (se = TRUE).
 # The plot will be faceted into 4 columns (facet_ncol = 4), and the scales for each facet will be fixed (facet_scales = "fixed").
 plot_abundance(model_result, type = "NL", se = TRUE, facet_ncol = 4, facet_scales = "fixed")
+
+# data output
+ plot_result <- plot_abundance(data, type="NA")
+  plot_with_data <- plot_abundance(data, type="NA", return_data = TRUE)
+
 }
 }

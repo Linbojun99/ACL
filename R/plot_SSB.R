@@ -12,6 +12,7 @@
 #' @param type Character, optional. It specifies whether to plot for "SSB" or "SBL". Default is "SSB".
 #' @param facet_ncol Numeric, optional. Number of columns in facet wrap. This parameter is only applicable when type is "SBL". Default is NULL.
 #' @param facet_scales Character, optional. Scales for facet wrap. This parameter is only applicable when type is "SBL". Default is "free".
+#' @param return_data A logical indicating whether to return the processed data alongside the plot. Default is FALSE.
 #'
 #' @return A ggplot object representing the plot of Spawning Stock Biomass or Spawning Biomass at Length over the years.
 #'
@@ -35,8 +36,11 @@
 #' # Plot SBL without confidence intervals
 #' plot_SSB(model_result = model_result, type = "SBL", se = FALSE)
 #' }
-plot_SSB <- function(model_result, line_size = 1.2, line_color = "red", line_type = "solid", se = FALSE, se_color = "red", se_alpha = 0.2,type=c("SSB","SBL"),facet_ncol = NULL, facet_scales = "free"){
- if(type=="SSB"){
+plot_SSB <- function(model_result, line_size = 1.2, line_color = "red", line_type = "solid", se = FALSE, se_color = "red", se_alpha = 0.2,type=c("SSB","SBL"),facet_ncol = NULL, facet_scales = "free", return_data = FALSE){
+
+  len_label=model_result[["len_label"]]
+
+  if(type=="SSB"){
 
 
    # Extract the SSB data
@@ -55,8 +59,10 @@ plot_SSB <- function(model_result, line_size = 1.2, line_color = "red", line_typ
     # Plot SSB over the years using ggplot2
     p <- ggplot2::ggplot(SSB, aes(x = Year, y = SSB)) +
       ggplot2::geom_line(size = line_size, color = line_color, linetype = line_type) +
-      ggplot2::labs(x = "Year", y = "SSB", title = "SSB Over Years") +
+      ggplot2::labs(x = "Year", y = "Relative biomass", title = "SSB Over Years") +
       ggplot2::theme_minimal()
+
+    data_out <-SSB
   }
 
 
@@ -78,8 +84,10 @@ plot_SSB <- function(model_result, line_size = 1.2, line_color = "red", line_typ
     p <- ggplot2::ggplot(confidence_intervals_ssb, aes(x = Year, y = estimate)) +
       ggplot2::geom_line(size = line_size, color = line_color, linetype = line_type) +
       ggplot2::geom_ribbon(aes(ymin = lower, ymax = upper),  fill = se_color,alpha = se_alpha) +
-      ggplot2::labs(y = "SSB", x = "Year", title = "SSB Over Years with Confidence Intervals") +
+      ggplot2::labs(y = "Relative biomass", x = "Year", title = "SSB Over Years with Confidence Intervals") +
       ggplot2::theme_minimal()
+
+    data_out <-confidence_intervals_ssb
   }
  }
   if(type=="SBL"){
@@ -95,23 +103,27 @@ plot_SSB <- function(model_result, line_size = 1.2, line_color = "red", line_typ
     colnames(SBL) <- as.character(model_result[["year"]])
     Year <- model_result[["year"]]
 
-    # Create LengthGroup variable from row names of SBL
-    LengthGroup <- paste0("Length bin ", seq_len(nrow(SBL)))
-    LengthGroup <- factor(paste("Length bin ", seq_len(nrow(SBL))), levels=paste("Length bin ", seq_len(nrow(SBL))))
 
 
     # Convert matrix to data frame in long format
     SBL_long <- reshape2::melt(SBL)
     colnames(SBL_long) <- c("LengthGroup", "Year", "Count")
-    SBL_long$LengthGroup <- LengthGroup[as.numeric(SBL_long$LengthGroup)]
+    SBL_long$LengthGroup <- paste("Length bin", LengthGroup)
 
     # Plot SBL over the years using ggplot2
     p <- ggplot2::ggplot(SBL_long, aes(x = Year, y = Count)) +
       ggplot2::geom_line( size = line_size, color = line_color, linetype = line_type) +
       ggplot2::facet_wrap(~LengthGroup, ncol = facet_ncol, scales = facet_scales) +
-      ggplot2::labs(x = "Year", y = "Relative abundance", title = "SBL Over Years") +
+      ggplot2::labs(x = "Year", y = "Relative biomass", title = "SBL Over Years") +
       ggplot2::theme_minimal()
+
+    data_out <-SBL_long
+
   }
-  return(p)
+  if (return_data) {
+    return(list(plot = p, data = data_out))
+  } else {
+    return(p)
+  }
 }
 

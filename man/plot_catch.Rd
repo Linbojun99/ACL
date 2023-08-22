@@ -14,7 +14,8 @@ plot_catch(
   se_alpha = 0.2,
   facet_ncol = NULL,
   facet_scales = "free",
-  type = c("CN", "CNA")
+  type = c("CN", "CNA"),
+  return_data = FALSE
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ plot_catch(
 \item{facet_scales}{Character. Scales for facet wrap. Default is "free".}
 
 \item{type}{Character vector. It specifies which type of catch is to be plotted: "CN" or "CNA". Default is c("CN","CNA").}
+
+\item{return_data}{A logical indicating whether to return the processed data alongside the plot. Default is FALSE.}
 }
 \value{
 A ggplot object representing the plot.

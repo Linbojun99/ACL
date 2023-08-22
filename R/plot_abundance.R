@@ -14,6 +14,7 @@
 #' @param type Character. It specifies which the abundance is ploted for "N" , "NA" or "NL". Default is "N".
 #' @param facet_ncol Number of columns in facet wrap. Default is NULL.
 #' @param facet_scales Scales for facet wrap. Default is "free".
+#' @param return_data A logical indicating whether to return the processed data alongside the plot. Default is FALSE.
 #' @return A ggplot object representing the plot.
 #' @export
 #' @examples
@@ -35,10 +36,18 @@
 #' # In this example, we're plotting the number at length, with standard error (se = TRUE).
 #' # The plot will be faceted into 4 columns (facet_ncol = 4), and the scales for each facet will be fixed (facet_scales = "fixed").
 #' plot_abundance(model_result, type = "NL", se = TRUE, facet_ncol = 4, facet_scales = "fixed")
+#'
+#' # data output
+#'  plot_result <- plot_abundance(data, type="NA")
+#'   plot_with_data <- plot_abundance(data, type="NA", return_data = TRUE)
+#'
 #' }
 
-plot_abundance <- function(model_result, line_size = 1.2, line_color = "red", line_type = "solid", se = FALSE, se_color = "red", se_alpha = 0.2,type=c("N","NA","NL"), facet_ncol = NULL, facet_scales = "free" ){
- if(type=="N"){
+plot_abundance <- function(model_result, line_size = 1.2, line_color = "red", line_type = "solid", se = FALSE, se_color = "red", se_alpha = 0.2,type=c("N","NA","NL"), facet_ncol = NULL, facet_scales = "free", return_data = FALSE){
+
+  len_label=model_result[["len_label"]]
+
+   if(type=="N"){
 
 
    # Extract the number data
@@ -59,6 +68,7 @@ plot_abundance <- function(model_result, line_size = 1.2, line_color = "red", li
       ggplot2::geom_line(size = line_size, color = line_color, linetype = line_type) +
       ggplot2::labs(x = "Year", y = "Relative abundance", title = "Number Over Years") +
       ggplot2::theme_minimal()
+    data_out <-number
   }
 
 
@@ -82,6 +92,9 @@ plot_abundance <- function(model_result, line_size = 1.2, line_color = "red", li
       ggplot2::geom_ribbon(aes(ymin = lower, ymax = upper),  fill = se_color,alpha = se_alpha) +
       ggplot2::labs(y = "Relative abundance", x = "Year", title = "Number Over Years with Confidence Intervals") +
       ggplot2::theme_minimal()
+
+    data_out <-confidence_intervals_n
+
   }
  }
   if (type=="NA"){
@@ -109,6 +122,8 @@ plot_abundance <- function(model_result, line_size = 1.2, line_color = "red", li
         ggplot2::facet_wrap(~AgeGroup, ncol = facet_ncol, scales = facet_scales) +
         ggplot2::labs(x = "Year", y = "Relative abundance", title = "Number of different age groups per year") +
         ggplot2::theme_minimal()
+
+      data_out <-na_long
 
     }
 
@@ -150,6 +165,8 @@ plot_abundance <- function(model_result, line_size = 1.2, line_color = "red", li
         ggplot2::labs(x = "Year", y = "Relative abundance", title = "Number of different age groups per year with Confidence Intervals") +
         ggplot2::theme_minimal()
 
+      data_out <-confidence_intervals_na
+
     }
   }
   if(type=="NL"){
@@ -165,15 +182,12 @@ plot_abundance <- function(model_result, line_size = 1.2, line_color = "red", li
     # Create Year variable from column names of NL (assuming columns are years)
     Year <- model_result[["year"]]
 
-    # Create LengthGroup variable from row names of NL
-    LengthGroup <- paste0("Length bin ", seq_len(nrow(NL)))
-    LengthGroup <- factor(paste("Length bin ", seq_len(nrow(NL))), levels=paste("Length bin ", seq_len(nrow(NL))))
 
     # Convert matrix to data frame in long format
     NL_long <- reshape2::melt(NL)
     colnames(NL_long) <- c("LengthGroup", "Year", "Count")
     NL_long$Year <- Year[match(NL_long$Year, 1:length(Year))]
-    NL_long$LengthGroup <- LengthGroup[as.numeric(NL_long$LengthGroup)]
+    NL_long$LengthGroup <-   paste("Length bin", len_label)
 
     if(!se)
     {
@@ -183,6 +197,9 @@ plot_abundance <- function(model_result, line_size = 1.2, line_color = "red", li
         ggplot2::facet_wrap(~LengthGroup, ncol = facet_ncol, scales = facet_scales) +
         ggplot2::labs(x = "Year", y = "Relative abundance", title = "Number of different length groups Over Years") +
         ggplot2::theme_minimal()
+
+      data_out <-NL_long
+
     }
     else{
 
@@ -202,7 +219,7 @@ plot_abundance <- function(model_result, line_size = 1.2, line_color = "red", li
       #ss_NL$LengthGroup <- rep(paste0("Lenth bin ", seq_len(nrow(NL))), times = ncol(NL))
 
 
-      ss_NL$LengthGroup <- factor(paste("Length bin ", seq_len(nrow(NL))), levels=paste("Length bin ", seq_len(nrow(NL))))
+      ss_NL$LengthGroup <-   paste("Length bin", len_label)
 
       ss_NL$Year <- rep(Year, each = nrow(NL))
 
@@ -225,11 +242,15 @@ plot_abundance <- function(model_result, line_size = 1.2, line_color = "red", li
         ggplot2::labs(x = "Year", y = "Relative abundance", title = "Number of different length groups Over Years with Confidence Intervals") +
         ggplot2::theme_minimal()
 
+      data_out <-confidence_intervals_NL
 
 
     }
   }
-  return(p)
-
+  if (return_data) {
+    return(list(plot = p, data = data_out))
+  } else {
+    return(p)
+  }
 }
 

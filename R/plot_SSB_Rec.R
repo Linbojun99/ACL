@@ -7,6 +7,7 @@
 #' @param point_color Character. The color of the points in the scatter plot. Default is "black".
 #' @param point_size Numeric. The size of the points in the scatter plot. Default is 2.
 #' @param point_shape Numeric. The shape of the points in the scatter plot, as an integer value (see ?points in base R for more info). Default is 16 (filled circle).
+#' @param return_data A logical indicating whether to return the processed data alongside the plot. Default is FALSE.
 #'
 #' @return A ggplot object representing the scatter plot of SSB versus Recruitment.
 #'
@@ -23,7 +24,7 @@
 #' print(p)
 #' }
 #' @export
-plot_SSB_Rec <- function(model_result,point_size=2,point_color="black",point_shape=16) {
+plot_SSB_Rec <- function(model_result,point_size=2,point_color="black",point_shape=16, return_data = FALSE) {
 
 
   # Extract the necessary data
@@ -34,10 +35,16 @@ plot_SSB_Rec <- function(model_result,point_size=2,point_color="black",point_sha
   plot_data <- data.frame(SSB = SSB_data, Rec = Rec_data)
 
   # Create the plot
-  plot <-  ggplot2::ggplot(plot_data, aes(x = SSB, y = Rec)) +
+  p <-  ggplot2::ggplot(plot_data, aes(x = SSB, y = Rec)) +
     ggplot2::geom_point(size= point_size, color= point_color,shape=point_shape) +
     ggplot2:: labs(x = "SSB", y = "Rec")+
     ggplot2::theme_minimal()
 
-  return(plot)
+  data_out <-plot_data
+
+  if (return_data) {
+    return(list(plot = p, data = data_out))
+  } else {
+    return(p)
+  }
 }

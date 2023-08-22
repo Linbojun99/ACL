@@ -8,7 +8,8 @@ plot_SSB_Rec(
   model_result,
   point_size = 2,
   point_color = "black",
-  point_shape = 16
+  point_shape = 16,
+  return_data = FALSE
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ plot_SSB_Rec(
 \item{point_color}{Character. The color of the points in the scatter plot. Default is "black".}
 
 \item{point_shape}{Numeric. The shape of the points in the scatter plot, as an integer value (see ?points in base R for more info). Default is 16 (filled circle).}
+
+\item{return_data}{A logical indicating whether to return the processed data alongside the plot. Default is FALSE.}
 }
 \value{
 A ggplot object representing the scatter plot of SSB versus Recruitment.

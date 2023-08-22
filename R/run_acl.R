@@ -235,9 +235,11 @@ run_acl <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L95,
       dplyr::distinct(Year) %>%
       dplyr::pull(Year)
 
+    len_label=data.CatL[,1]
 
 
-    result <- list(obj = obj, opt = opt, report = report, est_std=est_std, year=year, len_mid=len_mid,   bound_hit = bound_hit, bound_check = bound_check, converge = opt$message,final_outer_mgc=final_outer_mgc,par_low_up=par_low_up)
+
+    result <- list(obj = obj, opt = opt, report = report, est_std=est_std, year=year, len_mid=len_mid,len_label=len_label   ,bound_hit = bound_hit, bound_check = bound_check, converge = opt$message,final_outer_mgc=final_outer_mgc,par_low_up=par_low_up)
 
     #dyn.unload("ACL")
 
@@ -272,6 +274,7 @@ if(output==TRUE){
       stop("Failed to create tables directory.")
     }
   }
+
 
     # Save the image in the output folder
     #png(filename="output/plot_abundance_N.png",width = 16, height = 9, units = "in", res = 600)
@@ -336,15 +339,74 @@ if(output==TRUE){
     ggsave(filename="output/figures/result/plot_VB.png",width = 16, height = 9, units = "in", dpi = 600)
 
     plot_residuals(model_result=results_list,type="length")
-    ggsave(filename="output/figures/result/plot_residuals_length.png",width = 16, height = 9, units = "in", dpi = 600)
+    ggsave(filename="output/figures/diagnostic/plot_residuals_length.png",width = 16, height = 9, units = "in", dpi = 600)
 
     plot_residuals(model_result=results_list,type="year")
-    ggsave(filename="output/figures/result/plot_residuals_year.png",width = 16, height = 9, units = "in", dpi = 600)
+    ggsave(filename="output/figures/diagnostic/plot_residuals_year.png",width = 16, height = 9, units = "in", dpi = 600)
 
+
+    #####table output
 
     diagnostics<-diagnose_model(data.CatL=data.CatL,model_result=results_list)
     write.csv(diagnostics, file = "output/tables/diagnostics.csv",row.names = F)
 
+
+    aN=plot_abundance(model_result=results_list, type = "N",se=T,return_data = T)
+    write.csv(aN[["data"]], file = "output/tables/abundance_N.csv",row.names = F)
+
+    aNA=plot_abundance(model_result=results_list, type = "NA", se=T,return_data = T)
+    write.csv(aNA[["data"]], file = "output/tables/abundance_NA.csv",row.names = F)
+
+    aNL=plot_abundance(model_result=results_list, type = "NL", se=T,return_data = T)
+    write.csv(aNL[["data"]], file = "output/tables/abundance_NL.csv",row.names = F)
+
+    bB=plot_biomass(model_result=results_list, type = "B", se=T,return_data = T)
+    write.csv(bB[["data"]], file = "output/tables/biomass_B.csv",row.names = F)
+
+    bBL=plot_biomass(model_result=results_list, type = "BL", se=T,return_data = T)
+    write.csv(bBL[["data"]], file = "output/tables/biomass_BL.csv",row.names = F)
+
+    cCN=plot_catch(model_result=results_list, type = "CN", se=T,return_data = T)
+    write.csv(cCN[["data"]], file = "output/tables/biomass_CN.csv",row.names = F)
+
+    cCNA=plot_catch(model_result=results_list, type = "CNA", se=T,return_data = T)
+    write.csv(cCNA[["data"]], file = "output/tables/biomass_CNA.csv",row.names = F)
+
+    fmy=plot_fishing_mortality(model_result=results_list, type = "year",se=T,return_data = T)
+    write.csv(fmy[["data"]], file = "output/tables/fishing_mortality_year.csv",row.names = F)
+
+    fma=plot_fishing_mortality(model_result=results_list, type = "age",se=T,return_data = T)
+    write.csv(fma[["data"]], file = "output/tables/fishing_mortality_age.csv",row.names = F)
+
+    r=plot_recruitment(model_result=results_list, se=T,return_data = T)
+    write.csv(r[["data"]], file = "output/tables/recruitment.csv",row.names = F)
+
+    sr=plot_SSB_Rec(model_result=results_list,return_data = T)
+    write.csv(sr[["data"]], file = "output/tables/SSB_Rec.csv",row.names = F)
+
+    catll=plot_CatL(model_result=results_list,type = "length",return_data = T)
+    write.csv(catll[["data1"]], file = "output/tables/CatL_length_Estimated.csv",row.names = F)
+    write.csv(catll[["data2"]], file = "output/tables/CatL_length_Observed.csv",row.names = F)
+
+    catll=plot_CatL(model_result=results_list,type = "year",exp_transform = T,return_data = T)
+    write.csv(catll[["data1"]], file = "output/tables/CatL_year_Estimated(exp=T).csv",row.names = F)
+    write.csv(catll[["data2"]], file = "output/tables/CatL_year_Observed(exp=T).csv",row.names = F)
+
+    plot_CatL(model_result=results_list,type = "year",exp_transform = T)
+    ggsave(filename="output/figures/result/plot_CatL_Year(exp=T).png",width = 16, height = 9, units = "in", dpi = 600)
+
+
+    ssb=plot_SSB(model_result=results_list, type = "SSB",se=T,return_data = T)
+    write.csv(ssb[["data"]], file = "output/tables/SSB.csv",row.names = F)
+
+    sbl=plot_SSB(model_result=results_list, type = "SBL",se=T,return_data = T)
+    write.csv(sbl[["data"]], file = "output/tables/SBL.csv",row.names = F)
+
+    rl<-plot_residuals(model_result=results_list,type="length",return_data = T)
+    write.csv(rl[["data"]], file = "output/tables/residuals_length.csv",row.names = F)
+
+    ry<-plot_residuals(model_result=results_list,type="year",return_data = T)
+    write.csv(ry[["data"]], file = "output/tables/residuals_year.csv",row.names = F)
 
     }
     return(results_list)

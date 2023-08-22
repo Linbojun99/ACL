@@ -12,6 +12,7 @@
 #' @param se Logical. Determines whether to calculate and plot the standard error as confidence intervals. Default is FALSE.
 #' @param se_color Character. Specifies the color of the confidence interval ribbon. Default is "red".
 #' @param se_alpha Numeric. Specifies the transparency of the confidence interval ribbon. Default is 0.2.
+#' @param return_data A logical indicating whether to return the processed data alongside the plot. Default is FALSE.
 #'
 #' @return A ggplot object representing the plot.
 #'
@@ -29,7 +30,7 @@
 #'
 #' @export
 
-plot_recruitment <- function(model_result, line_size = 1.2, line_color = "red", line_type = "solid", se = FALSE, se_color = "red", se_alpha = 0.2){
+plot_recruitment <- function(model_result, line_size = 1.2, line_color = "red", line_type = "solid", se = FALSE, se_color = "red", se_alpha = 0.2, return_data = FALSE){
   # Extract the recruitment data
   recruitment <- model_result[["report"]][["Rec"]]
 
@@ -44,8 +45,12 @@ plot_recruitment <- function(model_result, line_size = 1.2, line_color = "red", 
     # Plot recruitment over the years using ggplot2
     p <- ggplot2::ggplot(recruitment, aes(x = Year, y = recruitment)) +
       ggplot2::geom_line(size = line_size, color = line_color, linetype = line_type) +
-      ggplot2::labs(x = "Year", y = "Recruitment", title = "Recruitment Over Years") +
+      ggplot2::labs(x = "Year", y = "Relative abundance", title = "Recruitment Over Years") +
       ggplot2::theme_minimal()
+
+    data_out <-recruitment
+
+
   } else {
 
      # Filter rows that contain "Rec"
@@ -64,8 +69,15 @@ plot_recruitment <- function(model_result, line_size = 1.2, line_color = "red", 
     p <- ggplot2::ggplot(confidence_intervals_rec, aes(x = Year, y = estimate)) +
       ggplot2::geom_line(size = line_size, color = line_color, linetype = line_type) +
       ggplot2::geom_ribbon(aes(ymin = lower, ymax = upper),  fill = se_color,alpha = se_alpha) +
-      ggplot2::labs(y = "Recruitment", x = "Year", title = "Recruitment Over Years with Confidence Intervals") +
+      ggplot2::labs(y = "Relative abundance", x = "Year", title = "Recruitment Over Years with Confidence Intervals") +
       ggplot2::theme_minimal()
+
+    data_out <-confidence_intervals_rec
+
   }
-  return(p)
+  if (return_data) {
+    return(list(plot = p, data = data_out))
+  } else {
+    return(p)
+  }
 }

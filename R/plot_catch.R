@@ -13,6 +13,7 @@
 #' @param facet_ncol Numeric. Number of columns in facet wrap. Default is NULL.
 #' @param facet_scales Character. Scales for facet wrap. Default is "free".
 #' @param type Character vector. It specifies which type of catch is to be plotted: "CN" or "CNA". Default is c("CN","CNA").
+#' @param return_data A logical indicating whether to return the processed data alongside the plot. Default is FALSE.
 #'
 #' @return A ggplot object representing the plot.
 #'
@@ -33,7 +34,7 @@
 #' }
 #'
 #' @export
-plot_catch <- function(model_result, line_size = 1.2, line_color = "red", line_type = "solid", se = FALSE, se_color = "red", se_alpha = 0.2,facet_ncol = NULL, facet_scales = "free",type=c("CN","CNA")){
+plot_catch <- function(model_result, line_size = 1.2, line_color = "red", line_type = "solid", se = FALSE, se_color = "red", se_alpha = 0.2,facet_ncol = NULL, facet_scales = "free",type=c("CN","CNA"), return_data = FALSE){
   if(type=="CN")
     {
     # Extract the CN data
@@ -54,6 +55,9 @@ plot_catch <- function(model_result, line_size = 1.2, line_color = "red", line_t
       ggplot2::geom_line(size = line_size, color = line_color, linetype = line_type) +
       ggplot2::labs(x = "Year", y = "CN", title = "CN Over Years") +
       ggplot2::theme_minimal()
+
+    data_out <-CN
+
   }
 
 
@@ -77,6 +81,9 @@ plot_catch <- function(model_result, line_size = 1.2, line_color = "red", line_t
       ggplot2::geom_ribbon(aes(ymin = lower, ymax = upper),  fill = se_color,alpha = se_alpha) +
       ggplot2::labs(y = "CN", x = "Year", title = "CN Over Years with Confidence Intervals") +
       ggplot2::theme_minimal()
+
+    data_out <-confidence_intervals_CN
+
   }
   }
   if(type=="CNA"){
@@ -105,7 +112,13 @@ plot_catch <- function(model_result, line_size = 1.2, line_color = "red", line_t
       ggplot2::labs(x = "Year", y = "Catch numbers by age", title = "Catch numbers by age Over Years") +
       ggplot2::theme_minimal()
 
+    data_out <-CNA_long
+
   }
-  return(p)
+  if (return_data) {
+    return(list(plot = p, data = data_out))
+  } else {
+    return(p)
+  }
 }
 

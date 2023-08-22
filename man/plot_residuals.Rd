@@ -13,7 +13,8 @@ plot_residuals(
   line_size = 1,
   facet_scales = "free",
   facet_ncol = NULL,
-  type = c("length", "year")
+  type = c("length", "year"),
+  return_data = FALSE
 )
 }
 \arguments{
@@ -36,6 +37,8 @@ influence the smooth at each value. Larger values result in more smoothing. Defa
 \item{facet_ncol}{Numeric, optional. Number of columns in facet wrap.  Default is NULL.}
 
 \item{type}{Character. Specifies whether the residuals are calculated over "length" or "year". Default is "length".}
+
+\item{return_data}{A logical indicating whether to return the processed data alongside the plot. Default is FALSE.}
 }
 \value{
 A ggplot object representing the facet plot of residuals.

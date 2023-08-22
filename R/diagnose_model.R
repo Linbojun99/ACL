@@ -57,27 +57,29 @@ diagnose_model <- function(data.CatL,model_result) {
 
   # Calculation error
   errors <- observed_data - estimated_data
-
   # Calculation MSE
   MSE <- mean(errors^2)
-
   # Calculation MAE
   MAE <- mean(abs(errors))
+
+  # Calculation MASE
+  MAD <- mean(abs(errors-mean(observed_data)))
+  MASE <- MAE/MAD
 
   # Calculation RMSE
   RMSE <- sqrt(MSE)
 
   # Calculate the sum of squared residuals
   sse <- sum(errors^2)
-
   # Calculate the total sum of squares
   sst <- sum((observed_data - mean(observed_data))^2)
-
   # Calculate R-squared
   Rsquared <- 1 - sse/sst
-
   # Calculate MAPE
   MAPE <- mean(abs((observed_data - estimated_data) / observed_data)) * 100
+
+  # Calculate SMAPE
+  SMAPE <- mean(abs(observed_data - estimated_data)/((abs(observed_data)+abs(estimated_data))/2)) * 100
 
   # Calculate Explained Variance Score
   exp_var_score <- 1 - var(observed_data - estimated_data) / var(observed_data)
@@ -85,14 +87,26 @@ diagnose_model <- function(data.CatL,model_result) {
   # Calculate Max Error
   max_error <- max(abs(observed_data - estimated_data))
 
+  #Calculate the parameters number
+  par_num <- length(model_result[["obj"]][["par"]])
+
+  #Calculate the catch-at-length number
+  cl_num <- length(observed_data)
+
+  #Calculate the AIC and BIC
+  AIC=2*par_num+2*(model_result[["opt"]][["objective"]])
+  BIC=par_num*log(cl_num)+2*(model_result[["opt"]][["objective"]])
+
 
   bound_hit<-model_result[["bound_hit"]]
   converge<-model_result[["converge"]]
   final_outer_mgc<-model_result[["final_outer_mgc"]][length(model_result[["final_outer_mgc"]]) - 2]
   # Create a data frame with the results
-  diagnostics <- data.frame(Metric = c("MSE", "MAE", "RMSE", "Rsquared", "MAPE", "Explained Variance Score", "Max Error",
+  diagnostics <- data.frame(Metric = c("MSE", "MAE","MAD","MASE", "RMSE", "Rsquared", "MAPE", "SMAPE", "Explained Variance Score", "Max Error","AIC","BIC",
                                        "Boundary Hit", "Model Converged", "Final Outer mgc"),
-                            Value = c(MSE, MAE, RMSE, Rsquared, MAPE, exp_var_score, max_error,
+                            Value = c(MSE, MAE, MAD, MASE, RMSE, Rsquared, MAPE, SMAPE, exp_var_score, max_error, AIC, BIC,
                                       bound_hit, converge, final_outer_mgc))
-  return(diagnostics)
+
+
+    return(diagnostics)
 }

@@ -11,7 +11,8 @@ plot_recruitment(
   line_type = "solid",
   se = FALSE,
   se_color = "red",
-  se_alpha = 0.2
+  se_alpha = 0.2,
+  return_data = FALSE
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ plot_recruitment(
 \item{se_color}{Character. Specifies the color of the confidence interval ribbon. Default is "red".}
 
 \item{se_alpha}{Numeric. Specifies the transparency of the confidence interval ribbon. Default is 0.2.}
+
+\item{return_data}{A logical indicating whether to return the processed data alongside the plot. Default is FALSE.}
 }
 \value{
 A ggplot object representing the plot.

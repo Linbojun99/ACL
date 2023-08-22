@@ -18,6 +18,7 @@
 #' @param facet_scales Character. Specifies scales for facet_wrap. Default is "free".
 #' @param type Character. It specifies whether the Elog_index is plotted across "length" or "year". Default is "length".
 #' @param exp_transform Logical. Specifies whether to apply the exponential function to the data before plotting. If TRUE, the exponential of the data values is plotted. Default is FALSE.
+#' @param return_data A logical indicating whether to return the processed data alongside the plot. Default is FALSE.
 #'
 #' @return A ggplot object representing the plot.
 #'
@@ -38,12 +39,13 @@
 #'
 #' @export
 
-plot_CatL <- function(model_result, point_size=1, point_color="black", point_shape=1, line_size = 1.2, line_color = "black", line_type = "solid", line_color1 = "red", line_color2 = "blue", facet_ncol = NULL, facet_scales = "free", type = c("length","year"), exp_transform = FALSE){
+plot_CatL <- function(model_result, point_size=1, point_color="black", point_shape=1, line_size = 1.2, line_color = "black", line_type = "solid", line_color1 = "red", line_color2 = "blue", facet_ncol = NULL, facet_scales = "free", type = c("length","year"), exp_transform = FALSE, return_data = FALSE){
 
 
   # Apply exp transformation if exp_transform is TRUE
     transform_fn <- if(exp_transform) exp else identity
 
+    len_label=model_result[["len_label"]]
 
     if(type=="length"){
 
@@ -66,14 +68,14 @@ plot_CatL <- function(model_result, point_size=1, point_color="black", point_sha
 
 
   # Create LengthGroup variable from row names of Elog_index
-  LengthGroup <- paste0("Length bin ", seq_len(nrow(Elog_index)))
-  LengthGroup <- factor(paste("Length bin ", seq_len(nrow(Elog_index))), levels=paste("Length bin ", seq_len(nrow(Elog_index))))
+    LengthGroup <- len_label
 
   # Convert matrix to data frame in long format
   Elog_index_long <- reshape2::melt(Elog_index)
   colnames(Elog_index_long) <- c("LengthGroup", "Year", "Count")
   Elog_index_long$Year <- Year[match(Elog_index_long$Year, 1:length(Year))]
-  Elog_index_long$LengthGroup <- LengthGroup[as.numeric(Elog_index_long$LengthGroup)]
+
+    Elog_index_long$LengthGroup <- paste("Length bin", LengthGroup)
 
 
 
@@ -86,7 +88,7 @@ plot_CatL <- function(model_result, point_size=1, point_color="black", point_sha
     dplyr::pull(Year)
 
 
-  logN_at_len_long$LengthGroup <- LengthGroup[as.numeric(logN_at_len_long$LengthGroup)]
+    logN_at_len_long$LengthGroup <- paste("Length bin", LengthGroup)
 
 
   # Just before the plotting, apply the transformation function to 'Count' column
@@ -101,7 +103,12 @@ plot_CatL <- function(model_result, point_size=1, point_color="black", point_sha
     ggplot2::labs(x = "Year", y = "Abundance", title = "Estimated(Line) and Observed(Point) Catch-at-Length Over Years") +
     ggplot2::theme_minimal()
 
-  return(p)
+
+  if (return_data) {
+    return(list(plot = p, data1 = Elog_index_long,data2=logN_at_len_long))
+  } else {
+    return(p)
+  }
   }
 
     if(type=="year"){
@@ -139,6 +146,11 @@ plot_CatL <- function(model_result, point_size=1, point_color="black", point_sha
         ggplot2::labs(x = "Body Length", y = "Abundance", title = "Estimated(Red) and Observed(Blue) Catch-at-Length Distribution Yearly") +
         ggplot2::theme_minimal()
 
-      return(p)
+
+      if (return_data) {
+        return(list(plot = p, data1 = df_long1, data2=df_long2))
+      } else {
+        return(p)
+      }
     }
 }

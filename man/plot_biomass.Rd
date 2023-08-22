@@ -14,7 +14,8 @@ plot_biomass(
   se_alpha = 0.2,
   type = c("B", "BL"),
   facet_ncol = NULL,
-  facet_scales = "free"
+  facet_scales = "free",
+  return_data = FALSE
 )
 }
 \arguments{
@@ -39,6 +40,8 @@ will be calculated and confidence intervals will be shown as a shaded area aroun
 \item{facet_ncol}{Integer. The number of columns in facet_wrap. Only applicable when type = "BL".}
 
 \item{facet_scales}{Character. Scales for facet_wrap. Only applicable when type = "BL".}
+
+\item{return_data}{A logical indicating whether to return the processed data alongside the plot. Default is FALSE.}
 }
 \value{
 A ggplot object representing the plot of biomass over years.

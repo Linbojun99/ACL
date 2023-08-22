@@ -16,6 +16,7 @@
 #' @param type Character. Specifies whether to plot "B" (absolute biomass) or "BL" (length-grouped biomass). Default is "B".
 #' @param facet_ncol Integer. The number of columns in facet_wrap. Only applicable when type = "BL".
 #' @param facet_scales Character. Scales for facet_wrap. Only applicable when type = "BL".
+#' @param return_data A logical indicating whether to return the processed data alongside the plot. Default is FALSE.
 #'
 #' @return A ggplot object representing the plot of biomass over years.
 #'
@@ -37,8 +38,11 @@
 #' print(p_biomass_BL)
 #' }
 #' @export
-plot_biomass <- function(model_result, line_size = 1.2, line_color = "red", line_type = "solid", se = FALSE, se_color = "red", se_alpha = 0.2,type=c("B","BL"),facet_ncol = NULL, facet_scales = "free"){
-  if(type=="B"){
+plot_biomass <- function(model_result, line_size = 1.2, line_color = "red", line_type = "solid", se = FALSE, se_color = "red", se_alpha = 0.2,type=c("B","BL"),facet_ncol = NULL, facet_scales = "free", return_data = FALSE){
+
+  len_label=model_result[["len_label"]]
+
+   if(type=="B"){
 
   # Extract the biomass data
   biomass <- model_result[["report"]][["B"]]
@@ -56,8 +60,11 @@ if(!se)
   # Plot biomass over the years using ggplot2
   p <- ggplot2::ggplot(biomass, aes(x = Year, y = biomass)) +
     ggplot2::geom_line(size = line_size, color = line_color, linetype = line_type) +
-    ggplot2::labs(x = "Year", y = "Biomass", title = "Biomass Over Years") +
+    ggplot2::labs(x = "Year", y = "Relative biomass", title = "Biomass Over Years") +
     ggplot2::theme_minimal()
+
+  data_out <-biomass
+
 }
 
 
@@ -79,8 +86,11 @@ if(!se)
     p <- ggplot2::ggplot(confidence_intervals_bio, aes(x = Year, y = estimate)) +
       ggplot2::geom_line(size = line_size, color = line_color, linetype = line_type) +
       ggplot2::geom_ribbon(aes(ymin = lower, ymax = upper),  fill = se_color,alpha = se_alpha) +
-      ggplot2::labs(y = "Biomass", x = "Year", title = "Biomass Over Years with Confidence Intervals") +
+      ggplot2::labs(y = "Relative biomass", x = "Year", title = "Biomass Over Years with Confidence Intervals") +
       ggplot2::theme_minimal()
+
+    data_out <-confidence_intervals_bio
+
   }
   }
   if (type=="BL"){
@@ -96,15 +106,12 @@ if(!se)
     # Create Year variable from column names of BL (assuming columns are years)
     Year <- model_result[["year"]]
 
-    # Create LengthGroup variable from row names of BL
-    LengthGroup <- paste0("Length bin ", seq_len(nrow(BL)))
-    LengthGroup <- factor(paste("Length bin ", seq_len(nrow(BL))), levels=paste("Length bin ", seq_len(nrow(BL))))
 
     # Convert matrix to data frame in long format
     BL_long <- reshape2::melt(BL)
     colnames(BL_long) <- c("LengthGroup", "Year", "Count")
     BL_long$Year <- Year[match(BL_long$Year, 1:length(Year))]
-    BL_long$LengthGroup <- LengthGroup[as.numeric(BL_long$LengthGroup)]
+    BL_long$LengthGroup <- paste("Length bin", len_label)
 
 
 
@@ -113,10 +120,16 @@ if(!se)
     p <- ggplot2::ggplot(BL_long, aes(x = Year, y = Count)) +
       ggplot2::geom_line( size = line_size, color = line_color, linetype = line_type) +
       ggplot2::facet_wrap(~LengthGroup, ncol = facet_ncol, scales = facet_scales) +
-      ggplot2::labs(x = "Year", y = "Relative abundance", title = "Biomass at length group Over Years") +
+      ggplot2::labs(x = "Year", y = "Relative biomass", title = "Biomass at length group Over Years") +
       ggplot2::theme_minimal()
 
+    data_out <-BL_long
+
   }
-  return(p)
+  if (return_data) {
+    return(list(plot = p, data = data_out))
+  } else {
+    return(p)
+  }
 }
 

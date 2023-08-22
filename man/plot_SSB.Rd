@@ -14,7 +14,8 @@ plot_SSB(
   se_alpha = 0.2,
   type = c("SSB", "SBL"),
   facet_ncol = NULL,
-  facet_scales = "free"
+  facet_scales = "free",
+  return_data = FALSE
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ plot_SSB(
 \item{facet_ncol}{Numeric, optional. Number of columns in facet wrap. This parameter is only applicable when type is "SBL". Default is NULL.}
 
 \item{facet_scales}{Character, optional. Scales for facet wrap. This parameter is only applicable when type is "SBL". Default is "free".}
+
+\item{return_data}{A logical indicating whether to return the processed data alongside the plot. Default is FALSE.}
 }
 \value{
 A ggplot object representing the plot of Spawning Stock Biomass or Spawning Biomass at Length over the years.
