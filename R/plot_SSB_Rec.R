@@ -24,15 +24,25 @@
 #' print(p)
 #' }
 #' @export
-plot_SSB_Rec <- function(model_result,point_size=2,point_color="black",point_shape=16, return_data = FALSE) {
+plot_SSB_Rec <- function(model_result, age_at_recruitment = 1,
+                         point_size=2,point_color="black",point_shape=16, return_data = FALSE) {
 
 
   # Extract the necessary data
   SSB_data <- model_result[["report"]][["SSB"]]
   Rec_data <- model_result[["report"]][["Rec"]]
 
+  # Ensure age_at_recruitment does not exceed data length
+  if (age_at_recruitment >= length(SSB_data)) {
+    stop("age_at_recruitment is too large compared to data length.")
+  }
+  
+  # Adjust SSB to align with Rec based on recruitment age
+  SSB_adjusted <- SSB_data[1:(length(SSB_data) - age_at_recruitment)]
+  Rec_adjusted <- Rec_data[(age_at_recruitment + 1):length(Rec_data)]
+  
   # Create a data frame for ggplot
-  plot_data <- data.frame(SSB = SSB_data, Rec = Rec_data)
+  plot_data <- data.frame(SSB = SSB_adjusted, Rec = Rec_adjusted)
 
   # Create the plot
   p <-  ggplot2::ggplot(plot_data, aes(x = SSB, y = Rec)) +
@@ -48,3 +58,7 @@ plot_SSB_Rec <- function(model_result,point_size=2,point_color="black",point_sha
     return(p)
   }
 }
+
+
+
+
