@@ -352,30 +352,6 @@ acl_theme_set(title_hjust = 0.5)   # center (default) / 居中（默认）
 # acl_theme_set(title_hjust = 1)   # right / 右对齐
 ```
 
-## X-axis Breaks / X 轴刻度
-
-```{r theme-xbreaks}
-acl_theme_set(x_breaks = seq(1, 20, by = 1))    # every year / 每年
-# acl_theme_set(x_breaks = seq(1, 20, by = 2))  # every 2 years / 每2年
-# acl_theme_set(x_breaks = seq(1, 20, by = 5))  # every 5 years / 每5年
-# acl_theme_set(x_breaks = c(1, 5, 10, 15, 20)) # custom / 自定义
-# acl_theme_set(x_breaks = NULL)                 # auto / 自动
-```
-
-## Custom Titles & Labels / 自定义标题和标签
-
-```{r theme-titles}
-# Override specific titles / 覆盖特定标题
-acl_theme_set(titles = list(
-  N_se  = "Total Abundance with 95% CI",
-  SSB   = "Spawning Biomass"
-))
-
-# Override axis labels / 覆盖轴标签
-acl_theme_set(ylab = list(abundance = "Population (×10³)"))
-acl_theme_set(xlab = list(year = "Assessment Year"))
-```
-
 ## Per-plot Override / 单图覆盖
 
 Every plot function accepts theme params that **override** global settings for that call only:
