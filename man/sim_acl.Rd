@@ -2,7 +2,7 @@
 % Please edit documentation in R/sim_acl.R
 \name{sim_acl}
 \alias{sim_acl}
-\title{Run stock assessment model}
+\title{Run stock assessment model (with optional parallel processing)}
 \usage{
 sim_acl(
   iter_range = 4:100,
@@ -12,7 +12,8 @@ sim_acl(
   parameters.L = NULL,
   parameters.U = NULL,
   map = NULL,
-  M = 0.2
+  M = 0.2,
+  ncores = 1
 )
 }
 \arguments{
@@ -31,10 +32,15 @@ sim_acl(
 \item{map}{A list containing the custom values for the map elements (default is NULL).}
 
 \item{M}{Numeric, natural mortality (default: 0.2)}
+
+\item{ncores}{Integer. Number of CPU cores to use. 1 = sequential (default).
+On Mac/Linux uses forked processes (mclapply); on Windows uses socket cluster (parLapply).
+Use \code{parallel::detectCores()} to see available cores.}
 }
 \value{
 A list containing the results of the stock assessment model.
 }
 \description{
 This function runs a stock assessment model using the specified iteration range.
+Supports parallel execution on multiple CPU cores for faster computation.
 }

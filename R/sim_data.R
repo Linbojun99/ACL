@@ -4,13 +4,21 @@
 #'
 #' @param bio_fishing_vars A list containing the biological and fishing variables.
 #' @param init_state_vars A list containing the initial state variables.
-#' @param sim_year Integer, number of years to simulate.Defaults to 100
-#' @param output_dir Character, the directory where simulation results will be saved.(default is the current working directory).
+#' @param sim_year Integer, number of years to simulate. Defaults to 100.
+#' @param output_dir Character, the directory where simulation results will be saved (default is the current working directory).
+#' @param iter_range Integer vector. Which iterations (seeds) to run. Default is \code{4:100}.
+#'   E.g. \code{iter_range = 10:20} runs only 11 replicates;
+#'   \code{iter_range = 50} runs a single replicate.
+#' @param return_iter Integer or NULL. Which iteration to return in memory.
+#'   Default is NULL (returns the last iteration in \code{iter_range}).
+#'   E.g. \code{return_iter = 42} returns the result from iter 42.
 #'
-#' @return A list containing simulated fishery data.
+#' @return A list containing simulated fishery data for the selected iteration,
+#'   with an extra element \code{iter} indicating which iteration it is.
 #' @export
-sim_data <- function(bio_fishing_vars, init_state_vars, sim_year = 100,output_dir=".") {
-  sim_year<-sim_year
+sim_data <- function(bio_fishing_vars, init_state_vars, sim_year = 100,
+                     output_dir = ".", iter_range = 4:100, return_iter = NULL) {
+  sim_year <- sim_year
   # Extract biological and fishing variables from the input list
   len_lower <- bio_fishing_vars$len_lower
   len_upper <- bio_fishing_vars$len_upper
@@ -40,10 +48,19 @@ sim_data <- function(bio_fishing_vars, init_state_vars, sim_year = 100,output_di
   alpha <- init_state_vars$alpha
   beta <- init_state_vars$beta
 
+  # Determine which iter to return
+  if (is.null(return_iter)) {
+    return_iter <- max(iter_range)
+  } else if (!(return_iter %in% iter_range)) {
+    stop("return_iter = ", return_iter, " is not in iter_range (",
+         min(iter_range), ":", max(iter_range), ")")
+  }
+
+  return_data <- NULL
 
   # Initialize arrays or data structures for storing simulated data
   # recruitment
-  for(iter in 4:100){
+  for(iter in iter_range){
   Rec<-rep(NA,sim_year)
   R_init=500 # initial number of recruitment
   set.seed(iter)
@@ -222,6 +239,17 @@ sim_data <- function(bio_fishing_vars, init_state_vars, sim_year = 100,output_di
   # Save the simulated fishery data to a file in the specified output directory
   save(sim.data, file = file.path(output_dir, paste0("sim_rep", iter)))
 
+  # Keep the selected iteration in memory
+  if (iter == return_iter) {
+    return_data <- sim.data
+    return_data$iter <- iter
   }
-  return(sim.data)
+
+  }
+
+  cat("Simulated iterations:", min(iter_range), "to", max(iter_range),
+      "(", length(iter_range), "replicates )\n")
+  cat("Returned iteration:", return_iter, "\n")
+
+  return(return_data)
 }

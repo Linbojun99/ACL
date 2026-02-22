@@ -47,7 +47,7 @@ create_parameters <- function(parameters = NULL,parameters.L = NULL, parameters.
 
 
 
-default_parameters.L = list(
+  default_parameters.L = list(
     log_init_Z = log(0.01),
     log_std_log_N0 = -Inf,
     mean_log_R = log(10),
@@ -97,17 +97,6 @@ default_parameters.L = list(
     updated_parameters.U <- modifyList(default_parameters.U, parameters.U)
   } else {
     updated_parameters.U <- default_parameters.U
-  }
-
-  # Filter the outputs based on provided parameters
-  if (!is.null(parameters)) {
-    updated_parameters <- updated_parameters[names(parameters)]
-  }
-  if (!is.null(parameters.L)) {
-    updated_parameters.L <- updated_parameters.L[names(parameters.L)]
-  }
-  if (!is.null(parameters.U)) {
-    updated_parameters.U <- updated_parameters.U[names(parameters.U)]
   }
 
   return(list(parameters = updated_parameters, parameters.L = updated_parameters.L, parameters.U = updated_parameters.U))

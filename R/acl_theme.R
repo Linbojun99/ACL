@@ -11,6 +11,10 @@
 #' # Change font
 #' acl_theme_set(font_family = "Times New Roman")
 #'
+#' # Change base theme
+#' acl_theme_set(base_theme = "theme_bw")
+#' acl_theme_set(base_theme = "theme_classic")
+#'
 #' # Change a title
 #' acl_theme_set(titles = list(N = "My Custom Title"))
 #'
@@ -26,8 +30,23 @@ NULL
 # ---------------------------------------------------------------------------
 .acl_defaults <- list(
 
+  # --- Base ggplot2 theme --------------------------------------------------
+  base_theme = "theme_bw",   # "theme_bw", "theme_minimal", "theme_classic", "theme_gray", "theme_light", "theme_linedraw", "theme_void"
+
   # --- Font ----------------------------------------------------------------
   font_family = "Arial",
+
+  # --- Text sizes (in pt) -------------------------------------------------
+  title_size      = 14,    # plot title
+  title_hjust     = 0.5,   # title alignment: 0 = left, 0.5 = center, 1 = right
+  axis_title_size = 12,    # axis title (x/y label)
+  axis_text_size  = 10,    # axis tick labels
+  strip_text_size = 10,    # facet panel labels
+  legend_text_size = 10,   # legend text
+
+  # --- Axis settings -------------------------------------------------------
+  x_breaks = NULL,         # NULL = auto (pretty_breaks); or numeric vector e.g. seq(1,20,2)
+  x_expand = c(0.01, 0.01),  # expansion multiplier for x-axis
 
   # --- Default colors and line sizes ---------------------------------------
   line_color  = "#D32F2F",
@@ -152,7 +171,23 @@ acl_theme <- function(what = NULL) {
 #' only the fields you specify will be changed; all others keep their
 #' current values.
 #'
+#' @param base_theme Character. Base ggplot2 theme name. One of
+#'   \code{"theme_bw"}, \code{"theme_minimal"}, \code{"theme_classic"},
+#'   \code{"theme_gray"}, \code{"theme_light"}, \code{"theme_linedraw"},
+#'   \code{"theme_void"}. Default is \code{"theme_bw"}.
 #' @param font_family Character. Font family for all text elements.
+#' @param title_size Numeric. Plot title size in pt.
+#' @param title_hjust Numeric. Plot title horizontal alignment: 0 = left,
+#'   0.5 = center (default), 1 = right.
+#' @param axis_title_size Numeric. Axis title (x/y label) size in pt.
+#' @param axis_text_size Numeric. Axis tick label size in pt.
+#' @param strip_text_size Numeric. Facet panel label size in pt.
+#' @param legend_text_size Numeric. Legend text size in pt.
+#' @param x_breaks Numeric vector or NULL. Custom x-axis break points (e.g.
+#'   \code{seq(1, 20, by = 2)} or \code{c(1, 5, 10, 15, 20)}).
+#'   NULL = auto breaks.
+#' @param x_expand Numeric vector of length 2. Expansion multiplier for x-axis,
+#'   e.g. \code{c(0.01, 0.01)} for minimal padding. Default is \code{c(0.01, 0.01)}.
 #' @param line_color Character. Default line color.
 #' @param line_size Numeric. Default line width.
 #' @param se_color Character. Default CI color.
@@ -164,37 +199,60 @@ acl_theme <- function(what = NULL) {
 #' @return Invisible previous settings.
 #' @export
 #' @examples
+#' # Change base theme globally
+#' acl_theme_set(base_theme = "theme_bw")          # default
+#' acl_theme_set(base_theme = "theme_minimal")
+#' acl_theme_set(base_theme = "theme_classic")
+#'
 #' # Change font globally
 #' acl_theme_set(font_family = "Times New Roman")
+#'
+#' # Change text sizes
+#' acl_theme_set(title_size = 16, axis_title_size = 14, axis_text_size = 12)
 #'
 #' # Change a specific title
 #' acl_theme_set(titles = list(N = "Total Population Size"))
 #'
-#' # Change axis label
-#' acl_theme_set(ylab = list(abundance = "Population (millions)"))
-#'
 #' # Change multiple settings at once
 #' acl_theme_set(
-#'   font_family = "Helvetica",
-#'   line_color  = "steelblue",
-#'   line_size   = 1.8,
-#'   titles      = list(SSB = "Spawning Biomass", Rec = "Annual Recruitment")
+#'   font_family     = "Helvetica",
+#'   title_size      = 16,
+#'   axis_title_size = 14,
+#'   axis_text_size  = 11,
+#'   strip_text_size = 11,
+#'   line_color      = "steelblue",
+#'   line_size       = 1.8,
+#'   titles          = list(SSB = "Spawning Biomass", Rec = "Annual Recruitment")
 #' )
-acl_theme_set <- function(font_family = NULL, line_color = NULL, line_size = NULL,
+acl_theme_set <- function(base_theme = NULL, font_family = NULL, title_size = NULL,
+                          title_hjust = NULL,
+                          axis_title_size = NULL, axis_text_size = NULL,
+                          strip_text_size = NULL, legend_text_size = NULL,
+                          x_breaks = NULL, x_expand = NULL,
+                          line_color = NULL, line_size = NULL,
                           se_color = NULL, se_alpha = NULL,
                           titles = NULL, xlab = NULL, ylab = NULL) {
 
   current <- getOption("acl.theme", .acl_defaults)
   old <- current
 
-  if (!is.null(font_family)) current$font_family <- font_family
-  if (!is.null(line_color))  current$line_color  <- line_color
-  if (!is.null(line_size))   current$line_size   <- line_size
-  if (!is.null(se_color))    current$se_color    <- se_color
-  if (!is.null(se_alpha))    current$se_alpha    <- se_alpha
-  if (!is.null(titles))      current$titles      <- modifyList(current$titles, titles)
-  if (!is.null(xlab))        current$xlab        <- modifyList(current$xlab, xlab)
-  if (!is.null(ylab))        current$ylab        <- modifyList(current$ylab, ylab)
+  if (!is.null(base_theme))       current$base_theme       <- base_theme
+  if (!is.null(font_family))      current$font_family      <- font_family
+  if (!is.null(title_size))       current$title_size       <- title_size
+  if (!is.null(title_hjust))      current$title_hjust      <- title_hjust
+  if (!is.null(axis_title_size))  current$axis_title_size  <- axis_title_size
+  if (!is.null(axis_text_size))   current$axis_text_size   <- axis_text_size
+  if (!is.null(strip_text_size))  current$strip_text_size  <- strip_text_size
+  if (!is.null(legend_text_size)) current$legend_text_size <- legend_text_size
+  if (!is.null(x_breaks))        current$x_breaks        <- x_breaks
+  if (!is.null(x_expand))        current$x_expand        <- x_expand
+  if (!is.null(line_color))       current$line_color       <- line_color
+  if (!is.null(line_size))        current$line_size        <- line_size
+  if (!is.null(se_color))         current$se_color         <- se_color
+  if (!is.null(se_alpha))         current$se_alpha         <- se_alpha
+  if (!is.null(titles))           current$titles           <- modifyList(current$titles, titles)
+  if (!is.null(xlab))             current$xlab             <- modifyList(current$xlab, xlab)
+  if (!is.null(ylab))             current$ylab             <- modifyList(current$ylab, ylab)
 
   options(acl.theme = current)
   invisible(old)
@@ -237,13 +295,101 @@ acl_theme_reset <- function() {
 }
 
 #' Build the standard ACL ggplot theme layer
+#' @param base_theme Optional base theme name override (e.g. "theme_bw").
+#' @param font_family Optional font family override.
+#' @param title_size Optional plot title size override.
+#' @param axis_title_size Optional axis title size override.
+#' @param axis_text_size Optional axis tick label size override.
+#' @param strip_text_size Optional facet label size override.
+#' @param legend_text_size Optional legend text size override.
 #' @return A list of ggplot2 theme elements.
 #' @keywords internal
-.acl_base_theme <- function() {
+.acl_base_theme <- function(font_family = NULL, title_size = NULL,
+                            axis_title_size = NULL, axis_text_size = NULL,
+                            strip_text_size = NULL, legend_text_size = NULL,
+                            base_theme = NULL, title_hjust = NULL) {
+  bt  <- if (!is.null(base_theme))        base_theme       else acl_theme("base_theme")
+  ff  <- if (!is.null(font_family))       font_family      else acl_theme("font_family")
+  ts  <- if (!is.null(title_size))        title_size       else acl_theme("title_size")
+  th  <- if (!is.null(title_hjust))       title_hjust      else acl_theme("title_hjust")
+  ats <- if (!is.null(axis_title_size))   axis_title_size  else acl_theme("axis_title_size")
+  atx <- if (!is.null(axis_text_size))    axis_text_size   else acl_theme("axis_text_size")
+  sts <- if (!is.null(strip_text_size))   strip_text_size  else acl_theme("strip_text_size")
+  lts <- if (!is.null(legend_text_size))  legend_text_size else acl_theme("legend_text_size")
+
+  # Resolve base theme function
+  theme_fn <- switch(bt,
+    "theme_bw"        = ggplot2::theme_bw,
+    "theme_minimal"   = ggplot2::theme_minimal,
+    "theme_classic"   = ggplot2::theme_classic,
+    "theme_gray"      = ggplot2::theme_gray,
+    "theme_grey"      = ggplot2::theme_grey,
+    "theme_light"     = ggplot2::theme_light,
+    "theme_linedraw"  = ggplot2::theme_linedraw,
+    "theme_dark"      = ggplot2::theme_dark,
+    "theme_void"      = ggplot2::theme_void,
+    ggplot2::theme_bw  # fallback
+  )
+
   list(
-    ggplot2::theme_minimal(),
-    ggplot2::theme(text = ggplot2::element_text(family = acl_theme("font_family")))
+    theme_fn(),
+    ggplot2::theme(
+      text             = ggplot2::element_text(family = ff),
+      plot.title       = ggplot2::element_text(size = ts, hjust = th),
+      axis.title       = ggplot2::element_text(size = ats),
+      axis.text        = ggplot2::element_text(size = atx),
+      strip.text       = ggplot2::element_text(size = sts),
+      legend.text      = ggplot2::element_text(size = lts),
+      legend.title     = ggplot2::element_text(size = lts)
+    )
   )
 }
 
 
+
+#' Build x-axis scale with breaks and expand
+#'
+#' @param x_breaks Numeric vector or NULL (override). If NULL, reads from
+#'   global theme. If global is also NULL, uses \code{pretty_breaks(n)}.
+#' @param n_breaks Integer. Fallback number of pretty breaks (default 10).
+#' @return A ggplot2 scale layer.
+#' @keywords internal
+.acl_scale_x <- function(x_breaks = NULL, n_breaks = 10) {
+  brks <- if (!is.null(x_breaks)) x_breaks else acl_theme("x_breaks")
+  expd <- acl_theme("x_expand")
+  if (is.null(expd)) expd <- c(0.01, 0.01)
+
+  if (is.null(brks)) {
+    ggplot2::scale_x_continuous(
+      breaks = scales::pretty_breaks(n = n_breaks),
+      expand = ggplot2::expansion(mult = expd)
+    )
+  } else {
+    ggplot2::scale_x_continuous(
+      breaks = brks,
+      expand = ggplot2::expansion(mult = expd)
+    )
+  }
+}
+
+
+#' Fix length bin labels: first/last bins become open-ended
+#'
+#' Converts "5-7" to "<7" and "49-51" to ">49" for the first and last bins.
+#' Middle bins are kept as-is ("7-9", "9-11", ...).
+#'
+#' @param len_label Character vector of length bin labels.
+#' @param prefix Character. Prefix for facet labels (e.g. "Length bin").
+#' @return A character vector of fixed labels.
+#' @keywords internal
+.acl_fix_len_labels <- function(len_label, prefix = "Length bin") {
+  LengthGroup <- len_label
+  n_bins <- length(LengthGroup)
+  if (n_bins >= 2) {
+    first_parts <- strsplit(as.character(LengthGroup[1]), "-")[[1]]
+    last_parts  <- strsplit(as.character(LengthGroup[n_bins]), "-")[[1]]
+    if (length(first_parts) == 2) LengthGroup[1] <- paste0("<", first_parts[2])
+    if (length(last_parts)  == 2) LengthGroup[n_bins] <- paste0(">", last_parts[1])
+  }
+  paste(prefix, LengthGroup)
+}

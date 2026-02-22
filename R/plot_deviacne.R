@@ -21,6 +21,18 @@
 #' @param facet_scales Scales for facet wrap. Default is "free".
 #' @param type Character. It specifies whether the deviation plot is for "R" or "F". Default is "R".
 #'
+#' @param title Character or NULL. Custom plot title. If NULL, uses global theme setting. See \code{acl_theme_set()}.
+#' @param xlab Character or NULL. Custom x-axis label. If NULL, uses global theme setting.
+#' @param ylab Character or NULL. Custom y-axis label. If NULL, uses global theme setting.
+#' @param font_family Character or NULL. Custom font family. If NULL, uses global theme setting (default "Arial").
+#' @param title_size Numeric or NULL. Plot title size in pt. If NULL, uses global theme (default 14).
+#' @param axis_title_size Numeric or NULL. Axis title size in pt. If NULL, uses global theme (default 12).
+#' @param axis_text_size Numeric or NULL. Axis tick label size in pt. If NULL, uses global theme (default 10).
+#' @param strip_text_size Numeric or NULL. Facet label size in pt. If NULL, uses global theme (default 10).
+#' @param legend_text_size Numeric or NULL. Legend text size in pt. If NULL, uses global theme (default 10).
+#' @param x_breaks Numeric vector or NULL. Custom x-axis breaks (e.g. \code{seq(1, 20, by = 2)}). NULL = auto.
+#' @param base_theme Character or NULL. Base ggplot2 theme name (e.g. "theme_bw"). NULL = global setting.
+#' @param title_hjust Numeric or NULL. Title horizontal alignment: 0 = left, 0.5 = center, 1 = right. NULL = global setting.
 #' @return A ggplot2 object.
 #' @export
 #'
@@ -44,7 +56,7 @@
 #'               se_color = "blue", se_alpha = 0.4)
 #' }
 
-plot_deviance <- function(model_result, se = TRUE, point_size=3,point_color="white",point_shape=21 ,line_size = 1, line_color = "black", line_type = "solid",se_color="black", se_width=0.5,facet_ncol = NULL, facet_scales = "free",log=T,type=c("R","F")) {
+plot_deviance <- function(model_result, se = TRUE, point_size=3,point_color="white",point_shape=21 ,line_size = 1, line_color = "black", line_type = "solid",se_color="black", se_width=0.5,facet_ncol = NULL, facet_scales = "free",log=T,type=c("R","F"), title = NULL, xlab = NULL, ylab = NULL, font_family = NULL, title_size = NULL, axis_title_size = NULL, axis_text_size = NULL, strip_text_size = NULL, legend_text_size = NULL, x_breaks = NULL, base_theme = NULL, title_hjust = NULL) {
 
   if(type=="R"){
   dev_log_R<-model_result[["est_std"]][grep("^dev_log_R", rownames(model_result[["est_std"]])),]
@@ -71,10 +83,11 @@ plot_deviance <- function(model_result, se = TRUE, point_size=3,point_color="whi
 
 
    plot <- ggplot2::ggplot(confidence_intervals_dev_log_R, ggplot2::aes(x = Year, y = estimate)) +
-    ggplot2::geom_line(size = line_size, color = line_color, linetype = line_type) +
+    ggplot2::geom_line(linewidth = line_size, color = line_color, linetype = line_type) +
     ggplot2::geom_point(size=point_size,fill =point_color,shape=point_shape) +
-    ggplot2::labs(y = "deviacne_Recruiment", x = "Year", title = "deviacne_Recruiment Over Years") +
-    ggplot2::theme_minimal()
+    ggplot2::labs(y = "Recruitment deviance", x = if (!is.null(xlab)) xlab else .acl_lab("x", "year"), title = if (!is.null(title)) title else .acl_title("dev_R")) +
+    .acl_scale_x(x_breaks, n_breaks = 10) +
+      .acl_base_theme(font_family, title_size, axis_title_size, axis_text_size, strip_text_size, legend_text_size, base_theme = base_theme, title_hjust = title_hjust)
 
 
 
@@ -101,7 +114,8 @@ plot_deviance <- function(model_result, se = TRUE, point_size=3,point_color="whi
     # Create AgeGroup and Year columns for ss_f
     F<- model_result[["report"]][["F"]]
 
-    dev_log_F$AgeGroup <- rep(paste0("Age group ", seq_len(nrow(F))), times = ncol(F))
+    age_levels <- paste0("Age group ", seq_len(nrow(F)))
+    dev_log_F$AgeGroup <- factor(rep(age_levels, times = ncol(F)), levels = age_levels)
     dev_log_F$Year <- rep(model_result[["year"]], each = nrow(F))
 
 
@@ -123,10 +137,11 @@ plot_deviance <- function(model_result, se = TRUE, point_size=3,point_color="whi
 
 
     plot <- ggplot2::ggplot(confidence_intervals_dev_log_F, ggplot2::aes(x = Year, y = estimate)) +
-      ggplot2::geom_line(size = line_size, color = line_color, linetype = line_type) +
+      ggplot2::geom_line(linewidth = line_size, color = line_color, linetype = line_type) +
       ggplot2::geom_point(size=point_size,fill =point_color,shape=point_shape) +
-      ggplot2::labs(y = "deviacne_fishing_mortality", x = "Year", title = "deviacne_fishing_mortality Over Years") +
-      ggplot2::theme_minimal()+
+      ggplot2::labs(y = "F deviance", x = if (!is.null(xlab)) xlab else .acl_lab("x", "year"), title = if (!is.null(title)) title else .acl_title("dev_F")) +
+      .acl_scale_x(x_breaks, n_breaks = 10) +
+      .acl_base_theme(font_family, title_size, axis_title_size, axis_text_size, strip_text_size, legend_text_size, base_theme = base_theme, title_hjust = title_hjust)+
       ggplot2::facet_wrap(~AgeGroup, ncol = facet_ncol, scales = facet_scales)
 
 

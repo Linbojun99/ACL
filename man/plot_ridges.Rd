@@ -4,12 +4,62 @@
 \alias{plot_ridges}
 \title{Plot ridges of Observed and Estimated Catch-at-Length Over Years}
 \usage{
-plot_ridges(model_result, ridges_alpha = 0.8)
+plot_ridges(
+  model_result,
+  ridges_alpha = 0.8,
+  palette = "viridis",
+  title = NULL,
+  xlab = NULL,
+  ylab = NULL,
+  font_family = NULL,
+  title_size = NULL,
+  axis_title_size = NULL,
+  axis_text_size = NULL,
+  strip_text_size = NULL,
+  legend_text_size = NULL,
+  x_breaks = NULL,
+  base_theme = NULL,
+  title_hjust = NULL
+)
 }
 \arguments{
 \item{model_result}{A list containing the model result, which includes a data frame of Elog_index and logN_at_len, len_mid, and year.}
 
 \item{ridges_alpha}{Numeric. Specifies the transparency of the ridgeline plots. Default is 0.8.}
+
+\item{palette}{Character or character vector. Color palette for the fill.
+Built-in palette names: \code{"viridis"} (default), \code{"plasma"},
+\code{"inferno"}, \code{"cividis"}, \code{"turbo"}, \code{"magma"},
+\code{"ocean"}, \code{"sunset"}, \code{"forest"}, \code{"fire"},
+\code{"spectral"}, \code{"RdYlBu"}, \code{"RdYlGn"}, \code{"PiYG"},
+\code{"BrBG"}, \code{"rainbow"}, \code{"terrain"}, \code{"heat"},
+\code{"topo"}.
+Or supply a character vector of colors (e.g. \code{c("#0D1B2A","#2E86AB","#72EFDD")})
+which will be interpolated to match the number of years.}
+
+\item{title}{Character or NULL. Custom plot title. If NULL, uses global theme setting. See \code{acl_theme_set()}.}
+
+\item{xlab}{Character or NULL. Custom x-axis label. If NULL, uses global theme setting.}
+
+\item{ylab}{Character or NULL. Custom y-axis label. If NULL, uses global theme setting.}
+
+\item{font_family}{Character or NULL. Custom font family. If NULL, uses global theme setting (default "Arial").}
+
+\item{title_size}{Numeric or NULL. Plot title size in pt. If NULL, uses global theme (default 14).}
+
+\item{axis_title_size}{Numeric or NULL. Axis title size in pt. If NULL, uses global theme (default 12).}
+
+\item{axis_text_size}{Numeric or NULL. Axis tick label size in pt. If NULL, uses global theme (default 10).}
+
+\item{strip_text_size}{Numeric or NULL. Facet label size in pt. If NULL, uses global theme (default 10).}
+
+\item{legend_text_size}{Numeric or NULL. Legend text size in pt. If NULL, uses global theme (default 10).}
+
+\item{x_breaks}{Numeric vector or NULL. Custom x-axis breaks (e.g. \code{seq(1, 20, by = 2)}). NULL = auto.}
+
+\item{base_theme}{Character or NULL. Base ggplot2 theme name (e.g. "theme_bw"). NULL = global setting.}
+
+\item{title_hjust}{Numeric or NULL. Title horizontal alignment: 0 = left, 0.5 = center, 1 = right. NULL = global setting.}
 }
 \value{
 A grid arranged ggplot object.
@@ -24,5 +74,19 @@ The density distribution is calculated by transforming the abundance data with t
 # Assume model_result is the result obtained from function 'run_acl'.
 p <- plot_ridges(model_result)
 print(p)
+
+# Built-in palettes
+plot_ridges(model_result, palette = "viridis")   # purple-yellow
+plot_ridges(model_result, palette = "ocean")      # deep blue-teal
+plot_ridges(model_result, palette = "sunset")     # dark purple-red-gold
+plot_ridges(model_result, palette = "forest")     # dark green-light green
+plot_ridges(model_result, palette = "fire")       # black-red-gold
+plot_ridges(model_result, palette = "spectral")   # red-yellow-blue
+plot_ridges(model_result, palette = "turbo")      # rainbow-like
+plot_ridges(model_result, palette = "plasma")     # purple-orange-yellow
+
+# Custom colors (auto-interpolated)
+plot_ridges(model_result, palette = c("#0D1B2A", "#2E86AB", "#72EFDD"))
+plot_ridges(model_result, palette = c("navy", "white", "firebrick"))
 }
 }

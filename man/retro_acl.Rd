@@ -27,7 +27,23 @@ retro_acl(
   facet_scales = "free",
   facet_col = NULL,
   facet_row = NULL,
-  train_times = 1
+  train_times = 1,
+  title = NULL,
+  xlab = NULL,
+  ylab = NULL,
+  font_family = NULL,
+  title_size = NULL,
+  axis_title_size = NULL,
+  axis_text_size = NULL,
+  strip_text_size = NULL,
+  legend_text_size = NULL,
+  x_breaks = NULL,
+  base_theme = NULL,
+  title_hjust = NULL,
+  rho_digits = 4,
+  rho_position = "top_right",
+  rho_size = 3.5,
+  ncores = 1
 )
 }
 \arguments{
@@ -76,9 +92,45 @@ retro_acl(
 \item{facet_row}{The number of rows for facet_wrap. Defaults to NULL.}
 
 \item{train_times}{Numeric, the number of times the model is to be trained,}
+
+\item{title}{Character or NULL. Custom plot title. If NULL, uses global theme setting. See \code{acl_theme_set()}.}
+
+\item{xlab}{Character or NULL. Custom x-axis label. If NULL, uses global theme setting.}
+
+\item{ylab}{Character or NULL. Custom y-axis label. If NULL, uses global theme setting.}
+
+\item{font_family}{Character or NULL. Custom font family. If NULL, uses global theme setting (default "Arial").}
+
+\item{title_size}{Numeric or NULL. Plot title size in pt. If NULL, uses global theme (default 14).}
+
+\item{axis_title_size}{Numeric or NULL. Axis title size in pt. If NULL, uses global theme (default 12).}
+
+\item{axis_text_size}{Numeric or NULL. Axis tick label size in pt. If NULL, uses global theme (default 10).}
+
+\item{strip_text_size}{Numeric or NULL. Facet label size in pt. If NULL, uses global theme (default 10).}
+
+\item{legend_text_size}{Numeric or NULL. Legend text size in pt. If NULL, uses global theme (default 10).}
+
+\item{x_breaks}{Numeric vector or NULL. Custom x-axis breaks (e.g. \code{seq(1, 20, by = 2)}). NULL = auto.}
+
+\item{base_theme}{Character or NULL. Base ggplot2 theme name (e.g. "theme_bw"). NULL = global setting.}
+
+\item{title_hjust}{Numeric or NULL. Title horizontal alignment: 0 = left, 0.5 = center, 1 = right. NULL = global setting.}
+
+\item{rho_digits}{Integer. Number of decimal places for Mohn's rho in default plot (when plot=TRUE). Default is 4.
+For changing rho_digits without re-computing, use \code{plot_retro(retro, rho_digits = 6)}.}
+
+\item{rho_position}{Character. Position of rho text: "top_right" (default), "top_left", "bottom_right", "bottom_left".}
+
+\item{rho_size}{Numeric. Font size of rho text. Default is 3.5.}
+
+\item{ncores}{Integer. Number of CPU cores for parallel peel computation. 1 = sequential (default).
+The full model always runs sequentially first; only the retrospective peels are parallelized.
+On Mac/Linux uses forked processes (mclapply); on Windows uses socket cluster (parLapply).}
 }
 \value{
-If \code{plot} is TRUE, returns a ggplot object and a dataframe with the results. Otherwise, returns only the dataframe with the results.
+A list containing \code{results} (data.frame), \code{rho_text}, \code{last_points},
+and optionally \code{plot} (if plot=TRUE). Use \code{plot_retro()} to re-plot with different settings.
 }
 \description{
 Conduct a retrospective analysis using an Annual Catch Limit (ACL) model in fisheries stock assessment.

@@ -1,0 +1,774 @@
+---
+title: "ACL Package — Complete User Guide / 完整用户指南"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+    number_sections: true
+    theme: flatly
+    highlight: tango
+date: "2026-02-22"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE, message = FALSE, warning = FALSE)
+```
+
+> **ACL** (Age-based Catch-at-Length) — A fisheries stock assessment R package
+> **ACL**（基于年龄的体长渔获量模型）— 渔业资源评估 R 包
+
+---
+
+# Installation / 安装
+
+```{r install}
+# Install from local source / 从本地源码安装
+#devtools::install("path/to/ACL")
+
+# Load the package / 加载包
+library(ACL)
+```
+
+**Dependencies / 依赖包**: `TMB`, `ggplot2`, `dplyr`, `tidyr`, `reshape2`, `ggridges`, `cowplot`, `scales`, `RColorBrewer`
+
+---
+
+# Workflow Overview / 工作流程概览
+
+The ACL package provides two pathways:
+ACL 包提供两条路径：
+
+| Pathway / 路径 | Description / 描述 |
+|---|---|
+| **Simulation** / 模拟 | `initialize_params()` → `sim_cal()` → `sim_data()` → `sim_acl()` |
+| **Real data** / 真实数据 | Prepare data → `run_acl()` → `diagnose_model()` → Plot & Retro |
+
+Both pathways share the same **plotting** and **theme** system.
+两条路径共享同一套**绘图**和**主题**系统。
+
+---
+
+# Simulation Pathway / 模拟路径
+
+## Initialize Parameters / 初始化参数
+
+```{r init-params}
+params <- initialize_params(
+  nyear = 100, rec.age = YTF$rec.age, nage = YTF$nage,
+  M = YTF$M, init_Z = YTF$init_Z,
+  vbk = YTF$vbk, Linf = YTF$Linf, t0 = YTF$t0,
+  len_mid = YTF$len_mid, len_border = seq(5, 51, 2),
+  a = YTF$a, b = YTF$b,
+  mat_L50 = YTF$mat_L50, mat_L95 = YTF$mat_L95,
+  cv_L = YTF$cv_L, cv_inc = YTF$cv_inc,
+  std_logR = YTF$std_logR, std_logN0 = YTF$std_logN0,
+  alpha = YTF$alpha, beta = YTF$beta,
+  std_SN = YTF$std_SN,
+  q_surv_L50 = YTF$q_surv_L50, q_surv_L95 = YTF$q_surv_L95
+)
+```
+
+## Calculate Biological Variables / 计算生物学变量
+
+```{r sim-cal}
+bio_vars <- sim_cal(params)
+```
+
+Returns / 返回: `LatA` (length-at-age), `W_at_len`, `mat`, `pla`, `q_surv`, `sel`
+
+## Simulate Fishery Data / 模拟渔业数据
+
+```{r sim-data}
+sim_dir <- file.path(tempdir(), "ACL_sim")
+dir.create(sim_dir, showWarnings = FALSE)
+
+sim_result <- sim_data(
+  bio_fishing_vars = bio_vars,
+  init_state_vars  = params,
+  sim_year         = 100,
+  output_dir       = sim_dir,
+  iter_range       = 4:100,      # which iterations to run / 运行哪些迭代
+  return_iter      = 50          # which one to return / 返回第几个到内存
+)
+
+cat("Returned iteration:", sim_result$iter, "\n")
+```
+
+| Parameter / 参数 | Description / 描述 | Default / 默认 |
+|---|---|---|
+| `iter_range` | Iteration seeds to run / 要运行的迭代种子 | `4:100` |
+| `return_iter` | Which iteration to return / 返回哪个到内存 | `NULL` (last) |
+
+**Key features / 关键特性**:
+
+- All iterations are saved to disk as `sim_repN` files / 所有迭代保存到磁盘 `sim_repN` 文件
+- Only `return_iter` is loaded into memory / 只有 `return_iter` 加载到内存
+- `sim_result$iter` tells you which iteration / `sim_result$iter` 告诉你是第几个
+
+```{r sim-data-variants}
+# Run a single replicate quickly / 快速运行单个副本
+sim_single <- sim_data(
+  bio_fishing_vars = bio_vars, init_state_vars = params,
+  sim_year = 100, output_dir = sim_dir,
+  iter_range = 50, return_iter = 50
+)
+
+# Run subset / 运行子集
+sim_subset <- sim_data(
+  bio_fishing_vars = bio_vars, init_state_vars = params,
+  sim_year = 100, output_dir = sim_dir,
+  iter_range = 10:20, return_iter = 15
+)
+```
+
+## Fit Model to Simulated Data / 对模拟数据拟合模型
+
+```{r sim-acl}
+result_dir <- file.path(tempdir(), "ACL_results")
+dir.create(result_dir, showWarnings = FALSE)
+
+# Sequential (default)
+assessment_results <- sim_acl(
+  iter_range    = 4:6,           # quick test: 3 replicates / 快速测试：3个副本
+  sim_data_path = sim_dir,
+  output_dir    = result_dir,
+  M             = YTF$M,
+  ncores        = 1              # 1 = sequential / 顺序运行
+)
+
+# Parallel — use all but 1 core / 并行 — 使用全部核心减1
+# assessment_results <- sim_acl(
+#   iter_range = 4:100, sim_data_path = sim_dir, output_dir = result_dir,
+#   M = YTF$M, ncores = parallel::detectCores() - 1
+# )
+```
+
+**Parallel processing / 并行处理**:
+
+All three model-fitting functions support `ncores`:
+三个模型拟合函数都支持 `ncores`：
+
+| Function / 函数 | `ncores = 1` | `ncores > 1` |
+|---|---|---|
+| `run_acl` | OpenMP auto-enabled (gradient speedup) | Multi-start: N jittered starts in parallel, pick best / N 个不同起点并行，选最优 |
+| `sim_acl` | Sequential loop | `mclapply` / `parLapply` across iterations / 跨迭代并行 |
+| `retro_acl` | Sequential loop | `mclapply` / `parLapply` across peels / 跨剥离并行 |
+
+| Platform / 平台 | Process parallelism / 进程并行 | Thread parallelism / 线程并行 |
+|---|---|---|
+| Mac | `mclapply` (fork) | OpenMP (requires `brew install libomp`) |
+| Linux | `mclapply` (fork) | OpenMP (usually built-in) |
+| Windows | `parLapply` (socket) | OpenMP (with Rtools) |
+
+```{r parallel-setup}
+# Check available cores / 查看可用核心数
+total_cores <- parallel::detectCores()
+safe_cores  <- max(1, total_cores - 1)   # leave 1 for OS / 留1个给系统
+cat(sprintf("Total cores: %d | Recommended ncores: %d\n", total_cores, safe_cores))
+```
+
+**How many cores to use? / 用多少核心？**
+
+| Hardware / 硬件 | Typical cores / 典型核心数 | Recommended `ncores` / 建议 |
+|---|---|---|
+| Laptop / 笔记本 | 4–8 | 3–7 |
+| Desktop / 台式机 | 8–16 | 7–15 |
+| Server / 服务器 | 32–128 | 16–32 |
+
+**`run_acl` parallelism / `run_acl` 并行说明**:
+
+1. **OpenMP threads** (automatic): When `ncores=1`, ACL.cpp uses `parallel_accumulator` to split gradient computation across CPU threads. No user action needed — it's enabled automatically.
+当 `ncores=1` 时，ACL.cpp 使用 `parallel_accumulator` 将梯度计算拆分到多线程。无需用户操作——自动启用。
+
+2. **Multi-start** (when `ncores > 1`): Runs N complete optimizations from different starting points in parallel (total time ≈ slowest start, NOT sum of all). Main benefit: **avoids local optima**, not raw speed.
+当 `ncores > 1` 时，从不同起点并行运行 N 次完整优化（总时间 ≈ 最慢的那个起点，而非所有的总和）。主要好处：**避免局部最优**，而非提速。
+
+**Performance note / 性能说明**: More cores = slightly slower per start (CPU cache/memory bandwidth shared). Typical sweet spot is **ncores = 2–4** for `run_acl`. For **speed-focused** parallelism, use `ncores` in `sim_acl()` (97 iterations) or `retro_acl()` (multiple peels).
+更多核心 = 每个起点稍慢（CPU 缓存/内存带宽被共享）。`run_acl` 典型最佳值为 **ncores = 2–4**。若以**加速**为目的，应在 `sim_acl()`（97次迭代）或 `retro_acl()`（多次剥离）中使用 `ncores`。
+
+---
+
+# Real Data Pathway / 真实数据路径
+
+## Prepare Input Data / 准备输入数据
+
+`run_acl()` requires 3 data frames, each with:
+`run_acl()` 需要 3 个数据框，每个包含：
+
+- Column 1 (`Length`): length bin labels in `"number-number"` format (e.g. `"5-7"`, `"7-9"`)
+  第1列（`Length`）：体长组标签，格式为 `"数字-数字"`（如 `"5-7"`, `"7-9"`）
+- Columns 2+: data values for each year / 第2列起：每年的数据值
+
+| Data frame / 数据框 | Content / 内容 |
+|---|---|
+| `data.CatL` | Catch-at-length (survey numbers) / 体长渔获量（调查数量） |
+| `data.wgt` | Weight-at-length / 各体长组重量 |
+| `data.mat` | Maturity-at-length / 各体长组成熟度 |
+
+```{r prepare-data}
+# Format simulated data for run_acl() / 为 run_acl() 格式化模拟数据
+nyear_assess <- sim_result$nyear
+nlen         <- sim_result$nlen
+
+# Length labels: must be "number-number" format / 必须是 "数字-数字" 格式
+len_borders_numeric <- seq(5, 51, 2)
+len_labels <- paste0(len_borders_numeric[1:nlen], "-",
+                     len_borders_numeric[2:(nlen + 1)])
+
+year_names <- paste0("X", 1:nyear_assess)
+
+data.CatL <- data.frame(
+  Length = len_labels, t(sim_result$SN_at_len),
+  stringsAsFactors = FALSE
+)
+colnames(data.CatL) <- c("Length", year_names)
+
+data.wgt <- data.frame(
+  Length = len_labels, sim_result$weight,
+  stringsAsFactors = FALSE
+)
+colnames(data.wgt) <- c("Length", year_names)
+
+data.mat <- data.frame(
+  Length = len_labels, sim_result$mat,
+  stringsAsFactors = FALSE
+)
+colnames(data.mat) <- c("Length", year_names)
+```
+
+## Run the Model / 运行模型
+
+```{r run-acl}
+# Default: single start (fastest for a single run) / 默认：单起点（单次运行最快）
+model_result <- run_acl(
+  data.CatL   = data.CatL,
+  data.wgt    = data.wgt,
+  data.mat    = data.mat,
+  rec.age     = YTF$rec.age,
+  nage        = YTF$nage,
+  M           = YTF$M,
+  sel_L50     = YTF$q_surv_L50,
+  sel_L95     = YTF$q_surv_L95,
+  train_times = 2,               # optimization restarts / 优化重启次数
+  ncores      = 3                # 1 = single start (recommended) / 单起点（推荐）
+)
+
+# Multi-start: try multiple starting points to avoid local optima
+# 多起点：尝试多个起点以避免局部最优
+# model_result <- run_acl(..., ncores = 3)
+# NOTE: total time ≈ slowest start (IS parallel), not sum of all starts
+# 注意：总时间 ≈ 最慢的起点（确实是并行），不是所有起点的总和
+
+model_result$converge     # "Converged" or not / 是否收敛
+model_result$bound_hit    # parameter boundary issues / 参数边界问题
+```
+
+**`ncores > 1` multi-start behavior / 多起点行为**:
+
+- Start 1 uses default initial values / 第1个使用默认初始值
+- Starts 2–N use jittered initial values (each different) / 第2到N个使用随机扰动初始值
+- All starts run **simultaneously** (total time ≈ max, not sum) / 所有起点**同时运行**（总时间 ≈ 最大值，非求和）
+- Best result (lowest objective) is kept / 保留最优结果（最低目标值）
+- **Purpose: robustness (avoid local optima), not speed** / **目的：稳健性（避免局部最优），不是提速**
+- More cores = slightly slower per start (CPU resource contention) / 核数越多 = 每个起点稍慢（CPU 资源竞争）
+- **Sweet spot: ncores = 2–4** for `run_acl` / 最佳值：`run_acl` 用 **ncores = 2–4**
+
+When `output = TRUE`, the function automatically saves all figures and tables. If boundaries are hit, figures are saved **without** confidence intervals (`se=FALSE`) instead of crashing.
+当 `output = TRUE` 时，函数自动保存所有图表。如果撞边界，图表将**不带**置信区间（`se=FALSE`）保存，而不会中断。
+
+```{r run-acl-output}
+# Auto-save all figures and tables / 自动保存所有图表
+model_result <- run_acl(
+  data.CatL = data.CatL, data.wgt = data.wgt, data.mat = data.mat,
+  rec.age = YTF$rec.age, nage = YTF$nage, M = YTF$M,
+  sel_L50 = YTF$q_surv_L50, sel_L95 = YTF$q_surv_L95,
+  output = TRUE, train_times = 2, ncores = 3   # 3 starts recommended / 推荐3个起点
+)
+# Results saved to: output/figures/ and output/tables/
+```
+
+## Model Diagnostics / 模型诊断
+
+```{r diagnostics}
+diagnostics <- diagnose_model(
+  data.CatL    = data.CatL,
+  model_result = model_result
+)
+print(diagnostics)
+```
+
+---
+
+# Global Theme System / 全局主题系统
+
+All plot functions read from a **global theme**. Change once, affect all plots.
+所有绘图函数读取**全局主题**。改一次，影响所有图。
+
+## View / Set / Reset / 查看 / 设置 / 重置
+
+```{r theme-view}
+acl_theme()                    # view all settings / 查看所有设置
+acl_theme("titles")            # view title keys / 查看标题键
+acl_theme("font_family")       # view single setting / 查看单个设置
+
+# acl_theme_set(...)           # modify settings / 修改设置
+# acl_theme_reset()            # restore defaults / 恢复默认
+```
+
+## Base Theme / 基础主题
+
+```{r theme-base}
+acl_theme_set(base_theme = "theme_bw")         # default, with border / 默认，有边框
+# acl_theme_set(base_theme = "theme_minimal")  # no border / 无边框
+# acl_theme_set(base_theme = "theme_classic")  # classic axes / 经典双轴
+# acl_theme_set(base_theme = "theme_light")    # light background / 浅色背景
+# acl_theme_set(base_theme = "theme_gray")     # gray background / 灰色背景
+# acl_theme_set(base_theme = "theme_linedraw") # black border / 黑色边框
+# acl_theme_set(base_theme = "theme_dark")     # dark background / 深色背景
+# acl_theme_set(base_theme = "theme_void")     # nothing / 空白
+```
+
+## Font & Text Sizes / 字体与文字大小
+
+```{r theme-font}
+acl_theme_set(font_family = "Arial")            # font / 字体
+# acl_theme_set(font_family = "Times New Roman")
+
+acl_theme_set(
+  title_size       = 16,   # plot title / 图标题
+  axis_title_size  = 14,   # axis label / 轴标签
+  axis_text_size   = 11,   # tick label / 刻度标签
+  strip_text_size  = 11,   # facet label / 分面标签
+  legend_text_size = 10    # legend / 图例
+)
+```
+
+## Title Alignment / 标题对齐
+
+```{r theme-hjust}
+acl_theme_set(title_hjust = 0.5)   # center (default) / 居中（默认）
+# acl_theme_set(title_hjust = 0)   # left / 左对齐
+# acl_theme_set(title_hjust = 1)   # right / 右对齐
+```
+
+## X-axis Breaks / X 轴刻度
+
+```{r theme-xbreaks}
+acl_theme_set(x_breaks = seq(1, 20, by = 1))    # every year / 每年
+# acl_theme_set(x_breaks = seq(1, 20, by = 2))  # every 2 years / 每2年
+# acl_theme_set(x_breaks = seq(1, 20, by = 5))  # every 5 years / 每5年
+# acl_theme_set(x_breaks = c(1, 5, 10, 15, 20)) # custom / 自定义
+# acl_theme_set(x_breaks = NULL)                 # auto / 自动
+```
+
+## Custom Titles & Labels / 自定义标题和标签
+
+```{r theme-titles}
+# Override specific titles / 覆盖特定标题
+acl_theme_set(titles = list(
+  N_se  = "Total Abundance with 95% CI",
+  SSB   = "Spawning Biomass"
+))
+
+# Override axis labels / 覆盖轴标签
+acl_theme_set(ylab = list(abundance = "Population (×10³)"))
+acl_theme_set(xlab = list(year = "Assessment Year"))
+```
+
+## Per-plot Override / 单图覆盖
+
+Every plot function accepts theme params that **override** global settings for that call only:
+每个绘图函数都接受主题参数，**仅对该次调用**覆盖全局设置：
+
+```{r theme-override}
+plot_abundance(model_result, type = "N", se = TRUE,
+               title = "Custom Title",          # only this plot / 仅此图
+               font_family = "Times New Roman",
+               base_theme = "theme_classic",
+               title_hjust = 0,
+               title_size = 18,
+               x_breaks = seq(1, 20, by = 5))
+```
+
+---
+
+# Visualization Functions / 可视化函数
+
+All plot functions share common parameters:
+所有绘图函数共享通用参数：
+
+| Parameter / 参数 | Description / 描述 |
+|---|---|
+| `se = TRUE/FALSE` | Show confidence intervals / 显示置信区间 |
+| `se_type = "ribbon"` | Shaded CI band / 阴影置信带 |
+| `se_type = "errorbar"` | Error bars / 误差棒 |
+| `facet_ncol` | Number of facet columns / 分面列数 |
+| `return_data = TRUE` | Return data alongside plot / 同时返回数据 |
+| `title`, `xlab`, `ylab` | Override labels / 覆盖标签 |
+| `font_family`, `*_size` | Override theme / 覆盖主题 |
+| `base_theme` | Override base ggplot2 theme / 覆盖基础主题 |
+| `title_hjust` | Override title alignment / 覆盖标题对齐 |
+| `x_breaks` | Override x-axis breaks / 覆盖 x 轴刻度 |
+
+## Abundance / 丰度
+
+```{r plot-abundance}
+plot_abundance(model_result, type = "N",  se = TRUE)                  # Total / 总量
+plot_abundance(model_result, type = "N",  se = TRUE, se_type = "errorbar")
+plot_abundance(model_result, type = "NA", se = TRUE, facet_ncol = 5)  # At-age / 分年龄
+plot_abundance(model_result, type = "NL", se = TRUE, facet_ncol = 5)  # At-length / 分体长
+```
+
+## Biomass / 生物量
+
+```{r plot-biomass}
+plot_biomass(model_result, type = "B",  se = TRUE)                    # Total / 总量
+plot_biomass(model_result, type = "B",  se = TRUE, se_type = "errorbar")
+plot_biomass(model_result, type = "BL", facet_ncol = 5)               # At-length / 分体长
+```
+
+## Spawning Stock Biomass / 产卵生物量
+
+```{r plot-SSB}
+plot_SSB(model_result, type = "SSB", se = TRUE)                       # Total / 总量
+plot_SSB(model_result, type = "SSB", se = TRUE, se_type = "errorbar")
+plot_SSB(model_result, type = "SBL", facet_ncol = 5)                  # At-length / 分体长
+```
+
+## Recruitment / 补充量
+
+```{r plot-recruitment}
+plot_recruitment(model_result, se = TRUE, se_type = "ribbon")
+plot_recruitment(model_result, se = TRUE, se_type = "errorbar")
+```
+
+## SSB-Recruitment Relationship / 产卵量-补充量关系
+
+```{r plot-SSB-Rec}
+plot_SSB_Rec(model_result, age_at_recruitment = 1)
+```
+
+## Catch / 渔获量
+
+```{r plot-catch}
+plot_catch(model_result, type = "CN",  se = TRUE)                     # Total / 总量
+plot_catch(model_result, type = "CN",  se = TRUE, se_type = "errorbar")
+plot_catch(model_result, type = "CNA", facet_ncol = 5)                # At-age / 分年龄
+```
+
+## Fishing Mortality / 捕捞死亡率
+
+```{r plot-fishing-mortality}
+plot_fishing_mortality(model_result, type = "year", se = TRUE)        # By year / 按年
+plot_fishing_mortality(model_result, type = "year", se = TRUE, se_type = "errorbar", facet_ncol = 5)
+plot_fishing_mortality(model_result, type = "age",  se = TRUE, facet_ncol = 5)  # By age / 按年龄
+```
+
+## Von Bertalanffy Growth / VB 生长曲线
+
+```{r plot-VB}
+plot_VB(model_result, age_range = c(1, 25), se = TRUE)
+plot_VB(model_result, age_range = c(1, 25), se = TRUE, se_type = "errorbar")
+```
+
+## Age-Length Transition Matrix / 年龄-体长转换矩阵
+
+```{r plot-pla}
+plot_pla(model_result, low_col = "white", high_col = "darkred")
+```
+
+## Deviance / 偏差
+
+```{r plot-deviance}
+plot_deviance(model_result, type = "R", se = TRUE)                    # Recruitment / 补充量
+plot_deviance(model_result, type = "F", se = TRUE, facet_ncol = 5)    # Fishing mortality / 捕捞死亡率
+```
+
+---
+
+# Diagnostic Plots / 诊断图
+
+## Catch-at-Length Fit / 体长渔获量拟合
+
+```{r plot-CatL}
+# By length bins (over years) — observed vs estimated
+# 按体长组（跨年）— 观测值 vs 估计值
+plot_CatL(model_result, type = "length", facet_ncol = 5)
+
+# By year (length distribution) — two lines: red=estimated, blue=observed
+# 按年（体长分布）— 双线：红=估计，蓝=观测
+plot_CatL(model_result, type = "year", exp_transform = TRUE, facet_ncol = 5)
+```
+
+**`type = "length"` specific parameters / 特有参数**:
+
+| Parameter / 参数 | Description / 描述 |
+|---|---|
+| `point_size`, `point_color`, `point_shape` | Observed data points / 观测数据点 |
+| `line_size`, `line_color`, `line_type` | Estimated line / 估计线 |
+
+**`type = "year"` specific parameters / 特有参数**:
+
+| Parameter / 参数 | Description / 描述 | Default / 默认 |
+|---|---|---|
+| `line_size1`, `line_color1`, `line_alpha1` | Estimated line / 估计线 | `1.8, "#D32F2F", 1` |
+| `line_size2`, `line_color2`, `line_alpha2` | Observed line / 观测线 | `1.0, "#1976D2", 0.6` |
+
+**Facet label note / 分面标签说明**: The first and last length bins automatically display as `"Length bin <7"` and `"Length bin >49"` (open-ended) instead of `"5-7"` / `"49-51"`.
+第一个和最后一个体长组自动显示为 `"Length bin <7"` 和 `"Length bin >49"`（开放端），而非 `"5-7"` / `"49-51"`。
+
+## Ridgeline Plots / 山脊图
+
+```{r plot-ridges-default}
+plot_ridges(model_result)                     # default: viridis / 默认
+```
+
+**18 built-in palettes / 18 种内置色板**:
+
+| Category / 类别 | Palettes / 色板 |
+|---|---|
+| **Viridis family** | `"viridis"`, `"plasma"`, `"inferno"`, `"magma"`, `"cividis"`, `"turbo"` |
+| **Custom gradients / 自定义渐变** | `"ocean"`, `"sunset"`, `"forest"`, `"fire"` |
+| **Brewer diverging / Brewer 发散** | `"spectral"`, `"RdYlBu"`, `"RdYlGn"`, `"PiYG"`, `"BrBG"`, `"PRGn"`, `"RdBu"` |
+| **Base R** | `"rainbow"`, `"terrain"`, `"heat"`, `"topo"` |
+
+```{r plot-ridges-palettes}
+plot_ridges(model_result, palette = "ocean")      # deep blue -> teal / 深蓝->青绿
+plot_ridges(model_result, palette = "sunset")      # purple -> red -> gold / 紫->红->金
+plot_ridges(model_result, palette = "forest")      # dark -> light green / 深->浅绿
+plot_ridges(model_result, palette = "fire")        # black -> red -> gold / 黑->红->金
+plot_ridges(model_result, palette = "spectral")    # red -> yellow -> blue / 红->黄->蓝
+plot_ridges(model_result, palette = "turbo")       # rainbow-like / 类彩虹
+
+# Custom color vector (auto-interpolated) / 自定义颜色向量（自动插值）
+plot_ridges(model_result, palette = c("navy", "white", "firebrick"))
+plot_ridges(model_result, palette = c("#0D1B2A", "#2E86AB", "#72EFDD"))
+```
+
+## Residuals / 残差
+
+```{r plot-residuals}
+plot_residuals(model_result, type = "length", facet_ncol = 5)  # by length bin / 按体长组
+plot_residuals(model_result, type = "year",   facet_ncol = 5)  # by year / 按年
+```
+
+---
+
+# Retrospective Analysis / 回顾分析
+
+## Compute (expensive) / 计算（耗时）
+
+Computation and plotting are **separated** — compute once, re-plot unlimited times.
+计算和绘图**分离** — 计算一次，无限次重新绘图。
+
+```{r retro-compute}
+retro <- retro_acl(
+  nyear     = 3,                 # number of peels / 剥离年数
+  data.CatL = data.CatL,
+  data.wgt  = data.wgt,
+  data.mat  = data.mat,
+  rec.age   = YTF$rec.age,
+  nage      = YTF$nage,
+  M         = YTF$M,
+  sel_L50   = YTF$q_surv_L50,
+  sel_L95   = YTF$q_surv_L95,
+  train_times = 1,
+  ncores    = 1                  # parallel peels: set > 1 / 并行剥离：设 > 1
+)
+
+# Parallel retrospective / 并行回顾分析
+# retro <- retro_acl(..., ncores = parallel::detectCores() - 1)
+```
+
+**Returns / 返回**: `retro$results`, `retro$rho_text`, `retro$last_points` (and `retro$plot` if `plot=TRUE`)
+
+## Plot (fast, repeatable) / 绘图（快速，可重复）
+
+```{r retro-plot}
+# Change rho decimal places without re-computing / 不重新计算即可改变 rho 小数位
+plot_retro(retro, rho_digits = 4)                  # rho = 0.0002
+plot_retro(retro, rho_digits = 6)                  # rho = 0.000200
+plot_retro(retro, rho_digits = 2)                  # rho = 0.00
+```
+
+## Rho Position & Size / Rho 位置和大小
+
+```{r retro-rho-position}
+plot_retro(retro, rho_position = "top_right")      # default / 默认：右上角
+plot_retro(retro, rho_position = "top_left")       # 左上角
+plot_retro(retro, rho_position = "bottom_right")   # 右下角
+plot_retro(retro, rho_position = "bottom_left")    # 左下角
+
+plot_retro(retro, rho_size = 4.5)                  # larger font / 更大字体
+plot_retro(retro, rho_size = 3)                    # smaller font / 更小字体 (default: 3.5)
+```
+
+## Full Customization / 完全自定义
+
+```{r retro-custom}
+plot_retro(retro,
+           rho_digits = 4,
+           rho_position = "top_right",
+           rho_size = 4,
+           title = "Retrospective Analysis (3 peels)",
+           x_breaks = seq(1, 20, by = 5),
+           title_size = 16,
+           font_family = "Times New Roman",
+           base_theme = "theme_bw",
+           title_hjust = 0.5)
+```
+
+## Mohn's Rho Summary / Mohn's Rho 汇总
+
+```{r retro-rho-summary}
+rho_summary <- retro$results |>
+  dplyr::filter(!is.na(Rho)) |>
+  dplyr::group_by(Variable) |>
+  dplyr::summarise(Mohns_Rho = round(mean(Rho, na.rm = TRUE), 6)) |>
+  dplyr::ungroup()
+print(rho_summary)
+```
+
+---
+
+# Custom Parameters / 自定义参数
+
+## Override Parameters / 覆盖参数
+
+```{r custom-params}
+custom <- create_parameters(
+  parameters   = list(mean_log_R = 5.5),
+  parameters.L = list(mean_log_R = log(10)),
+  parameters.U = list(mean_log_R = 10)
+)
+print(custom$parameters)
+```
+
+## Control Optimization Map / 控制优化映射
+
+```{r custom-map}
+default_map <- generate_map()                          # view defaults / 查看默认
+custom_map  <- generate_map(map = list(t0 = factor(NA)))  # fix t0 / 固定 t0
+```
+
+## Custom Model Run / 自定义模型运行
+
+```{r custom-run}
+model_result2 <- run_acl(
+  data.CatL    = data.CatL,
+  data.wgt     = data.wgt,
+  data.mat     = data.mat,
+  rec.age      = YTF$rec.age,
+  nage         = YTF$nage,
+  M            = YTF$M,
+  sel_L50      = YTF$q_surv_L50,
+  sel_L95      = YTF$q_surv_L95,
+  parameters   = list(mean_log_R = 5.5),
+  parameters.L = list(mean_log_R = log(10)),
+  parameters.U = list(mean_log_R = 10),
+  map          = custom_map,
+  train_times  = 2,
+  ncores       = parallel::detectCores() - 1   # parallel gradient / 并行梯度
+)
+```
+
+**Tips / 提示**:
+
+- If optimization fails with "Newton dropout", try / 如果优化失败：
+  1. Use initial values closer to defaults / 使用更接近默认的初始值
+  2. Fix fewer parameters in the map / 在 map 中固定更少的参数
+  3. Widen the parameter bounds / 放宽参数边界
+  4. Increase `train_times` / 增加 `train_times`
+
+---
+
+# Quick Reference / 速查表
+
+## All Plot Functions / 所有绘图函数
+
+| Function / 函数 | Description / 描述 | Key params / 关键参数 |
+|---|---|---|
+| `plot_abundance()` | Abundance / 丰度 | `type = "N" / "NA" / "NL"`, `se` |
+| `plot_biomass()` | Biomass / 生物量 | `type = "B" / "BL"`, `se` |
+| `plot_SSB()` | SSB / 产卵生物量 | `type = "SSB" / "SBL"`, `se` |
+| `plot_recruitment()` | Recruitment / 补充量 | `se`, `se_type` |
+| `plot_SSB_Rec()` | SSB-Rec relationship / 关系 | `age_at_recruitment` |
+| `plot_catch()` | Catch / 渔获量 | `type = "CN" / "CNA"`, `se` |
+| `plot_fishing_mortality()` | F / 捕捞死亡率 | `type = "year" / "age"`, `se` |
+| `plot_VB()` | Growth curve / 生长曲线 | `age_range`, `se` |
+| `plot_pla()` | Transition matrix / 转换矩阵 | `low_col`, `high_col` |
+| `plot_deviance()` | Deviance / 偏差 | `type = "R" / "F"`, `se` |
+| `plot_CatL()` | Catch-at-length fit / 拟合 | `type = "length" / "year"` |
+| `plot_ridges()` | Ridgeline comparison / 山脊比较 | `palette` |
+| `plot_residuals()` | Residuals / 残差 | `type = "length" / "year"` |
+| `plot_retro()` | Retrospective / 回顾 | `rho_digits`, `rho_position` |
+
+## Theme Quick Reference / 主题速查
+
+```{r theme-quickref}
+# Base theme / 基础主题
+acl_theme_set(base_theme = "theme_bw")           # theme_bw / minimal / classic / light / ...
+
+# Font / 字体
+acl_theme_set(font_family = "Arial")
+
+# Title alignment / 标题对齐
+acl_theme_set(title_hjust = 0.5)                 # 0=left, 0.5=center, 1=right
+
+# Text sizes / 文字大小
+acl_theme_set(title_size = 16, axis_title_size = 14, axis_text_size = 11)
+
+# X-axis / X 轴
+acl_theme_set(x_breaks = seq(1, 20, by = 2))
+
+# Custom titles / 自定义标题
+acl_theme_set(titles = list(SSB = "Spawning Biomass", Rec = "Recruitment"))
+
+# Custom axis labels / 自定义轴标签
+acl_theme_set(xlab = list(year = "Assessment Year"), ylab = list(abundance = "Abundance"))
+
+# Reset / 重置
+acl_theme_reset()
+```
+
+## Available Title Keys / 可用标题键
+
+| Key | Default Title | Function |
+|---|---|---|
+| `N` | Estimated Total Abundance (N) | `plot_abundance` |
+| `N_se` | ... with 95% CI | `plot_abundance` |
+| `NA_` | Estimated Abundance-at-Age | `plot_abundance` |
+| `NL` | Estimated Abundance-at-Length | `plot_abundance` |
+| `B` / `B_se` / `BL` | Biomass variants | `plot_biomass` |
+| `SSB` / `SSB_se` / `SBL` | SSB variants | `plot_SSB` |
+| `Rec` / `Rec_se` | Recruitment | `plot_recruitment` |
+| `SSB_Rec` | SSB vs. Recruitment | `plot_SSB_Rec` |
+| `CN` / `CN_se` / `CNA` | Catch variants | `plot_catch` |
+| `F_year` / `F_age` / `*_se` | F variants | `plot_fishing_mortality` |
+| `dev_R` / `dev_F` | Deviance | `plot_deviance` |
+| `VB` | Growth Curve | `plot_VB` |
+| `CatL_year` / `CatL_year_dist` | CatL fit | `plot_CatL` |
+| `resid_length` / `resid_year` | Residuals | `plot_residuals` |
+| `ridges` | Ridgeline | `plot_ridges` |
+| `retro` | Retrospective Analysis | `plot_retro` |
+| `pla` | Transition Matrix | `plot_pla` |
+
+## Ridgeline Palette Quick Reference / 山脊图色板速查
+
+| Palette / 色板 | Visual / 效果 |
+|---|---|
+| `"viridis"` | Purple -> Yellow / 紫->黄 |
+| `"plasma"` | Purple -> Orange -> Yellow / 紫->橙->黄 |
+| `"inferno"` | Black -> Red -> Yellow / 黑->红->黄 |
+| `"cividis"` | Blue -> Yellow (colorblind safe) / 蓝->黄（色盲友好） |
+| `"turbo"` | Rainbow-like / 类彩虹 |
+| `"ocean"` | Deep blue -> Teal / 深蓝->青绿 |
+| `"sunset"` | Purple -> Red -> Gold / 紫->红->金 |
+| `"forest"` | Dark -> Light green / 深->浅绿 |
+| `"fire"` | Black -> Red -> Gold / 黑->红->金 |
+| `"spectral"` | Red -> Yellow -> Blue / 红->黄->蓝 |
+
+---
+
+*Generated for ACL v1.5.2*

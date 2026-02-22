@@ -1,11 +1,15 @@
-#' Compile and Load the ACL TMB Model (Cross-Platform)
+#' Compile and Load the ACL TMB Model (Cross-Platform, OpenMP-aware)
 #'
 #' Internal helper function that handles TMB compilation and dynamic library
-#' loading across Windows, macOS, and Linux.
+#' loading across Windows, macOS, and Linux. Supports OpenMP compilation
+#' for parallel gradient computation via \code{TMB::openmp()}.
 #'
-#' @return A list with \code{cpp_path} and \code{dll_path}.
+#' @param openmp Logical. Compile with OpenMP support for parallel gradient
+#'   computation. Default is TRUE. If OpenMP is not available on the system,
+#'   falls back to single-threaded compilation automatically.
+#' @return A list with \code{cpp_path}, \code{dll_path}, and \code{openmp} (logical, whether OpenMP was used).
 #' @keywords internal
-compile_and_load_acl <- function() {
+compile_and_load_acl <- function(openmp = TRUE) {
 
   # --- Locate the ACL.cpp bundled with the package ---------------------------
   acl_cpp_path <- system.file("extdata", "ACL.cpp", package = "ACL")
@@ -16,9 +20,6 @@ compile_and_load_acl <- function() {
   acl_cpp_dir <- dirname(acl_cpp_path)
 
   # --- Platform-specific shared library extension ----------------------------
-  #  Windows  -> .dll
-  #  macOS    -> .so
-  #  Linux    -> .so
   dll_ext  <- .Platform$dynlib.ext                       # ".so" or ".dll"
   acl_dll_path <- file.path(acl_cpp_dir, paste0("ACL", dll_ext))
 
@@ -30,26 +31,73 @@ compile_and_load_acl <- function() {
     }
   }
 
+  openmp_used <- FALSE
+
   if (need_compile) {
-    cat("Compiling ACL.cpp for", Sys.info()[["sysname"]], "...\n")
+    sysname <- Sys.info()[["sysname"]]
+    cat("Compiling ACL.cpp for", sysname, "...\n")
 
     # Platform-specific log redirection
     if (.Platform$OS.type == "windows") {
-      log_redirect <- ""                     # Windows: no redirect (TMB handles it)
+      log_redirect <- ""
     } else {
-      log_redirect <- "&> /tmp/acl_compile.log"   # macOS / Linux
+      log_redirect <- "&> /tmp/acl_compile.log"
     }
 
-    compile(file = acl_cpp_path, log_redirect)
+    # --- Attempt OpenMP compilation ---
+    if (openmp) {
+      omp_flags <- ""
+      if (sysname == "Linux") {
+        omp_flags <- "-fopenmp"
+      } else if (sysname == "Darwin") {
+        # macOS: requires libomp (brew install libomp)
+        omp_flags <- "-Xpreprocessor -fopenmp"
+      } else {
+        # Windows with Rtools
+        omp_flags <- "-fopenmp"
+      }
 
-    if (!file.exists(acl_dll_path)) {
-      stop(
-        "Compilation succeeded but shared library not found at:\n  ",
-        acl_dll_path,
-        "\nCheck /tmp/acl_compile.log for details."
-      )
+      compile_ok <- tryCatch({
+        compile(file = acl_cpp_path, flags = omp_flags, log_redirect)
+        TRUE
+      }, error = function(e) FALSE)
+
+      if (compile_ok && file.exists(acl_dll_path)) {
+        cat("Compilation successful (with OpenMP):", acl_dll_path, "\n")
+        openmp_used <- TRUE
+      } else {
+        # OpenMP failed, fallback to standard compilation
+        cat("OpenMP compilation failed, retrying without OpenMP...\n")
+        if (sysname == "Darwin") {
+          cat("  Tip: install libomp for OpenMP on Mac: brew install libomp\n")
+        }
+        # Remove partial output
+        if (file.exists(acl_dll_path)) file.remove(acl_dll_path)
+
+        compile(file = acl_cpp_path, log_redirect)
+
+        if (!file.exists(acl_dll_path)) {
+          stop("Compilation failed. Check /tmp/acl_compile.log for details.")
+        }
+        cat("Compilation successful (without OpenMP):", acl_dll_path, "\n")
+      }
+    } else {
+      # Standard compilation without OpenMP
+      compile(file = acl_cpp_path, log_redirect)
+
+      if (!file.exists(acl_dll_path)) {
+        stop(
+          "Compilation succeeded but shared library not found at:\n  ",
+          acl_dll_path,
+          "\nCheck /tmp/acl_compile.log for details."
+        )
+      }
+      cat("Compilation successful:", acl_dll_path, "\n")
     }
-    cat("Compilation successful:", acl_dll_path, "\n")
+  } else {
+    # DLL already up to date — check if it was compiled with OpenMP
+    # (We can't know for sure, but TMB::openmp() will silently work or not)
+    openmp_used <- openmp
   }
 
   # --- Load the shared library ------------------------------------------------
@@ -57,7 +105,7 @@ compile_and_load_acl <- function() {
     dyn.load(acl_dll_path)
   }
 
-  invisible(list(cpp_path = acl_cpp_path, dll_path = acl_dll_path))
+  invisible(list(cpp_path = acl_cpp_path, dll_path = acl_dll_path, openmp = openmp_used))
 }
 
 
