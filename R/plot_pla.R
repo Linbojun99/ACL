@@ -26,8 +26,6 @@
 #' plot_pla(model_result, "white", "steelblue")
 #' }
 plot_pla <- function(model_result, low_col = "white", high_col = "red") {
-  require(ggplot2)
-  require(reshape2)
 
   pla=model_result[["report"]][["pla"]]
   len_label=model_result[["len_label"]]
@@ -43,14 +41,14 @@ plot_pla <- function(model_result, low_col = "white", high_col = "red") {
 
 
   #
-  dfm <- melt(df, id.vars = "LengthGroup")
+  dfm <- reshape2::melt(df, id.vars = "LengthGroup")
 
   #
-  p <- ggplot(dfm, aes(x=variable, y=LengthGroup, fill=value)) +
-    geom_tile() +
-    scale_fill_gradient(low = low_col, high = high_col) +
-    theme_minimal() +
-    labs(x = "Age Group", y = "Length Group", fill = "Probability")
+  p <- ggplot2::ggplot(dfm, ggplot2::aes(x=variable, y=LengthGroup, fill=value)) +
+    ggplot2::geom_tile() +
+    ggplot2::scale_fill_gradient(low = low_col, high = high_col) +
+    ggplot2::theme_minimal() +
+    ggplot2::labs(x = "Age Group", y = "Length Group", fill = "Probability")
 
   return(p)
 }

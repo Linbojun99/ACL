@@ -59,7 +59,7 @@ if(!se)
   {
   # Plot biomass over the years using ggplot2
   p <- ggplot2::ggplot(biomass, aes(x = Year, y = biomass)) +
-    ggplot2::geom_line(size = line_size, color = line_color, linetype = line_type) +
+    ggplot2::geom_line(linewidth = line_size, color = line_color, linetype = line_type) +
     ggplot2::labs(x = "Year", y = "Relative biomass", title = "Biomass Over Years") +
     ggplot2::theme_minimal()
 
@@ -84,7 +84,7 @@ if(!se)
 
     # Plot recruitment over the years with confidence intervals using ggplot2
     p <- ggplot2::ggplot(confidence_intervals_bio, aes(x = Year, y = estimate)) +
-      ggplot2::geom_line(size = line_size, color = line_color, linetype = line_type) +
+      ggplot2::geom_line(linewidth = line_size, color = line_color, linetype = line_type) +
       ggplot2::geom_ribbon(aes(ymin = lower, ymax = upper),  fill = se_color,alpha = se_alpha) +
       ggplot2::labs(y = "Relative biomass", x = "Year", title = "Biomass Over Years with Confidence Intervals") +
       ggplot2::theme_minimal()
@@ -118,7 +118,7 @@ if(!se)
 
     # Plot BL over the years using ggplot2
     p <- ggplot2::ggplot(BL_long, aes(x = Year, y = Count)) +
-      ggplot2::geom_line( size = line_size, color = line_color, linetype = line_type) +
+      ggplot2::geom_line( linewidth = line_size, color = line_color, linetype = line_type) +
       ggplot2::facet_wrap(~LengthGroup, ncol = facet_ncol, scales = facet_scales) +
       ggplot2::labs(x = "Year", y = "Relative biomass", title = "Biomass at length group Over Years") +
       ggplot2::theme_minimal()

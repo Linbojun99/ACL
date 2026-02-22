@@ -33,9 +33,10 @@
 #' plot_abundance(model_result, type = "NA", se = TRUE, facet_ncol = 2)
 #'
 #' # Type "NL" for number at length
-#' # In this example, we're plotting the number at length, with standard error (se = TRUE).
-#' # The plot will be faceted into 4 columns (facet_ncol = 4), and the scales for each facet will be fixed (facet_scales = "fixed").
-#' plot_abundance(model_result, type = "NL", se = TRUE, facet_ncol = 4, facet_scales = "fixed")
+#' # In this example, we're plotting the number at length, with se = TRUE.
+#' # facet_ncol = 4, facet_scales = "fixed".
+#' plot_abundance(model_result, type = "NL", se = TRUE,
+#'   facet_ncol = 4, facet_scales = "fixed")
 #'
 #' # data output
 #'  plot_result <- plot_abundance(data, type="NA")

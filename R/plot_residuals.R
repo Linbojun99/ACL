@@ -57,14 +57,14 @@ plot_residuals <- function(model_result, f = 0.4, line_color = "black", smooth_c
       plot_data <- rbind(plot_data, temp_data)
     }
     colnames(plot_data) <- c("residual", "LengthGroup","year")
-    p <- ggplot(plot_data, aes(x=year, y=residual)) +
-      geom_line(color = line_color, size = line_size) +
-      geom_smooth(method="loess", formula=y~x, se=FALSE, color=smooth_color, linetype=2, size=line_size) +
-      geom_hline(yintercept=0, color=hline_color, size=line_size) +
-      facet_wrap(~LengthGroup, scales = facet_scales)+
-      theme_minimal()+
-      labs(x="Year",y="Residual",title="The Residuals plot by Length bins")+
-      theme(plot.title = element_text(hjust = 0.5))
+    p <- ggplot2::ggplot(plot_data, ggplot2::aes(x=year, y=residual)) +
+      ggplot2::geom_line(color = line_color, size = line_size) +
+      ggplot2::geom_smooth(method="loess", formula=y~x, se=FALSE, color=smooth_color, linetype=2, size=line_size) +
+      ggplot2::geom_hline(yintercept=0, color=hline_color, size=line_size) +
+      ggplot2::facet_wrap(~LengthGroup, scales = facet_scales)+
+      ggplot2::theme_minimal()+
+      ggplot2::labs(x="Year",y="Residual",title="The Residuals plot by Length bins")+
+      ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
 
     data_out <-plot_data
 
@@ -83,13 +83,13 @@ plot_residuals <- function(model_result, f = 0.4, line_color = "black", smooth_c
     df_long <- df %>%
       tidyr::pivot_longer(-len_mid, names_to = "year", values_to = "residuals")
     colnames(df_long) <- c("length", "Year","residual")
-    p <- ggplot(df_long, aes(x=length, y=residual)) +
-      geom_line(color = line_color, size = line_size) +
-      geom_smooth(method="loess", formula=y~x, se=FALSE, color=smooth_color, linetype=2, size=line_size) +
-      geom_hline(yintercept=0, color=hline_color, size=line_size) +
-      facet_wrap(~Year, scales = facet_scales,ncol = facet_ncol)+
-      theme_minimal()+labs(x="Length",y="Residual",title="The Residuals plot by Years")+
-      theme(plot.title = element_text(hjust = 0.5))
+    p <- ggplot2::ggplot(df_long, ggplot2::aes(x=length, y=residual)) +
+      ggplot2::geom_line(color = line_color, size = line_size) +
+      ggplot2::geom_smooth(method="loess", formula=y~x, se=FALSE, color=smooth_color, linetype=2, size=line_size) +
+      ggplot2::geom_hline(yintercept=0, color=hline_color, size=line_size) +
+      ggplot2::facet_wrap(~Year, scales = facet_scales,ncol = facet_ncol)+
+      ggplot2::theme_minimal()+ggplot2::labs(x="Length",y="Residual",title="The Residuals plot by Years")+
+      ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
 
     data_out <-df_long
 

@@ -46,10 +46,6 @@ run_acl <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L95,
 {
   {
 
-    library(TMB)
-
-
-
     #compile(file = "ACL.cpp", "&>/tmp/logfile.log")
 
 

@@ -98,7 +98,7 @@ plot_CatL <- function(model_result, point_size=1, point_color="black", point_sha
   # Plot Elog_index over the years using ggplot2
   p <- ggplot2::ggplot() +
     ggplot2::geom_point(logN_at_len_long, mapping=aes(x = Year, y = Count),size= point_size, color= point_color,shape=point_shape) +
-    ggplot2::geom_line(Elog_index_long,  mapping=aes(x = Year, y = Count), size = line_size, color = line_color, linetype = line_type) +
+    ggplot2::geom_line(Elog_index_long,  mapping=aes(x = Year, y = Count), linewidth = line_size, color = line_color, linetype = line_type) +
     ggplot2::facet_wrap(~LengthGroup, ncol = facet_ncol, scales = facet_scales) +
     ggplot2::labs(x = "Year", y = "Abundance", title = "Estimated(Line) and Observed(Point) Catch-at-Length Over Years") +
     ggplot2::theme_minimal()
@@ -140,8 +140,8 @@ plot_CatL <- function(model_result, point_size=1, point_color="black", point_sha
 
       # Plot the data using ggplot2
       p <- ggplot2::ggplot() +
-        ggplot2::geom_line(data=df_long1, mapping=aes(x = len_mid, y = Abundance),size=line_size,color=line_color1,linetype=line_type) +
-        ggplot2::geom_line(data=df_long2, mapping=aes(x = len_mid, y = Abundance),size=line_size,color=line_color2,linetype=line_type) +
+        ggplot2::geom_line(data=df_long1, mapping=aes(x = len_mid, y = Abundance),linewidth=line_size,color=line_color1,linetype=line_type) +
+        ggplot2::geom_line(data=df_long2, mapping=aes(x = len_mid, y = Abundance),linewidth=line_size,color=line_color2,linetype=line_type) +
         ggplot2::facet_wrap(~year, scales = facet_scales,ncol=facet_ncol) +
         ggplot2::labs(x = "Body Length", y = "Abundance", title = "Estimated(Red) and Observed(Blue) Catch-at-Length Distribution Yearly") +
         ggplot2::theme_minimal()

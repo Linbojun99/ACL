@@ -15,8 +15,6 @@
 #' @export
 sim_acl <- function(iter_range = 4:100,sim_data_path = ".",output_dir=".", parameters = NULL, parameters.L = NULL, parameters.U = NULL,map = NULL,M=0.2) {
 
-  library(TMB)
-
   acl_cpp_path <- system.file("extdata", "ACL.cpp", package = "ACL")
 
   if (acl_cpp_path == "") {

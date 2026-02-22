@@ -108,7 +108,7 @@ plot_SSB <- function(model_result, line_size = 1.2, line_color = "red", line_typ
     # Convert matrix to data frame in long format
     SBL_long <- reshape2::melt(SBL)
     colnames(SBL_long) <- c("LengthGroup", "Year", "Count")
-    SBL_long$LengthGroup <- paste("Length bin", LengthGroup)
+    SBL_long$LengthGroup <- paste("Length bin", len_label)
 
     # Plot SBL over the years using ggplot2
     p <- ggplot2::ggplot(SBL_long, aes(x = Year, y = Count)) +

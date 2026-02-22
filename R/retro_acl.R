@@ -54,9 +54,6 @@ retro_acl <- function(nyear, data.CatL, data.wgt, data.mat, rec.age, nage, M, se
                                    map = NULL, len_mid = NULL, len_border = NULL, plot = FALSE,
                                    line_size = 1.2, point_size=3,point_shape=21,facet_scales = "free", facet_col = NULL, facet_row = NULL,train_times=1) {
 
-  library(ggplot2)
-  library(dplyr)
-
   results <- data.frame(Year = integer(), Variable = character(), Value = numeric(), RetrospectiveYear = integer(), Rho = numeric())
 
   results1 <- data.frame(Year = integer(), Variable = character(), Value = numeric(), RetrospectiveYear = integer(), Rho = numeric())
