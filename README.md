@@ -583,7 +583,7 @@ catch‐at‐length model for hard‐to‐age fisheries stocks. Fish and Fisheri
 
 For the R package / R 包:
 ```
-Lin, B. (2025). ACL: Age- and Length-Structured Statistical Catch-at-Length Model.
+Lin, H., Zhang, F., Dong, S. (2025). ACL: Age- and Length-Structured Statistical Catch-at-Length Model.
 R package version 1.5.2. https://github.com/Linbojun99/ACL
 ```
 
