@@ -1,4 +1,4 @@
-# ACL <img src="man/figures/plot_ridges.png" align="right" height="140" />
+# ACL <img src="man/figures/ACLlogo.png" align="right" height="140" />
 
 ## Age- and Length-Structured Statistical Catch-at-Length Model
 
