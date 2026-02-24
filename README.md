@@ -1,18 +1,25 @@
 # ACL <img src="man/figures/ACLlogo.png" align="right" height="140" />
 
-## Age- and Length-Structured Statistical Catch-at-Length Model
-
-## 基于年龄和体长结构的统计体长渔获模型
+## Age-Structured Statistical Catch-at-Length Model
+## 基于年龄结构的统计体长渔获模型
 
 [![R](https://img.shields.io/badge/R-%3E%3D%204.0-blue)](https://cran.r-project.org/)
 [![TMB](https://img.shields.io/badge/TMB-powered-green)](https://github.com/kaskr/adcomp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.md)
 
-**ACL** is an R package implementing the age- and length-structured statistical catch-at-length model (ALSCL) described in:
+> ⚠️ **This repository contains the original ACL model implementation only.** The code has been migrated to the new [**ALSCL**](https://github.com/Linbojun99/ALSCL) package, which includes both the ACL model and the extended ALSCL model with growth transition dynamics. **New users should use the ALSCL package instead.**
+
+> ⚠️ **本仓库仅包含原始 ACL 模型的实现。** 代码已迁移至新的 [**ALSCL**](https://github.com/Linbojun99/ALSCL) 包，该包同时支持 ACL 模型和扩展的 ALSCL（含生长转移动态）模型。**建议新用户直接使用 ALSCL 包。**
+```r
+# New package / 新包
+devtools::install_github("Linbojun99/ALSCL")
+```
+
+**ACL** is the original R package implementing the age-structured catch-at-length model described in:
 
 > Zhang, F., & Cadigan, N. G. (2022). An age‐and length‐structured statistical catch‐at‐length model for hard‐to‐age fisheries stocks. *Fish and Fisheries*, 23(5), 1121–1135. https://doi.org/10.1111/faf.12673
 
-**ACL** 是一个实现 ALSCL（年龄-体长结构统计体长渔获模型）的 R 包，其理论基础来自上述论文。
+**ACL** 是最初实现年龄结构体长渔获模型的 R 包，其理论基础来自上述论文。ALSCL 包在此基础上进一步实现了论文中的 ALSCL 模型（年龄-体长结构，含生长转移矩阵），并增加了物种预设、完整的诊断绑图和模型对比功能。
 
 ---
 
