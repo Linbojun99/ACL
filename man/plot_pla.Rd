@@ -4,7 +4,23 @@
 \alias{plot_pla}
 \title{Visualize the Probability Length at Age in Fisheries Stock Assessment through Heatmap}
 \usage{
-plot_pla(model_result, low_col = "white", high_col = "red")
+plot_pla(
+  model_result,
+  low_col = "white",
+  high_col = "red",
+  title = NULL,
+  xlab = NULL,
+  ylab = NULL,
+  font_family = NULL,
+  title_size = NULL,
+  axis_title_size = NULL,
+  axis_text_size = NULL,
+  strip_text_size = NULL,
+  legend_text_size = NULL,
+  x_breaks = NULL,
+  base_theme = NULL,
+  title_hjust = NULL
+)
 }
 \arguments{
 \item{model_result}{A list that contains model output. The model output should include a PLA report.}
@@ -12,6 +28,30 @@ plot_pla(model_result, low_col = "white", high_col = "red")
 \item{low_col}{A string specifying the color for low probabilities. Default is "white".}
 
 \item{high_col}{A string specifying the color for high probabilities. Default is "red".}
+
+\item{title}{Character or NULL. Custom plot title. If NULL, uses global theme setting. See \code{acl_theme_set()}.}
+
+\item{xlab}{Character or NULL. Custom x-axis label. If NULL, uses global theme setting.}
+
+\item{ylab}{Character or NULL. Custom y-axis label. If NULL, uses global theme setting.}
+
+\item{font_family}{Character or NULL. Custom font family. If NULL, uses global theme setting (default "Arial").}
+
+\item{title_size}{Numeric or NULL. Plot title size in pt. If NULL, uses global theme (default 14).}
+
+\item{axis_title_size}{Numeric or NULL. Axis title size in pt. If NULL, uses global theme (default 12).}
+
+\item{axis_text_size}{Numeric or NULL. Axis tick label size in pt. If NULL, uses global theme (default 10).}
+
+\item{strip_text_size}{Numeric or NULL. Facet label size in pt. If NULL, uses global theme (default 10).}
+
+\item{legend_text_size}{Numeric or NULL. Legend text size in pt. If NULL, uses global theme (default 10).}
+
+\item{x_breaks}{Numeric vector or NULL. Custom x-axis breaks (e.g. \code{seq(1, 20, by = 2)}). NULL = auto.}
+
+\item{base_theme}{Character or NULL. Base ggplot2 theme name (e.g. "theme_bw"). NULL = global setting.}
+
+\item{title_hjust}{Numeric or NULL. Title horizontal alignment: 0 = left, 0.5 = center, 1 = right. NULL = global setting.}
 }
 \value{
 A ggplot object showing the heatmap of the probability length at age.

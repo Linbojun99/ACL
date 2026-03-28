@@ -13,8 +13,21 @@ plot_VB(
   se = FALSE,
   se_color = "red",
   se_alpha = 0.2,
+  se_type = c("ribbon", "errorbar"),
   text_color = "black",
-  text_size = 5
+  text_size = 5,
+  title = NULL,
+  xlab = NULL,
+  ylab = NULL,
+  font_family = NULL,
+  title_size = NULL,
+  axis_title_size = NULL,
+  axis_text_size = NULL,
+  strip_text_size = NULL,
+  legend_text_size = NULL,
+  x_breaks = NULL,
+  base_theme = NULL,
+  title_hjust = NULL
 )
 }
 \arguments{
@@ -34,9 +47,35 @@ plot_VB(
 
 \item{se_alpha}{Numeric. The transparency of the confidence interval ribbon. Default is 0.2.}
 
+\item{se_type}{Character. Type of CI display: "ribbon" (shaded area) or "errorbar" (error bars). Default is "ribbon".}
+
 \item{text_color}{Character. The color of the text in the plot. Default is "black".}
 
 \item{text_size}{Numeric. The thickness of the text in the plot. Default is 5.}
+
+\item{title}{Character or NULL. Custom plot title. If NULL, uses global theme setting. See \code{acl_theme_set()}.}
+
+\item{xlab}{Character or NULL. Custom x-axis label. If NULL, uses global theme setting.}
+
+\item{ylab}{Character or NULL. Custom y-axis label. If NULL, uses global theme setting.}
+
+\item{font_family}{Character or NULL. Custom font family. If NULL, uses global theme setting (default "Arial").}
+
+\item{title_size}{Numeric or NULL. Plot title size in pt. If NULL, uses global theme (default 14).}
+
+\item{axis_title_size}{Numeric or NULL. Axis title size in pt. If NULL, uses global theme (default 12).}
+
+\item{axis_text_size}{Numeric or NULL. Axis tick label size in pt. If NULL, uses global theme (default 10).}
+
+\item{strip_text_size}{Numeric or NULL. Facet label size in pt. If NULL, uses global theme (default 10).}
+
+\item{legend_text_size}{Numeric or NULL. Legend text size in pt. If NULL, uses global theme (default 10).}
+
+\item{x_breaks}{Numeric vector or NULL. Custom x-axis breaks (e.g. \code{seq(1, 20, by = 2)}). NULL = auto.}
+
+\item{base_theme}{Character or NULL. Base ggplot2 theme name (e.g. "theme_bw"). NULL = global setting.}
+
+\item{title_hjust}{Numeric or NULL. Title horizontal alignment: 0 = left, 0.5 = center, 1 = right. NULL = global setting.}
 }
 \value{
 A ggplot object representing the plot.

@@ -4,19 +4,35 @@
 \alias{sim_data}
 \title{Simulate Fishery Dynamics}
 \usage{
-sim_data(bio_fishing_vars, init_state_vars, sim_year = 100, output_dir = ".")
+sim_data(
+  bio_fishing_vars,
+  init_state_vars,
+  sim_year = 100,
+  output_dir = ".",
+  iter_range = 4:100,
+  return_iter = NULL
+)
 }
 \arguments{
 \item{bio_fishing_vars}{A list containing the biological and fishing variables.}
 
 \item{init_state_vars}{A list containing the initial state variables.}
 
-\item{sim_year}{Integer, number of years to simulate.Defaults to 100}
+\item{sim_year}{Integer, number of years to simulate. Defaults to 100.}
 
-\item{output_dir}{Character, the directory where simulation results will be saved.(default is the current working directory).}
+\item{output_dir}{Character, the directory where simulation results will be saved (default is the current working directory).}
+
+\item{iter_range}{Integer vector. Which iterations (seeds) to run. Default is \code{4:100}.
+E.g. \code{iter_range = 10:20} runs only 11 replicates;
+\code{iter_range = 50} runs a single replicate.}
+
+\item{return_iter}{Integer or NULL. Which iteration to return in memory.
+Default is NULL (returns the last iteration in \code{iter_range}).
+E.g. \code{return_iter = 42} returns the result from iter 42.}
 }
 \value{
-A list containing simulated fishery data.
+A list containing simulated fishery data for the selected iteration,
+with an extra element \code{iter} indicating which iteration it is.
 }
 \description{
 This function simulates fishery dynamics based on the given biological and fishing variables and initial state variables.

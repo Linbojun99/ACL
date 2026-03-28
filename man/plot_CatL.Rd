@@ -6,39 +6,69 @@
 \usage{
 plot_CatL(
   model_result,
-  point_size = 1,
-  point_color = "black",
-  point_shape = 1,
+  point_size = 2.5,
+  point_color = "#D32F2F",
+  point_shape = 16,
   line_size = 1.2,
   line_color = "black",
   line_type = "solid",
-  line_color1 = "red",
-  line_color2 = "blue",
+  line_size1 = 1.8,
+  line_color1 = "#D32F2F",
+  line_type1 = "solid",
+  line_alpha1 = 1,
+  line_size2 = 1,
+  line_color2 = "#1976D2",
+  line_type2 = "solid",
+  line_alpha2 = 0.6,
   facet_ncol = NULL,
   facet_scales = "free",
   type = c("length", "year"),
   exp_transform = FALSE,
-  return_data = FALSE
+  return_data = FALSE,
+  title = NULL,
+  xlab = NULL,
+  ylab = NULL,
+  font_family = NULL,
+  title_size = NULL,
+  axis_title_size = NULL,
+  axis_text_size = NULL,
+  strip_text_size = NULL,
+  legend_text_size = NULL,
+  x_breaks = NULL,
+  base_theme = NULL,
+  title_hjust = NULL
 )
 }
 \arguments{
 \item{model_result}{A list that contains the model output. The list should have a "report" component which contains an "Elog_index" component representing counts in length groups.}
 
-\item{point_size}{Numeric. Specifies the size of the point in the plot. Default is 1.}
+\item{point_size}{Numeric. Specifies the size of the point in the plot. Default is 2.5.}
 
-\item{point_color}{Character. Specifies the color of the point in the plot. Default is "black".}
+\item{point_color}{Character. Specifies the color of the point in the plot. Default is "#D32F2F".}
 
-\item{point_shape}{Numeric. Specifies the shape of the point in the plot. Default is 1.}
+\item{point_shape}{Numeric. Specifies the shape of the point in the plot. Default is 16 (filled circle). Common: 1=open circle, 16=filled circle, 17=triangle, 15=square.}
 
-\item{line_size}{Numeric. Specifies the thickness of the line in the plot. Default is 1.2.}
+\item{line_size}{Numeric. Line thickness for type="length" plot. Default is 1.2.}
 
-\item{line_color}{Character. Specifies the color of the line in the plot. Default is "black".}
+\item{line_color}{Character. Line color for type="length" plot. Default is "black".}
 
-\item{line_type}{Character. Specifies the type of the line in the plot. Default is "solid".}
+\item{line_type}{Character. Line type for type="length" plot. Default is "solid".}
 
-\item{line_color1}{Character. The color of the line for estimated abundance (Elog_index). Default is "red".}
+\item{line_size1}{Numeric. Line thickness for estimated (Elog_index) in type="year". Default is 1.8.}
 
-\item{line_color2}{Character. The color of the line for observed abundance (logN_at_len). Default is "blue".}
+\item{line_color1}{Character. Line color for estimated abundance. Default is "#D32F2F".}
+
+\item{line_type1}{Character. Line type for estimated line. Default is "solid".}
+
+\item{line_alpha1}{Numeric. Transparency for estimated line (0-1). Default is 1.}
+
+\item{line_size2}{Numeric. Line thickness for observed (logN_at_len) in type="year". Default is 1.0.}
+
+\item{line_color2}{Character. Line color for observed abundance. Default is "#1976D2".}
+
+\item{line_type2}{Character. Line type for observed line. Default is "solid".}
+
+\item{line_alpha2}{Numeric. Transparency for observed line (0-1). Default is 0.6.}
 
 \item{facet_ncol}{Integer. Specifies the number of columns in the facet_wrap. Default is NULL.}
 
@@ -49,6 +79,30 @@ plot_CatL(
 \item{exp_transform}{Logical. Specifies whether to apply the exponential function to the data before plotting. If TRUE, the exponential of the data values is plotted. Default is FALSE.}
 
 \item{return_data}{A logical indicating whether to return the processed data alongside the plot. Default is FALSE.}
+
+\item{title}{Character or NULL. Custom plot title. If NULL, uses global theme setting. See \code{acl_theme_set()}.}
+
+\item{xlab}{Character or NULL. Custom x-axis label. If NULL, uses global theme setting.}
+
+\item{ylab}{Character or NULL. Custom y-axis label. If NULL, uses global theme setting.}
+
+\item{font_family}{Character or NULL. Custom font family. If NULL, uses global theme setting (default "Arial").}
+
+\item{title_size}{Numeric or NULL. Plot title size in pt. If NULL, uses global theme (default 14).}
+
+\item{axis_title_size}{Numeric or NULL. Axis title size in pt. If NULL, uses global theme (default 12).}
+
+\item{axis_text_size}{Numeric or NULL. Axis tick label size in pt. If NULL, uses global theme (default 10).}
+
+\item{strip_text_size}{Numeric or NULL. Facet label size in pt. If NULL, uses global theme (default 10).}
+
+\item{legend_text_size}{Numeric or NULL. Legend text size in pt. If NULL, uses global theme (default 10).}
+
+\item{x_breaks}{Numeric vector or NULL. Custom x-axis breaks (e.g. \code{seq(1, 20, by = 2)}). NULL = auto.}
+
+\item{base_theme}{Character or NULL. Base ggplot2 theme name (e.g. "theme_bw"). NULL = global setting.}
+
+\item{title_hjust}{Numeric or NULL. Title horizontal alignment: 0 = left, 0.5 = center, 1 = right. NULL = global setting.}
 }
 \value{
 A ggplot object representing the plot.

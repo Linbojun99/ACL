@@ -20,7 +20,8 @@ run_acl(
   len_mid = NULL,
   len_border = NULL,
   output = FALSE,
-  train_times = 1
+  train_times = 1,
+  ncores = 1
 )
 }
 \arguments{
@@ -69,6 +70,21 @@ which can also help in defining the length intervals for model fitting.}
 \item{train_times}{Numeric, the number of times the model is to be trained,
 with a default value of 1, corresponding to running the optimization routine once.
 The user can specify a different number of training times to refine the model fit.}
+
+\item{ncores}{Integer. Number of CPU cores for parallel multi-start optimization. Default is 1.
+\itemize{
+\item \strong{ncores = 1} (default): Single-start optimization. OpenMP threads are
+auto-enabled for gradient speedup if ACL.cpp was compiled with OpenMP support.
+\item \strong{ncores > 1}: Parallel multi-start — runs N independent optimizations
+from jittered starting points simultaneously, keeps the best result (lowest objective).
+Uses socket clusters (\code{parallel::parLapply}) on all platforms.
+}
+\strong{Performance note}: multi-start runs in parallel (total time ≈ slowest start,
+NOT sum of all starts). However, more cores means each start runs slightly slower due
+to shared CPU cache/memory bandwidth. Typically 2-4 starts is optimal for \code{run_acl}.
+The main benefit is robustness (exploring multiple optima), not raw speed.
+For speed-focused parallelism, use \code{ncores} in \code{sim_acl()} or \code{retro_acl()}.
+Use \code{parallel::detectCores()} to check available cores.}
 }
 \value{
 A list containing the results of the ACL stock assessment model,

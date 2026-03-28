@@ -1,37 +1,32 @@
 Package: ACL
-Title: an survey-based statistical catch-at-length model
-Version: 1.5.1
-Authors@R: c(person("Hongyu", "Lin",  role = "cre",email = "linbojun99@gmail.com",
+Title: A Survey-Based Statistical Catch-at-Length Model
+Version: 1.5.2
+Authors@R: c(person("Hongyu", "Lin", role = c("aut", "cre"), email = "linbojun99@gmail.com",
            comment = c(ORCID = "0000-0001-6226-179X")),
-             person("Fan", "Zhang",  role = "aut", email = "f-zhang@shou.edu.cn",
-           comment = c(ORCID = "0000-0003-0214-1790")))
-Author: Hongyu Lin [aut, cre],
-  Fan Zhang [aut],
-  Sisong Dong [cre]
+             person("Fan", "Zhang", role = "aut", email = "f-zhang@shou.edu.cn",
+           comment = c(ORCID = "0000-0003-0214-1790")),
+             person("Sisong", "Dong", role = "ctb"))
 Maintainer: Hongyu Lin <linbojun99@gmail.com>
-Description: operating model:  ACL. an survey-based statistical catch-at-length model for hard-to-age fisheries stocks
+Description: Implements an age-length structured (ACL) operating model for
+    survey-based statistical catch-at-length stock assessment. Designed for
+    hard-to-age fisheries stocks, the package provides tools for model fitting,
+    simulation testing, retrospective analysis, and diagnostic visualization.
 License: MIT + file LICENSE
 Encoding: UTF-8
+LazyData: true
 Roxygen: list(markdown = TRUE)
-LinkingTo: Rcpp, TMB, RcppEigen, ggplot2, dplyr, tidyverse,reshape2
+RoxygenNote: 7.3.3
+Depends:
+    R (>= 3.5.0)
 Imports:
     stats,
-    dplyr,
-    purrr,
-    Rcpp, 
-    tidyr,
+    utils,
+    scales,
     TMB,
-    ggplot2,
-    tidyverse,
     dplyr,
+    tidyr,
+    ggplot2,
     reshape2,
     ggridges,
-    cowplot
-Depends:
-    Rcpp,
-    TMB,
-    dplyr,
-    ggplot2,
-    tidyverse,
-    reshape2
-RoxygenNote: 7.2.3
+    cowplot,
+    RColorBrewer

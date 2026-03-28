@@ -34,6 +34,20 @@
 #' @param train_times Numeric, the number of times the model is to be trained,
 #' with a default value of 1, corresponding to running the optimization routine once.
 #' The user can specify a different number of training times to refine the model fit.
+#' @param ncores Integer. Number of CPU cores for parallel multi-start optimization. Default is 1.
+#'   \itemize{
+#'     \item \strong{ncores = 1} (default): Single-start optimization. OpenMP threads are
+#'       auto-enabled for gradient speedup if ACL.cpp was compiled with OpenMP support.
+#'     \item \strong{ncores > 1}: Parallel multi-start — runs N independent optimizations
+#'       from jittered starting points simultaneously, keeps the best result (lowest objective).
+#'       Uses socket clusters (\code{parallel::parLapply}) on all platforms.
+#'   }
+#'   \strong{Performance note}: multi-start runs in parallel (total time ≈ slowest start,
+#'   NOT sum of all starts). However, more cores means each start runs slightly slower due
+#'   to shared CPU cache/memory bandwidth. Typically 2-4 starts is optimal for \code{run_acl}.
+#'   The main benefit is robustness (exploring multiple optima), not raw speed.
+#'   For speed-focused parallelism, use \code{ncores} in \code{sim_acl()} or \code{retro_acl()}.
+#'   Use \code{parallel::detectCores()} to check available cores.
 #'
 #' @return A list containing the results of the ACL stock assessment model,
 #' including model outputs (estimated parameters and their standard errors),
@@ -42,13 +56,9 @@
 
 run_acl <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L95,
                     parameters = NULL, parameters.L = NULL, parameters.U = NULL,
-                    map = NULL,len_mid = NULL, len_border = NULL,output=FALSE,train_times=1)
+                    map = NULL,len_mid = NULL, len_border = NULL,output=FALSE,train_times=1,ncores=1)
 {
   {
-
-    library(TMB)
-
-
 
     #compile(file = "ACL.cpp", "&>/tmp/logfile.log")
 
@@ -80,64 +90,64 @@ run_acl <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L95,
       log_q <- log(mat_func(sel_L50, sel_L95, len_mid))
     } else {
 
-    if (is.null(len_mid)) {
+      if (is.null(len_mid)) {
 
-      contains_special_char <- function(s) {
-        return(grepl("<|>", s))
-      }
+        contains_special_char <- function(s) {
+          return(grepl("<|>", s))
+        }
 
 
-      range_to_bin <- function(range_str) {
-        parts <- strsplit(range_str, "-")[[1]]
-        first_number <- as.numeric(parts[1])
-        last_number <- as.numeric(parts[2])
-        bin <- (last_number - first_number) / 2
-        return(bin)
-      }
-
-      bin <- range_to_bin(data.CatL[,1][2])
-
-      range_to_median <- function(range_str, isFirst = FALSE, isLast = FALSE, prev_range_str = "", next_range_str = "") {
-        if (contains_special_char(range_str)) {
-          parts <- strsplit(range_str, "-")[[1]]
-          single_number <- as.numeric(gsub("[^0-9]", "", parts[1]))
-
-          if (isFirst) {
-            next_parts <- strsplit(next_range_str, "-")[[1]]
-            next_first_number <- as.numeric(next_parts[1])
-            next_last_number <- as.numeric(next_parts[2])
-            bin <- (next_last_number - next_first_number) / 2
-            len_mid <- single_number + bin
-          } else {
-            prev_parts <- strsplit(prev_range_str, "-")[[1]]
-            prev_first_number <- as.numeric(prev_parts[1])
-            prev_last_number <- as.numeric(prev_parts[2])
-            bin <- (prev_last_number - prev_first_number) / 2
-            len_mid <- single_number - bin
-          }
-        } else {
+        range_to_bin <- function(range_str) {
           parts <- strsplit(range_str, "-")[[1]]
           first_number <- as.numeric(parts[1])
           last_number <- as.numeric(parts[2])
-          len_mid <- last_number - bin
+          bin <- (last_number - first_number) / 2
+          return(bin)
         }
 
-        return(round(len_mid))
+        bin <- range_to_bin(data.CatL[,1][2])
+
+        range_to_median <- function(range_str, isFirst = FALSE, isLast = FALSE, prev_range_str = "", next_range_str = "") {
+          if (contains_special_char(range_str)) {
+            parts <- strsplit(range_str, "-")[[1]]
+            single_number <- as.numeric(gsub("[^0-9]", "", parts[1]))
+
+            if (isFirst) {
+              next_parts <- strsplit(next_range_str, "-")[[1]]
+              next_first_number <- as.numeric(next_parts[1])
+              next_last_number <- as.numeric(next_parts[2])
+              bin <- (next_last_number - next_first_number) / 2
+              len_mid <- single_number + bin
+            } else {
+              prev_parts <- strsplit(prev_range_str, "-")[[1]]
+              prev_first_number <- as.numeric(prev_parts[1])
+              prev_last_number <- as.numeric(prev_parts[2])
+              bin <- (prev_last_number - prev_first_number) / 2
+              len_mid <- single_number - bin
+            }
+          } else {
+            parts <- strsplit(range_str, "-")[[1]]
+            first_number <- as.numeric(parts[1])
+            last_number <- as.numeric(parts[2])
+            len_mid <- last_number - bin
+          }
+
+          return(round(len_mid))
+        }
+
+
+        len_mid <- sapply(seq_along(data.CatL[,1]), function(i) {
+          prev_range_str <- if (i > 1) data.CatL[,1][i - 1] else ""
+          next_range_str <- if (i < length(data.CatL[,1])) data.CatL[,1][i + 1] else ""
+          range_to_median(data.CatL[,1][i], isFirst = i == 1, isLast = i == length(data.CatL[,1]), prev_range_str = prev_range_str, next_range_str = next_range_str)
+        })
+      }
+      else {
+        len_mid <- len_mid
       }
 
-
-      len_mid <- sapply(seq_along(data.CatL[,1]), function(i) {
-        prev_range_str <- if (i > 1) data.CatL[,1][i - 1] else ""
-        next_range_str <- if (i < length(data.CatL[,1])) data.CatL[,1][i + 1] else ""
-        range_to_median(data.CatL[,1][i], isFirst = i == 1, isLast = i == length(data.CatL[,1]), prev_range_str = prev_range_str, next_range_str = next_range_str)
-      })
+      log_q<-log(mat_func(sel_L50,sel_L95,len_mid))
     }
-    else {
-      len_mid <- len_mid
-    }
-
-    log_q<-log(mat_func(sel_L50,sel_L95,len_mid))
-}
     if (is.null(len_border)) {
       extract_last_number <- function(range_str) {
         parts <- strsplit(range_str, "-")[[1]]
@@ -151,14 +161,13 @@ run_acl <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L95,
     } else {
       len_border <- len_border
     }
-    acl_cpp_path <- system.file("extdata", "ACL.cpp", package = "ACL")
+    # Compile and locate the shared library (cross-platform)
+    acl_info <- compile_and_load_acl()
+    acl_cpp_path <- acl_info$cpp_path
+    acl_dll_path <- acl_info$dll_path
 
-    if (acl_cpp_path == "") {
-      stop("ACL.cpp not found in the package directory.")
-    }
-
-    # Compile ACL.cpp
-    compile(file = acl_cpp_path, "&> /tmp/logfile.log")
+    # Unload first in case it was loaded from a previous call
+    unload_acl(acl_dll_path)
 
     logN_at_len <- as.matrix(log(data.CatL[, 2:ncol(data.CatL)]+1e-5 ))
 
@@ -197,36 +206,172 @@ run_acl <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L95,
     map <- generate_map(map)
     rnames=c("dev_log_R","dev_log_F","dev_log_N0")
 
-    #
-    acl_cpp_dir <- dirname(acl_cpp_path)
-
-    #
-    acl_dll_path <- file.path(acl_cpp_dir, "ACL.dll")
-
-    #
-    dyn.load(acl_dll_path)
-
-    #dyn.load("ACL")
-    obj<-MakeADFun(tmb.data,parameters,random=rnames,map=map,DLL="ACL",inner.control=list(trace=F, maxit=500))
-
-    cat("\nRunning optimization with nlminb...\n")
-
-    opt<-nlminb(obj$par,obj$fn,obj$gr,lower=lower,upper=upper,control=list(trace=0,iter.max=2000,eval.max=10000))
-
-     for(i in 2:train_times) {
-      opt<-nlminb(opt$par,obj$fn,obj$gr,lower=lower,upper=upper,control=list(trace=0,iter.max=2000,eval.max=10000))
+    # Load the shared library
+    if (!is.loaded("ACL")) {
+      dyn.load(acl_dll_path)
     }
-    # opt1<-nlminb(opt$par,obj$fn,obj$gr,lower=lower,upper=upper,control=list(trace=0,iter.max=2000,eval.max=10000))
+
+    # Set TMB OpenMP threads (requires ACL.cpp with parallel_accumulator)
+    .set_tmb_openmp <- function(n) {
+      tryCatch(TMB::openmp(n), error = function(e) NULL)
+    }
+
+    t_total <- proc.time()
+
+    if (ncores <= 1) {
+      # ============================================================
+      # Sequential single-start optimization
+      # OpenMP threads auto-enabled for gradient speedup
+      # ============================================================
+      omp_threads <- max(1, parallel::detectCores() - 1)
+      .set_tmb_openmp(omp_threads)
+      cat(sprintf("\nOpenMP threads: %d\n", omp_threads))
+
+      obj<-MakeADFun(tmb.data,parameters,random=rnames,map=map,DLL="ACL",inner.control=list(trace=F, maxit=500))
+
+      cat("Running optimization with nlminb...\n")
+      t_opt <- proc.time()
+
+      opt<-nlminb(obj$par,obj$fn,obj$gr,lower=lower,upper=upper,control=list(trace=0,iter.max=2000,eval.max=10000))
+
+      for(i in 2:train_times) {
+        opt<-nlminb(opt$par,obj$fn,obj$gr,lower=lower,upper=upper,control=list(trace=0,iter.max=2000,eval.max=10000))
+      }
+      t_opt_elapsed <- (proc.time() - t_opt)[["elapsed"]]
+      cat(sprintf("  Optimization done: %.1f sec (obj = %.4f)\n", t_opt_elapsed, opt$objective))
+      .set_tmb_openmp(1)
+
+    } else {
+      # ============================================================
+      # Parallel multi-start optimization
+      # Uses socket clusters on ALL platforms (fork + TMB = crash).
+      # Each worker creates a fresh R session with its own TMB object.
+      #
+      # HOW IT WORKS:
+      #   - N starts run simultaneously (total time ≈ slowest start)
+      #   - Start 1 uses default params; starts 2..N use jittered values
+      #   - Best result (lowest objective) is kept
+      #
+      # PERFORMANCE NOTE:
+      #   - IS truly parallel (total ≈ max, not sum of starts)
+      #   - But more cores = each start slightly slower (shared memory/cache)
+      #   - Typical sweet spot: ncores = 2-4 for run_acl
+      #   - Main benefit: robustness (avoids local optima), not raw speed
+      #   - For speed, use ncores in sim_acl() / retro_acl() instead
+      # ============================================================
+      unload_acl(acl_dll_path)
+
+      n_starts <- ncores
+      cat(sprintf("\nParallel multi-start: %d starts on %d cores [socket: parLapply]\n", n_starts, ncores))
+
+      # --- Dispatch via socket cluster (all platforms) ---
+      t_opt <- proc.time()
+      cl <- parallel::makeCluster(ncores)
+
+      # Export data to workers
+      parallel::clusterExport(cl, varlist = c(
+        "tmb.data", "parameters", "rnames", "map",
+        "lower", "upper", "train_times", "acl_dll_path"
+      ), envir = environment())
+
+      # Load packages on each worker
+      parallel::clusterEvalQ(cl, {
+        library(TMB)
+        library(ACL)
+      })
+
+      # Run optimization on each worker
+      start_results <- parallel::parLapply(cl, 1:n_starts, function(start_id) {
+        tryCatch({
+          if (!is.loaded("ACL")) dyn.load(acl_dll_path)
+
+          obj_local <- TMB::MakeADFun(tmb.data, parameters, random = rnames, map = map,
+                                      DLL = "ACL", inner.control = list(trace = FALSE, maxit = 500),
+                                      silent = TRUE)
+
+          # Start 1 = default params; others = jittered
+          if (start_id == 1L) {
+            par0 <- obj_local$par
+          } else {
+            set.seed(start_id * 137L)
+            jitter <- exp(stats::rnorm(length(obj_local$par), mean = 0, sd = 0.15))
+            par0 <- obj_local$par * jitter
+            par0 <- pmax(lower, pmin(upper, par0))
+          }
+
+          t0 <- proc.time()
+          opt_local <- nlminb(par0, obj_local$fn, obj_local$gr,
+                              lower = lower, upper = upper,
+                              control = list(trace = 0, iter.max = 2000, eval.max = 10000))
+
+          for (j in 2:train_times) {
+            opt_local <- nlminb(opt_local$par, obj_local$fn, obj_local$gr,
+                                lower = lower, upper = upper,
+                                control = list(trace = 0, iter.max = 2000, eval.max = 10000))
+          }
+          elapsed <- (proc.time() - t0)[["elapsed"]]
+
+          list(par = opt_local$par, objective = opt_local$objective,
+               message = opt_local$message, elapsed = elapsed,
+               start_id = start_id, failed = FALSE)
+
+        }, error = function(e) {
+          list(par = NULL, objective = Inf, message = conditionMessage(e),
+               elapsed = 0, start_id = start_id, failed = TRUE)
+        })
+      })
+
+      parallel::stopCluster(cl)
+      t_opt_elapsed <- (proc.time() - t_opt)[["elapsed"]]
+
+      # --- Report each start ---
+      for (sr in start_results) {
+        if (isTRUE(sr$failed)) {
+          cat(sprintf("  Start %d: FAILED - %s\n", sr$start_id, sr$message))
+        } else {
+          cat(sprintf("  Start %d: obj = %.4f | %s | %.1f sec\n",
+                      sr$start_id, sr$objective, sr$message, sr$elapsed))
+        }
+      }
+
+      # --- Pick best result ---
+      objectives <- vapply(start_results, function(x) {
+        val <- x$objective
+        if (is.null(val) || !is.numeric(val)) Inf else as.numeric(val)
+      }, numeric(1))
+
+      if (all(is.infinite(objectives))) {
+        stop("All parallel starts failed. Try ncores=1 for diagnostic output.")
+      }
+
+      best_idx <- which.min(objectives)
+      best_par <- start_results[[best_idx]]$par
+      n_ok <- sum(!is.infinite(objectives))
+      cat(sprintf("  >> Best: start %d (obj = %.4f) | %d/%d succeeded | Total: %.1f sec\n",
+                  start_results[[best_idx]]$start_id, objectives[best_idx],
+                  n_ok, n_starts, t_opt_elapsed))
+
+      # --- Re-evaluate with best parameters in main process ---
+      if (!is.loaded("ACL")) dyn.load(acl_dll_path)
+      obj <- MakeADFun(tmb.data, parameters, random = rnames, map = map,
+                       DLL = "ACL", inner.control = list(trace = FALSE, maxit = 500))
+      opt <- nlminb(best_par, obj$fn, obj$gr, lower = lower, upper = upper,
+                    control = list(trace = 0, iter.max = 2000, eval.max = 10000))
+    }
+
     final_outer_mgc<-obj$gr(opt$par)
     par_low_up<- cbind(opt$par,lower,upper)
     report<-obj$report()
     bound_check<-c((as.vector(opt$par)-as.vector(lower)),(as.vector(upper)-as.vector(opt$par)))
     bound_hit<-min(bound_check)==0
 
-    cat("\nRunning sdreport...\n")
+    cat("Running sdreport...\n")
+    t_sd <- proc.time()
 
     sdresult<-sdreport(obj)
     est_std<-summary(sdresult)
+    t_sd_elapsed <- (proc.time() - t_sd)[["elapsed"]]
+    cat(sprintf("  sdreport done: %.1f sec\n", t_sd_elapsed))
 
 
     cl_l <- tidyr::gather(data.CatL,key="Year",value="length",2:ncol(data.CatL))
@@ -243,173 +388,197 @@ run_acl <- function(data.CatL,data.wgt,data.mat,rec.age,nage,M,sel_L50,sel_L95,
 
     #dyn.unload("ACL")
 
-    dyn.unload(acl_dll_path)
+    unload_acl(acl_dll_path)
     results_list<-result
 
     rm(obj, opt, report, result)
 
 
 
-  # Check output parameters
-if(output==TRUE){
-  # Create 'figures' and 'tables' folders
-  if (!dir.exists("output/figures/result")) {
-    dir.create("output/figures/result")
-    if (!dir.exists("output/figures/result")) {
-      stop("Failed to create figures directory.")
+    # Check output parameters
+    if(output==TRUE){
+
+      # Determine if SE is reliable
+      use_se <- !results_list$bound_hit
+      if (results_list$bound_hit) {
+        cat("\nNote: Boundaries were hit. Figures will be saved WITHOUT confidence intervals (se=FALSE).\n")
+        cat("You can still plot with se=TRUE manually after inspecting the results.\n\n")
+      }
+
+      # Helper: safely save a plot (skip on error instead of crashing)
+      .safe_plot_save <- function(expr, filename, width = 16, height = 9, dpi = 600) {
+        tryCatch({
+          eval(expr)
+          ggsave(filename = filename, width = width, height = height, units = "in", dpi = dpi)
+          cat("  Saved:", filename, "\n")
+        }, error = function(e) {
+          cat("  SKIPPED:", filename, "- Error:", conditionMessage(e), "\n")
+        })
+      }
+
+      # Create 'figures' and 'tables' folders (recursive to create parent dirs)
+      if (!dir.exists("output/figures/result")) {
+        dir.create("output/figures/result", recursive = TRUE)
+        if (!dir.exists("output/figures/result")) {
+          stop("Failed to create figures directory.")
+        }
+      }
+
+
+      if (!dir.exists("output/figures/diagnostic")) {
+        dir.create("output/figures/diagnostic", recursive = TRUE)
+        if (!dir.exists("output/figures/diagnostic")) {
+          stop("Failed to create figures directory.")
+        }
+      }
+
+      if (!dir.exists("output/tables")) {
+        dir.create("output/tables", recursive = TRUE)
+        if (!dir.exists("output/tables")) {
+          stop("Failed to create tables directory.")
+        }
+      }
+
+      cat("\nSaving figures...\n")
+
+      # Save the image in the output folder
+      .safe_plot_save(quote(plot_abundance(model_result=results_list, type = "N", line_size = 1.2, line_color = "red", se=use_se, line_type = "solid")),
+                      "output/figures/result/plot_abundance_N.png")
+
+      .safe_plot_save(quote(plot_abundance(model_result=results_list, type = "NA", line_size = 1.2, line_color = "red", line_type = "solid", se=use_se, facet_ncol = NULL)),
+                      "output/figures/result/plot_abundance_NA.png")
+
+      .safe_plot_save(quote(plot_abundance(model_result=results_list, type = "NL", line_size = 1.2, line_color = "red", line_type = "solid", se=use_se, facet_ncol = NULL)),
+                      "output/figures/result/plot_abundance_NL.png")
+
+      .safe_plot_save(quote(plot_biomass(model_result=results_list, type = "B", line_size = 1.2, line_color = "red", line_type = "solid", se=use_se, facet_ncol = NULL)),
+                      "output/figures/result/plot_biomass_B.png")
+
+      .safe_plot_save(quote(plot_biomass(model_result=results_list, type = "BL", line_size = 1.2, line_color = "red", line_type = "solid", facet_ncol = NULL)),
+                      "output/figures/result/plot_biomass_BL.png")
+
+      .safe_plot_save(quote(plot_catch(model_result=results_list, type = "CN", line_size = 1.2, line_color = "red", line_type = "solid", se=use_se, facet_ncol = NULL)),
+                      "output/figures/result/plot_catch_CN.png")
+
+      .safe_plot_save(quote(plot_catch(model_result=results_list, type = "CNA", line_size = 1.2, line_color = "red", line_type = "solid", se=use_se, facet_ncol = NULL)),
+                      "output/figures/result/plot_catch_CNA.png")
+
+      .safe_plot_save(quote(plot_CatL(model_result=results_list, type = "length")),
+                      "output/figures/result/plot_CatL_length.png")
+
+      .safe_plot_save(quote(plot_CatL(model_result=results_list, type = "year", exp_transform = T)),
+                      "output/figures/result/plot_CatL_Year(exp=T).png")
+
+      .safe_plot_save(quote(plot_fishing_mortality(model_result=results_list, line_size = 1.2, line_color = "red", line_type = "solid", se=use_se, type="year")),
+                      "output/figures/result/plot_fishing_mortality_year.png")
+
+      .safe_plot_save(quote(plot_fishing_mortality(model_result=results_list, line_size = 1.2, line_color = "red", line_type = "solid", se=use_se, type="age")),
+                      "output/figures/result/plot_fishing_mortality_age.png")
+
+      .safe_plot_save(quote(plot_pla(model_result=results_list)),
+                      "output/figures/result/plot_pla.png")
+
+      .safe_plot_save(quote(plot_recruitment(model_result=results_list, line_size = 1.2, line_color = "red", line_type = "solid", se=use_se)),
+                      "output/figures/result/plot_recruitment.png")
+
+      .safe_plot_save(quote(plot_ridges(model_result=results_list)),
+                      "output/figures/result/plot_ridges.png")
+
+      .safe_plot_save(quote(plot_SSB_Rec(model_result=results_list)),
+                      "output/figures/result/plot_SSB_Rec.png")
+
+      .safe_plot_save(quote(plot_SSB(model_result=results_list, type="SSB", line_size = 1.2, line_color = "red", line_type = "solid", se=use_se, facet_ncol = NULL)),
+                      "output/figures/result/plot_SSB.png")
+
+      .safe_plot_save(quote(plot_SSB(model_result=results_list, type="SBL", line_size = 1.2, line_color = "red", line_type = "solid", se=use_se, facet_ncol = NULL)),
+                      "output/figures/result/plot_SBL.png")
+
+      .safe_plot_save(quote(plot_VB(model_result=results_list, line_size = 1.2, line_color = "red", line_type = "solid", se=use_se)),
+                      "output/figures/result/plot_VB.png")
+
+      .safe_plot_save(quote(plot_residuals(model_result=results_list, type="length")),
+                      "output/figures/diagnostic/plot_residuals_length.png")
+
+      .safe_plot_save(quote(plot_residuals(model_result=results_list, type="year")),
+                      "output/figures/diagnostic/plot_residuals_year.png")
+
+
+      #####table output
+      cat("\nSaving tables...\n")
+
+      tryCatch({
+        diagnostics<-diagnose_model(data.CatL=data.CatL,model_result=results_list)
+        write.csv(diagnostics, file = "output/tables/diagnostics.csv",row.names = F)
+        cat("  Saved: output/tables/diagnostics.csv\n")
+      }, error = function(e) cat("  SKIPPED: diagnostics.csv -", conditionMessage(e), "\n"))
+
+      tryCatch({
+        aN=plot_abundance(model_result=results_list, type = "N",se=use_se,return_data = T)
+        write.csv(aN[["data"]], file = "output/tables/abundance_N.csv",row.names = F)
+
+        aNA=plot_abundance(model_result=results_list, type = "NA", se=use_se,return_data = T)
+        write.csv(aNA[["data"]], file = "output/tables/abundance_NA.csv",row.names = F)
+
+        aNL=plot_abundance(model_result=results_list, type = "NL", se=use_se,return_data = T)
+        write.csv(aNL[["data"]], file = "output/tables/abundance_NL.csv",row.names = F)
+
+        bB=plot_biomass(model_result=results_list, type = "B", se=use_se,return_data = T)
+        write.csv(bB[["data"]], file = "output/tables/biomass_B.csv",row.names = F)
+
+        bBL=plot_biomass(model_result=results_list, type = "BL", se=use_se,return_data = T)
+        write.csv(bBL[["data"]], file = "output/tables/biomass_BL.csv",row.names = F)
+
+        cCN=plot_catch(model_result=results_list, type = "CN", se=use_se,return_data = T)
+        write.csv(cCN[["data"]], file = "output/tables/biomass_CN.csv",row.names = F)
+
+        cCNA=plot_catch(model_result=results_list, type = "CNA", se=use_se,return_data = T)
+        write.csv(cCNA[["data"]], file = "output/tables/biomass_CNA.csv",row.names = F)
+
+        fmy=plot_fishing_mortality(model_result=results_list, type = "year",se=use_se,return_data = T)
+        write.csv(fmy[["data"]], file = "output/tables/fishing_mortality_year.csv",row.names = F)
+
+        fma=plot_fishing_mortality(model_result=results_list, type = "age",se=use_se,return_data = T)
+        write.csv(fma[["data"]], file = "output/tables/fishing_mortality_age.csv",row.names = F)
+
+        r=plot_recruitment(model_result=results_list, se=use_se,return_data = T)
+        write.csv(r[["data"]], file = "output/tables/recruitment.csv",row.names = F)
+
+        sr=plot_SSB_Rec(model_result=results_list,return_data = T)
+        write.csv(sr[["data"]], file = "output/tables/SSB_Rec.csv",row.names = F)
+
+        catll=plot_CatL(model_result=results_list,type = "length",return_data = T)
+        write.csv(catll[["data1"]], file = "output/tables/CatL_length_Estimated.csv",row.names = F)
+        write.csv(catll[["data2"]], file = "output/tables/CatL_length_Observed.csv",row.names = F)
+
+        catll=plot_CatL(model_result=results_list,type = "year",exp_transform = T,return_data = T)
+        write.csv(catll[["data1"]], file = "output/tables/CatL_year_Estimated(exp=T).csv",row.names = F)
+        write.csv(catll[["data2"]], file = "output/tables/CatL_year_Observed(exp=T).csv",row.names = F)
+
+        ssb=plot_SSB(model_result=results_list, type = "SSB",se=use_se,return_data = T)
+        write.csv(ssb[["data"]], file = "output/tables/SSB.csv",row.names = F)
+
+        sbl=plot_SSB(model_result=results_list, type = "SBL",se=use_se,return_data = T)
+        write.csv(sbl[["data"]], file = "output/tables/SBL.csv",row.names = F)
+
+        rl<-plot_residuals(model_result=results_list,type="length",return_data = T)
+        write.csv(rl[["data"]], file = "output/tables/residuals_length.csv",row.names = F)
+
+        ry<-plot_residuals(model_result=results_list,type="year",return_data = T)
+        write.csv(ry[["data"]], file = "output/tables/residuals_year.csv",row.names = F)
+
+        cat("  All tables saved.\n")
+      }, error = function(e) cat("  Table export error:", conditionMessage(e), "\n"))
+
+      if (results_list$bound_hit) {
+        cat("\n*** WARNING: Parameters hit boundaries. SE-based outputs were skipped. ***\n")
+        cat("*** Check model_result$par_low_up to see which parameters are at bounds. ***\n")
+      }
+      cat("\nOutput complete.\n")
+
     }
-  }
-
-
-  if (!dir.exists("output/figures/diagnostic")) {
-    dir.create("output/figures/diagnostic")
-    if (!dir.exists("output/figures/diagnostic")) {
-      stop("Failed to create figures directory.")
-    }
-  }
-
-  if (!dir.exists("output/tables")) {
-    dir.create("output/tables")
-    if (!dir.exists("output/tables")) {
-      stop("Failed to create tables directory.")
-    }
-  }
-
-
-    # Save the image in the output folder
-    #png(filename="output/plot_abundance_N.png",width = 16, height = 9, units = "in", res = 600)
-    plot_abundance(model_result=results_list, type = "N", line_size = 1.2, line_color = "red", se=T,line_type = "solid")
-    ggsave(filename="output/figures/result/plot_abundance_N.png",width = 16, height = 9, units = "in", dpi = 600)
-
-    plot_abundance(model_result=results_list, type = "NA", line_size = 1.2, line_color = "red", line_type = "solid",se=T,facet_ncol = NULL)
-    ggsave(filename="output/figures/result/plot_abundance_NA.png",width = 16, height = 9, units = "in", dpi = 600)
-
-
-    plot_abundance(model_result=results_list, type = "NL", line_size = 1.2, line_color = "red", line_type = "solid",se=T,facet_ncol = NULL)
-    ggsave(filename="output/figures/result/plot_abundance_NL.png",width = 16, height = 9, units = "in", dpi = 600)
-
-
-
-    plot_biomass(model_result=results_list, type = "B", line_size = 1.2, line_color = "red", line_type = "solid",se=T,facet_ncol = NULL)
-    ggsave(filename="output/figures/result/plot_biomass_B.png",width = 16, height = 9, units = "in", dpi = 600)
-
-
-    plot_biomass(model_result=results_list, type = "BL", line_size = 1.2, line_color = "red", line_type = "solid",facet_ncol = NULL)
-    ggsave(filename="output/figures/result/plot_biomass_BL.png",width = 16, height = 9, units = "in", dpi = 600)
-
-
-    plot_catch(model_result=results_list, type = "CN", line_size = 1.2, line_color = "red", line_type = "solid",se=T,facet_ncol = NULL)
-    ggsave(filename="output/figures/result/plot_catch_CN.png",width = 16, height = 9, units = "in", dpi = 600)
-
-
-    plot_catch(model_result=results_list, type = "CNA", line_size = 1.2, line_color = "red", line_type = "solid",se=T,facet_ncol = NULL)
-    ggsave(filename="output/figures/result/plot_catch_CNA.png",width = 16, height = 9, units = "in", dpi = 600)
-
-    plot_CatL(model_result=results_list,type = "length")
-    ggsave(filename="output/figures/result/plot_CatL_length.png",width = 16, height = 9, units = "in", dpi = 600)
-
-    plot_CatL(model_result=results_list,type = "year",exp_transform = T)
-    ggsave(filename="output/figures/result/plot_CatL_Year(exp=T).png",width = 16, height = 9, units = "in", dpi = 600)
-
-    plot_fishing_mortality(model_result=results_list, line_size = 1.2, line_color = "red", line_type = "solid",se=T,type="year")
-    ggsave(filename="output/figures/result/plot_fishing_mortality_year.png",width = 16, height = 9, units = "in", dpi = 600)
-
-    plot_fishing_mortality(model_result=results_list, line_size = 1.2, line_color = "red", line_type = "solid",se=T,type="age")
-    ggsave(filename="output/figures/result/plot_fishing_mortality_age.png",width = 16, height = 9, units = "in", dpi = 600)
-
-    plot_pla(model_result=results_list)
-    ggsave(filename="output/figures/result/plot_pla.png",width = 16, height = 9, units = "in", dpi = 600)
-
-    plot_recruitment(model_result=results_list, line_size = 1.2, line_color = "red", line_type = "solid",se=T)
-    ggsave(filename="output/figures/result/plot_recruitment.png",width = 16, height = 9, units = "in", dpi = 600)
-
-    plot_ridges(model_result=results_list)
-    ggsave(filename="output/figures/result/plot_ridges.png",width = 16, height = 9, units = "in", dpi = 600)
-
-    plot_SSB_Rec(model_result=results_list)
-    ggsave(filename="output/figures/result/plot_SSB_Rec.png",width = 16, height = 9, units = "in", dpi = 600)
-
-    plot_SSB(model_result=results_list,type="SSB", line_size = 1.2, line_color = "red", line_type = "solid",se=T,facet_ncol = NULL)
-    ggsave(filename="output/figures/result/plot_SSB.png",width = 16, height = 9, units = "in", dpi = 600)
-
-    plot_SSB(model_result=results_list,type="SBL", line_size = 1.2, line_color = "red", line_type = "solid",se=T,facet_ncol = NULL)
-    ggsave(filename="output/figures/result/plot_SBL.png",width = 16, height = 9, units = "in", dpi = 600)
-
-    plot_VB(model_result=results_list, line_size = 1.2, line_color = "red", line_type = "solid",se=T)
-    ggsave(filename="output/figures/result/plot_VB.png",width = 16, height = 9, units = "in", dpi = 600)
-
-    plot_residuals(model_result=results_list,type="length")
-    ggsave(filename="output/figures/diagnostic/plot_residuals_length.png",width = 16, height = 9, units = "in", dpi = 600)
-
-    plot_residuals(model_result=results_list,type="year")
-    ggsave(filename="output/figures/diagnostic/plot_residuals_year.png",width = 16, height = 9, units = "in", dpi = 600)
-
-
-    #####table output
-
-    diagnostics<-diagnose_model(data.CatL=data.CatL,model_result=results_list)
-    write.csv(diagnostics, file = "output/tables/diagnostics.csv",row.names = F)
-
-
-    aN=plot_abundance(model_result=results_list, type = "N",se=T,return_data = T)
-    write.csv(aN[["data"]], file = "output/tables/abundance_N.csv",row.names = F)
-
-    aNA=plot_abundance(model_result=results_list, type = "NA", se=T,return_data = T)
-    write.csv(aNA[["data"]], file = "output/tables/abundance_NA.csv",row.names = F)
-
-    aNL=plot_abundance(model_result=results_list, type = "NL", se=T,return_data = T)
-    write.csv(aNL[["data"]], file = "output/tables/abundance_NL.csv",row.names = F)
-
-    bB=plot_biomass(model_result=results_list, type = "B", se=T,return_data = T)
-    write.csv(bB[["data"]], file = "output/tables/biomass_B.csv",row.names = F)
-
-    bBL=plot_biomass(model_result=results_list, type = "BL", se=T,return_data = T)
-    write.csv(bBL[["data"]], file = "output/tables/biomass_BL.csv",row.names = F)
-
-    cCN=plot_catch(model_result=results_list, type = "CN", se=T,return_data = T)
-    write.csv(cCN[["data"]], file = "output/tables/biomass_CN.csv",row.names = F)
-
-    cCNA=plot_catch(model_result=results_list, type = "CNA", se=T,return_data = T)
-    write.csv(cCNA[["data"]], file = "output/tables/biomass_CNA.csv",row.names = F)
-
-    fmy=plot_fishing_mortality(model_result=results_list, type = "year",se=T,return_data = T)
-    write.csv(fmy[["data"]], file = "output/tables/fishing_mortality_year.csv",row.names = F)
-
-    fma=plot_fishing_mortality(model_result=results_list, type = "age",se=T,return_data = T)
-    write.csv(fma[["data"]], file = "output/tables/fishing_mortality_age.csv",row.names = F)
-
-    r=plot_recruitment(model_result=results_list, se=T,return_data = T)
-    write.csv(r[["data"]], file = "output/tables/recruitment.csv",row.names = F)
-
-    sr=plot_SSB_Rec(model_result=results_list,return_data = T)
-    write.csv(sr[["data"]], file = "output/tables/SSB_Rec.csv",row.names = F)
-
-    catll=plot_CatL(model_result=results_list,type = "length",return_data = T)
-    write.csv(catll[["data1"]], file = "output/tables/CatL_length_Estimated.csv",row.names = F)
-    write.csv(catll[["data2"]], file = "output/tables/CatL_length_Observed.csv",row.names = F)
-
-    catll=plot_CatL(model_result=results_list,type = "year",exp_transform = T,return_data = T)
-    write.csv(catll[["data1"]], file = "output/tables/CatL_year_Estimated(exp=T).csv",row.names = F)
-    write.csv(catll[["data2"]], file = "output/tables/CatL_year_Observed(exp=T).csv",row.names = F)
-
-    plot_CatL(model_result=results_list,type = "year",exp_transform = T)
-    ggsave(filename="output/figures/result/plot_CatL_Year(exp=T).png",width = 16, height = 9, units = "in", dpi = 600)
-
-
-    ssb=plot_SSB(model_result=results_list, type = "SSB",se=T,return_data = T)
-    write.csv(ssb[["data"]], file = "output/tables/SSB.csv",row.names = F)
-
-    sbl=plot_SSB(model_result=results_list, type = "SBL",se=T,return_data = T)
-    write.csv(sbl[["data"]], file = "output/tables/SBL.csv",row.names = F)
-
-    rl<-plot_residuals(model_result=results_list,type="length",return_data = T)
-    write.csv(rl[["data"]], file = "output/tables/residuals_length.csv",row.names = F)
-
-    ry<-plot_residuals(model_result=results_list,type="year",return_data = T)
-    write.csv(ry[["data"]], file = "output/tables/residuals_year.csv",row.names = F)
-
-    }
+    t_total_elapsed <- (proc.time() - t_total)[["elapsed"]]
+    cat(sprintf("\n=== run_acl total time: %.1f sec (%.1f min) ===\n", t_total_elapsed, t_total_elapsed / 60))
     return(results_list)
-    }
+  }
 
 }

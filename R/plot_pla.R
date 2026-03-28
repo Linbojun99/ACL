@@ -10,6 +10,18 @@
 #' @param low_col A string specifying the color for low probabilities. Default is "white".
 #' @param high_col A string specifying the color for high probabilities. Default is "red".
 #'
+#' @param title Character or NULL. Custom plot title. If NULL, uses global theme setting. See \code{acl_theme_set()}.
+#' @param xlab Character or NULL. Custom x-axis label. If NULL, uses global theme setting.
+#' @param ylab Character or NULL. Custom y-axis label. If NULL, uses global theme setting.
+#' @param font_family Character or NULL. Custom font family. If NULL, uses global theme setting (default "Arial").
+#' @param title_size Numeric or NULL. Plot title size in pt. If NULL, uses global theme (default 14).
+#' @param axis_title_size Numeric or NULL. Axis title size in pt. If NULL, uses global theme (default 12).
+#' @param axis_text_size Numeric or NULL. Axis tick label size in pt. If NULL, uses global theme (default 10).
+#' @param strip_text_size Numeric or NULL. Facet label size in pt. If NULL, uses global theme (default 10).
+#' @param legend_text_size Numeric or NULL. Legend text size in pt. If NULL, uses global theme (default 10).
+#' @param x_breaks Numeric vector or NULL. Custom x-axis breaks (e.g. \code{seq(1, 20, by = 2)}). NULL = auto.
+#' @param base_theme Character or NULL. Base ggplot2 theme name (e.g. "theme_bw"). NULL = global setting.
+#' @param title_hjust Numeric or NULL. Title horizontal alignment: 0 = left, 0.5 = center, 1 = right. NULL = global setting.
 #' @return A ggplot object showing the heatmap of the probability length at age.
 #'
 #' @export
@@ -25,32 +37,28 @@
 #' # Generate a heatmap with a custom color gradient from white to steelblue
 #' plot_pla(model_result, "white", "steelblue")
 #' }
-plot_pla <- function(model_result, low_col = "white", high_col = "red") {
-  require(ggplot2)
-  require(reshape2)
+plot_pla <- function(model_result, low_col = "white", high_col = "red", title = NULL, xlab = NULL, ylab = NULL, font_family = NULL, title_size = NULL, axis_title_size = NULL, axis_text_size = NULL, strip_text_size = NULL, legend_text_size = NULL, x_breaks = NULL, base_theme = NULL, title_hjust = NULL) {
 
   pla=model_result[["report"]][["pla"]]
   len_label=model_result[["len_label"]]
 
-  #
   df <- as.data.frame(pla)
 
+  age_labels <- paste("Age bin", seq_len(ncol(df)))
+  colnames(df) <- age_labels
+
+  len_levels <- .acl_fix_len_labels(len_label)
+  df$LengthGroup <- factor(len_levels, levels = len_levels)
+
+  dfm <- reshape2::melt(df, id.vars = "LengthGroup")
+  dfm$variable <- factor(dfm$variable, levels = age_labels)
+
   #
-
-  colnames(df) <- factor(paste("Age bin ", seq_len(ncol(df))), levels=paste("Age bin ",seq_len(ncol(df))))
-
-  df$LengthGroup <- paste("Length bin", len_label)
-
-
-  #
-  dfm <- melt(df, id.vars = "LengthGroup")
-
-  #
-  p <- ggplot(dfm, aes(x=variable, y=LengthGroup, fill=value)) +
-    geom_tile() +
-    scale_fill_gradient(low = low_col, high = high_col) +
-    theme_minimal() +
-    labs(x = "Age Group", y = "Length Group", fill = "Probability")
+  p <- ggplot2::ggplot(dfm, ggplot2::aes(x=variable, y=LengthGroup, fill=value)) +
+    ggplot2::geom_tile() +
+    ggplot2::scale_fill_gradient(low = low_col, high = high_col) +
+    .acl_base_theme(font_family, title_size, axis_title_size, axis_text_size, strip_text_size, legend_text_size, base_theme = base_theme, title_hjust = title_hjust) +
+    ggplot2::labs(x = if (!is.null(xlab)) xlab else .acl_lab("x", "age"), y = if (!is.null(ylab)) ylab else .acl_lab("x", "length"), fill = "Probability", title = if (!is.null(title)) title else .acl_title("pla"))
 
   return(p)
 }

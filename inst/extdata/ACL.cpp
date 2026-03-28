@@ -225,7 +225,9 @@ Type objective_function<Type>::operator() ()
   }
 
   //negative log-likelihoods
-  Type nll = zero;
+  // parallel_accumulator enables TMB::openmp() multi-thread gradient computation
+  // When openmp(1), behaves identically to Type nll = 0
+  parallel_accumulator<Type> nll(this);
 
   //index, the measurement error
   for(int i=0;i<L;++i){
